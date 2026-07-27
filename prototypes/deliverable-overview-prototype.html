@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交付物管理总览页 · 芯片项目交付物体检</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --panel:#ffffff; --border:#e6e9ef; --border-strong:#d3d8e2;
+    --text:#1f2733; --text-sub:#5b6675; --text-mute:#9099a8;
+    --primary:#2b6cff; --primary-soft:#e8f0ff; --primary-deep:#1a4fd6;
+    --initial:#9099a8; --review:#f0883e; --stable:#2b6cff; --final:#16a34a;
+    --empty:#e5484d; --warn:#f5a623;
+    --row-hover:#f7f9fc; --cell-stroke:#eef1f6;
+    --shadow:0 1px 2px rgba(20,30,60,.04),0 4px 14px rgba(20,30,60,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.55}
+  a{color:var(--primary);text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+  /* layout */
+  .app{max-width:1480px;margin:0 auto;padding:18px 24px 48px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+  .topbar .left{display:flex;align-items:center;gap:14px}
+  .topbar .logo{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#2b6cff,#5b8cff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;box-shadow:0 3px 10px rgba(43,108,255,.3)}
+  .topbar h1{font-size:19px;font-weight:650;letter-spacing:.2px}
+  .topbar .sub{font-size:12.5px;color:var(--text-mute);margin-top:1px}
+  .topbar .right{display:flex;align-items:center;gap:10px}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border-strong);border-radius:20px;background:#fff;font-size:12.5px;color:var(--text-sub)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--final)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:550;border:1px solid var(--border-strong);background:#fff;color:var(--text);transition:.15s}
+  .btn:hover{border-color:var(--primary);color:var(--primary)}
+  .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-deep);color:#fff}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--text-sub)}
+  .btn-ghost:hover{background:#eef1f6;color:var(--text)}
+
+  /* project meta bar */
+  .meta-bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(90deg,#fff,#f8faff);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+  .meta-item{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .meta-item .k{font-size:11.5px;color:var(--text-mute)}
+  .meta-item .v{font-size:13.5px;font-weight:560;color:var(--text)}
+  .meta-sep{width:1px;height:30px;background:var(--border)}
+  .stage-progress{display:flex;align-items:center;gap:6px;flex:1;min-width:320px}
+  .stage-progress .seg{flex:1;height:8px;border-radius:4px;background:#eef1f6;position:relative;overflow:hidden}
+  .stage-progress .seg.done{background:var(--final)}
+  .stage-progress .seg.cur{background:linear-gradient(90deg,var(--final) 60%,var(--warn) 60%)}
+  .stage-progress .lbl{font-size:11px;color:var(--text-mute);white-space:nowrap}
+
+  /* KPI cards */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+  .kpi .k{font-size:12px;color:var(--text-mute);display:flex;align-items:center;gap:6px}
+  .kpi .v{font-size:26px;font-weight:680;margin-top:6px;letter-spacing:-.5px}
+  .kpi .trend{font-size:11.5px;color:var(--text-sub);margin-top:2px}
+  .kpi .bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:#eef1f6}
+  .kpi .bar i{display:block;height:100%}
+  .kpi.risk .v{color:var(--empty)}
+  .kpi.warn .v{color:var(--review)}
+  .kpi.ok .v{color:var(--final)}
+  .kpi.info .v{color:var(--stable)}
+
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .panel-head .title{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:620}
+  .panel-head .title .ic{width:18px;height:18px;border-radius:4px;background:var(--primary-soft);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .panel-head .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .tabs{display:flex;gap:4px;background:#f1f3f8;border-radius:8px;padding:3px}
+  .tabs button{padding:5px 12px;border-radius:6px;font-size:12.5px;color:var(--text-sub);font-weight:540}
+  .tabs button.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+
+  /* filters */
+  .filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--border);background:#fbfcfe}
+  .f-group{display:flex;align-items:center;gap:6px}
+  .f-label{font-size:11.5px;color:var(--text-mute)}
+  .select,.search{height:32px;border:1px solid var(--border-strong);border-radius:7px;padding:0 10px;font-size:12.5px;background:#fff;color:var(--text);outline:none;transition:.15s}
+  .select:focus,.search:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+  .search{width:220px;padding-left:30px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239099a8' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='m21 21-4.3-4.3'/></svg>");background-repeat:no-repeat;background-position:10px center}
+  .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--border-strong);border-radius:15px;font-size:12px;color:var(--text-sub);background:#fff;cursor:pointer;transition:.15s}
+  .chip:hover{border-color:var(--primary);color:var(--primary)}
+  .chip.active{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-deep);font-weight:560}
+
+  /* matrix table */
+  .matrix-wrap{overflow:auto;max-height:calc(100vh - 340px)}
+  table.matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:1080px;font-size:12.5px}
+  table.matrix thead th{position:sticky;top:0;z-index:3;background:#f7f9fc;border-bottom:1px solid var(--border-strong);font-weight:600;color:var(--text-sub);text-align:center;padding:10px 6px;white-space:nowrap}
+  table.matrix thead th.first{position:sticky;left:0;z-index:4;text-align:left;padding-left:18px;background:#f7f9fc;min-width:240px}
+  table.matrix thead th .tr{font-size:10.5px;color:var(--text-mute);font-weight:500;display:block;margin-top:2px}
+  table.matrix thead th.tr4 .tr-label{color:var(--review);font-weight:600}
+  table.matrix thead th.tr-cur{background:linear-gradient(180deg,#fff5e8,#fbfcfe)}
+  table.matrix tbody td{border-bottom:1px solid var(--cell-stroke);border-right:1px solid var(--cell-stroke);padding:0;text-align:center;vertical-align:middle;height:46px}
+  table.matrix tbody td.doc{position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:10px 12px 10px 18px;border-right:1px solid var(--border-strong);min-width:240px;box-shadow:1px 0 0 var(--cell-stroke)}
+  table.matrix tbody tr:hover td.doc{background:var(--row-hover)}
+  table.matrix tbody td.col-cur{background:#fffaf3}
+  .doc-cell{display:flex;align-items:center;gap:10px}
+  .doc-cell .ic{width:26px;height:26px;border-radius:6px;background:#eef2fa;color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .doc-cell .ic.red{background:#fdeaea;color:var(--empty)}
+  .doc-cell .info{min-width:0}
+  .doc-cell .name{font-weight:560;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+  .doc-cell .meta{font-size:11px;color:var(--text-mute);white-space:nowrap}
+  .gate-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:#fdeff0;color:#c2335a;border:1px solid #f7d3da}
+  .gate-tag.warn{background:#fff5e8;color:var(--review);border-color:#f6d4ad}
+
+  /* status cell */
+  .cell{display:flex;align-items:center;justify-content:center;width:100%;height:100%;cursor:pointer;transition:.12s;position:relative}
+  .cell:hover{background:#f0f4ff}
+  .cell .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.2px}
+  .s-Initial{background:#eef1f6;color:var(--initial)}
+  .s-Review{background:#fff0e2;color:var(--review)}
+  .s-Stable{background:#e8f0ff;color:var(--stable)}
+  .s-Final{background:#e6f7ec;color:var(--final)}
+  .s-empty{background:transparent;color:var(--empty);font-size:11px}
+  .cell .tag .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .cell.empty .tag{background:repeating-linear-gradient(45deg,#fff,#fff 4px,#fdeef0 4px,#fdeef0 8px);color:var(--empty);padding:3px 6px}
+  .cell.risk-now{background:#fdeef0}
+  .cell.risk-now::after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--empty);box-shadow:0 0 0 3px rgba(229,72,77,.18)}
+  .col-highlight{background:#f3f7ff!important}
+
+  /* legend */
+  .legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 18px;border-top:1px solid var(--border);background:#fbfcfe;font-size:11.5px;color:var(--text-sub)}
+  .legend .item{display:inline-flex;align-items:center;gap:6px}
+  .legend .sw{width:12px;height:12px;border-radius:3px}
+  .legend .sw.Initial{background:var(--initial)}
+  .legend .sw.Review{background:var(--review)}
+  .legend .sw.Stable{background:var(--stable)}
+  .legend .sw.Final{background:var(--final)}
+  .legend .sw.empty{background:repeating-linear-gradient(45deg,#fff,#fff 3px,#f5c8cc 3px,#f5c8cc 6px);border:1px solid #f5c8cc}
+
+  /* drawer */
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.32);opacity:0;pointer-events:none;transition:.2s;z-index:50}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:440px;max-width:92vw;background:#fff;box-shadow:-8px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:51;display:flex;flex-direction:column}
+  .drawer.show{transform:translateX(0)}
+  .drawer-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .drawer-head .t{font-size:16px;font-weight:640;line-height:1.4}
+  .drawer-head .sub{font-size:12px;color:var(--text-mute);margin-top:4px}
+  .drawer-body{flex:1;overflow:auto;padding:6px 20px 20px}
+  .sec{padding:14px 0;border-bottom:1px solid var(--cell-stroke)}
+  .sec:last-child{border-bottom:none}
+  .sec .h{font-size:12px;color:var(--text-mute);font-weight:600;margin-bottom:8px;letter-spacing:.3px}
+  .kv{display:flex;gap:8px;font-size:13px;padding:4px 0}
+  .kv .k{width:96px;color:var(--text-mute);flex-shrink:0}
+  .kv .v{color:var(--text)}
+  .timeline{position:relative;padding-left:18px}
+  .timeline::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--border)}
+  .tl-item{position:relative;padding:6px 0 10px}
+  .tl-item::before{content:"";position:absolute;left:-16px;top:11px;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid var(--primary)}
+  .tl-item.done::before{background:var(--final);border-color:var(--final)}
+  .tl-item .time{font-size:11px;color:var(--text-mute)}
+  .tl-item .txt{font-size:12.5px;color:var(--text);margin-top:2px}
+  .status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .stage-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--border)}
+  .stage-pill.now{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .link-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;margin-top:6px}
+  .link-row .lk{display:flex;align-items:center;gap:8px}
+  .link-row .lk .ic{width:24px;height:24px;border-radius:5px;background:#fdeff0;color:#c2335a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .link-row .lk .ic.pdf{background:#fdeef0}
+  .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#1f2733;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:.2s;z-index:80;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* responsive */
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- top bar -->
+  <div class="topbar">
+    <div class="left">
+      <div class="logo">交</div>
+      <div>
+        <h1>交付物管理总览页</h1>
+        <div class="sub">IPD 流程交付物体检 · 芯片项目矩阵仪表盘</div>
+      </div>
+    </div>
+    <div class="right">
+      <span class="pill"><span class="dot"></span>当前评审节点 · TR4-TO</span>
+      <button class="btn" onclick="toast('已开始生成交付物体检报告')">⤓ 导出体检报告</button>
+      <button class="btn btn-primary" onclick="toast('已触发批量催办，已通知 6 位责任人')">⚡ 一键催办逾期</button>
+    </div>
+  </div>
+
+  <!-- project meta -->
+  <div class="meta-bar">
+    <div class="meta-item"><span class="k">项目代号</span><span class="v">Polaris-X1 车规 MCU</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><span class="k">项目经理</span><span class="v">林晓东</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><span class="k">当前阶段</span><span class="v" style="color:var(--review)">TR4-TO（转移至流片）</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-item"><span class="k">TR4-TO 评审日</span><span class="v">2026-08-12（还剩 16 天）</span></div>
+    <div class="meta-sep"></div>
+    <div class="stage-progress">
+      <span class="lbl">Charter</span>
+      <span class="seg done"></span><span class="seg done"></span><span class="seg done"></span><span class="seg done"></span><span class="seg done"></span>
+      <span class="seg cur" title="TR4-TO 进行中"></span><span class="seg"></span><span class="seg"></span><span class="lbl">GA 量产</span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi info">
+      <div class="k">📦 交付物总数</div>
+      <div class="v">28</div>
+      <div class="trend">12 类文档 · 跨 9 个阶段</div>
+      <div class="bar"><i style="width:100%;background:var(--stable)"></i></div>
+    </div>
+    <div class="kpi ok">
+      <div class="k">✅ 已达标（Final）</div>
+      <div class="v">15</div>
+      <div class="trend">占 53.6% · 较上周 +4</div>
+      <div class="bar"><i style="width:54%;background:var(--final)"></i></div>
+    </div>
+    <div class="kpi">
+      <div class="k">🔵 稳定中（Stable）</div>
+      <div class="v">7</div>
+      <div class="trend">等待评审转 Final</div>
+      <div class="bar"><i style="width:25%;background:var(--stable)"></i></div>
+    </div>
+    <div class="kpi warn">
+      <div class="k">🟠 评审中（Review）</div>
+      <div class="v">4</div>
+      <div class="trend">需在 TO 前闭环</div>
+      <div class="bar"><i style="width:14%;background:var(--review)"></i></div>
+    </div>
+    <div class="kpi risk">
+      <div class="k">⛔ 缺口 / 风险</div>
+      <div class="v">3</div>
+      <div class="trend">临近 TR4-TO 仍空缺</div>
+      <div class="bar"><i style="width:11%;background:var(--empty)"></i></div>
+    </div>
+  </div>
+
+  <!-- matrix panel -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="title"><span class="ic">▦</span>交付物状态矩阵 · 按研发阶段 × 交付物文档</div>
+      <div class="actions">
+        <div class="tabs" id="viewTabs">
+          <button class="active" data-view="matrix">矩阵视图</button>
+          <button data-view="risk">风险视图</button>
+          <button data-view="byowner">按责任人</button>
+        </div>
+        <button class="btn btn-ghost" onclick="toast('已展开全部阶段列')">⊕ 展开子阶段</button>
+      </div>
+    </div>
+
+    <!-- filters -->
+    <div class="filter-bar">
+      <div class="f-group">
+        <span class="f-label">阶段</span>
+        <select class="select" id="fStage">
+          <option value="">全部阶段</option>
+          <option>Charter</option><option>TR1</option><option>TR2</option><option>TR3</option><option>TR4-85</option><option>TR4-95</option><option>TR4-100</option><option>TR4-TO</option><option>TR4A</option><option>TR5</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <span class="f-label">状态</span>
+        <div class="chip active" data-status="">全部</div>
+        <div class="chip" data-status="Final"><span class="d" style="width:6px;height:6px;border-radius:50%;background:var(--final)"></span>Final</div>
+        <div class="chip" data-status="Stable"><span class="d" style="width:6px;height:6px;border-radius:50%;background:var(--stable)"></span>Stable</div>
+        <div class="chip" data-status="Review"><span class="d" style="width:6px;height:6px;border-radius:50%;background:var(--review)"></span>Review</div>
+        <div class="chip" data-status="empty"><span class="d" style="width:6px;height:6px;border-radius:50%;background:var(--empty)"></span>缺口</div>
+      </div>
+      <div class="f-group">
+        <span class="f-label">类型</span>
+        <select class="select" id="fType">
+          <option value="">全部类型</option>
+          <option>规划类</option><option>架构类</option><option>设计类</option><option>验证类</option><option>安全类</option><option>制造类</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <span class="f-label">责任人</span>
+        <select class="select" id="fOwner">
+          <option value="">全部责任人</option>
+          <option>陈思远</option><option>王芷若</option><option>刘振宇</option><option>赵明轩</option><option>孙雨桐</option><option>周浩然</option>
+        </select>
+      </div>
+      <div class="f-group" style="margin-left:auto">
+        <input class="search" id="search" placeholder="搜索交付物名称 / 编号…">
+      </div>
+    </div>
+
+    <!-- matrix table -->
+    <div class="matrix-wrap">
+      <table class="matrix" id="matrix">
+        <thead>
+          <tr>
+            <th class="first">交付物文档 / 卡控阶段</th>
+            <th>Charter</th>
+            <th>TR1</th>
+            <th>TR2</th>
+            <th>TR3</th>
+            <th class="tr4">TR4-85</th>
+            <th class="tr4">TR4-95</th>
+            <th class="tr4">TR4-100</th>
+            <th class="tr4 tr4to tr-cur">TR4-TO<span class="tr tr-label">当前 · 8/12</span></th>
+            <th>TR4A</th>
+            <th>TR5</th>
+            <th>TR6</th>
+            <th>GA</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="legend">
+      <span style="font-weight:600;color:var(--text)">状态图例：</span>
+      <span class="item"><span class="sw Initial"></span>Initial（初稿待启动）</span>
+      <span class="item"><span class="sw Review"></span>Review（评审中）</span>
+      <span class="item"><span class="sw Stable"></span>Stable（稳定待定稿）</span>
+      <span class="item"><span class="sw Final"></span>Final（已定稿归档）</span>
+      <span class="item"><span class="sw empty"></span>缺口（应交未交 · 风险）</span>
+      <span style="margin-left:auto;color:var(--text-mute)">点击单元格查看交付物详情 · 列高亮表示当前评审节点</span>
+    </div>
+  </div>
+</div>
+
+<!-- drawer -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <div class="t" id="dTitle">—</div>
+      <div class="sub" id="dSub">—</div>
+    </div>
+    <button class="btn btn-ghost" onclick="closeDrawer()" style="font-size:18px;padding:2px 8px">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot">
+    <button class="btn" onclick="toast('已跳转文档（演示）')">打开文档</button>
+    <button class="btn btn-primary" onclick="toast('已通知责任人更新状态')">催办更新</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- data ----------
+const STAGES = ["Charter","TR1","TR2","TR3","TR4-85","TR4-95","TR4-100","TR4-TO","TR4A","TR5","TR6","GA"];
+const CUR_STAGE = "TR4-TO";
+
+// status per stage per doc; "" = empty/缺口
+const DOCS = [
+  {id:"BP",name:"Business Plan（BP）",type:"规划类",icon:"📋",owner:"陈思远",gate:"Charter",desc:"项目商业计划，定义市场机会、投资与回报模型。",
+   stages:{Charter:"Final",TR1:"Final",TR2:"Final",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR4A:"Final",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"BP_PolarisX1_v3.2.docx",updated:"2026-06-18  周浩然"},
+  {id:"MRD",name:"Market Requirement Doc",type:"规划类",icon:"📐",owner:"陈思远",gate:"Charter",
+   desc:"市场需求文档，承载目标客户场景与产品规格基线。",
+   stages:{Charter:"Final",TR1:"Final",TR2:"Final",TR3:"Stable","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"MRD_PolarisX1_v2.1.docx",updated:"2026-07-02  陈思远"},
+  {id:"ARCH",name:"芯片架构设计书",type:"架构类",icon:"🏗️",owner:"刘振宇",gate:"TR1",
+   desc:"芯片级架构设计，含模块划分、总线、地址空间、功耗与面积预算。",
+   stages:{Charter:"Initial",TR1:"Final",TR2:"Final",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"ARCH_PolarisX1_v4.0.pdf",updated:"2026-07-09  刘振宇"},
+  {id:"DR",name:"DR_Spec 详细设计规格",type:"设计类",icon:"📄",owner:"王芷若",gate:"TR2",
+   desc:"详细设计规格，作为 RTL 实现与验证计划的输入。",
+   stages:{Charter:"",TR1:"Stable",TR2:"Final",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"DRSpec_PolarisX1_v3.4.pdf",updated:"2026-07-15  王芷若"},
+  {id:"PIN",name:"PinPad Matrix 引脚矩阵",type:"设计类",icon:"🔌",owner:"王芷若",gate:"TR3",
+   desc:"封装引脚定义与复用矩阵，影响板级设计与封装厂对接。",
+   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"PinPad_PolarisX1_v2.8.xlsx",updated:"2026-07-21  王芷若"},
+  {id:"DFMEA",name:"Chip-level DFMEA",type:"安全类",icon:"🛡️",owner:"孙雨桐",gate:"TR3",
+   desc:"芯片级失效模式与影响分析，对接 ISO 26262 安全目标。",
+   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Stable","TR4-85":"Review","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"DFMEA_PolarisX1_v1.9.xlsx",updated:"2026-07-23  孙雨桐"},
+  {id:"SAFETY",name:"Safety Plan 安全计划",type:"安全类",icon:"☣️",owner:"孙雨桐",gate:"TR3",
+   desc:"功能安全管理计划，定义活动、里程碑与证据归档要求。",
+   stages:{Charter:"",TR1:"Initial",TR2:"Stable",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Stable",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"SafetyPlan_PolarisX1_v2.0.docx",updated:"2026-07-19  孙雨桐"},
+  {id:"TSC",name:"Test Strategy & Coverage",type:"验证类",icon:"🧪",owner:"赵明轩",gate:"TR3",
+   desc:"测试策略与覆盖率计划，覆盖模块/系统/门级验证目标。",
+   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Stable","TR4-85":"Stable","TR4-95":"Stable","TR4-100":"Review","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"TSC_PolarisX1_v1.6.pdf",updated:"2026-07-22  赵明轩"},
+  {id:"DVPLAN",name:"Design Verification Plan",type:"验证类",icon:"✅",owner:"赵明轩",gate:"TR4-95",
+   desc:"验证执行计划，含用例分配、回归节奏与签核标准。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"Initial","TR4-85":"Stable","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Stable",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"DVPlan_PolarisX1_v1.3.xlsx",updated:"2026-07-20  赵明轩"},
+  {id:"PWR",name:"功耗分析报告",type:"架构类",icon:"⚡",owner:"刘振宇",gate:"TR4-95",
+   desc:"多场景功耗仿真与预算达成情况，车规低功耗指标对标。",
+   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Stable","TR4-85":"Stable","TR4-95":"Review","TR4-100":"Review","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"Power_PolarisX1_v1.2.pdf",updated:"2026-07-24  刘振宇"},
+  {id:"DFT",name:"DFT 可测性设计报告",type:"设计类",icon:"🔬",owner:"王芷若",gate:"TR4-100",
+   desc:"扫描链、BIST、ATPG 覆盖率与测试时间评估。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"Initial","TR4-85":"Initial","TR4-95":"Stable","TR4-100":"Review","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"DFT_PolarisX1_v0.9.pdf",updated:"2026-07-25  王芷若"},
+  {id:"REL",name:"可靠性 & 老化评估",type:"制造类",icon:"⏳",owner:"周浩然",gate:"TR4-TO",
+   desc:"车规可靠性要求（AEC-Q100）达成评估，含老化仿真与寿命预测。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"Initial","TR4-100":"Stable","TR4-TO":"Stable",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"Reliability_PolarisX1_v0.5.pdf",updated:"2026-07-26  周浩然"},
+  {id:"ESD",name:"ESD 设计报告",type:"设计类",icon:"⚡",owner:"刘振宇",gate:"TR4-TO",
+   desc:"ESD 保护网络设计与 HBM/CDM 仿真达标情况。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"Initial","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"ESD_PolarisX1_v1.1.pdf",updated:"2026-07-23  刘振宇"},
+  {id:"SIGN",name:"Signoff Checklist",type:"验证类",icon:"📑",owner:"赵明轩",gate:"TR4-TO",
+   desc:"TO 签核清单，含 STA/DRC/LVS/ERC/Antenna 全项检查。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"Initial","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"Signoff_PolarisX1_v0.7.xlsx",updated:"2026-07-25  赵明轩"},
+  {id:"PKG",name:"封装设计规格",type:"制造类",icon:"📦",owner:"周浩然",gate:"TR4A",
+   desc:"封装选型、基板设计与 SIP 集成方案。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"Initial","TR4-100":"Stable","TR4-TO":"Stable",TR4A:"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"Package_PolarisX1_v0.6.pdf",updated:"2026-07-24  周浩然"},
+  {id:"FLOW",name:"流片 Release Note",type:"制造类",icon:"🚀",owner:"周浩然",gate:"TR4-TO",
+   desc:"流片 release 说明，含版本、掩膜版与 Foundry 交付清单。",
+   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"Initial","TR4-TO":"Initial",TR5:"Final",TR6:"Final",GA:"Final"},
+   link:"FlowRN_PolarisX1_v0.2.docx",updated:"2026-07-26  周浩然"},
+];
+
+// ---------- render ----------
+const STATUS_LABEL={Initial:"Initial",Review:"Review",Stable:"Stable",Final:"Final"};
+const STATUS_ORDER=["empty","Initial","Review","Stable","Final"];
+let curFilter={status:"",kw:""};
+
+function isRisk(doc,stage){
+  // 当前评审节点前应交付（卡控阶段<=当前）但为空
+  const gi=STAGES.indexOf(doc.gate), ci=STAGES.indexOf(stage);
+  return stage===CUR_STAGE && (doc.stages[stage]==="" || doc.stages[stage]===undefined) && ci>=gi;
+}
+
+function renderMatrix(){
+  const tb=document.getElementById("tbody");
+  tb.innerHTML="";
+  const kw=curFilter.kw.trim().toLowerCase();
+  DOCS.forEach(doc=>{
+    if(kw && !doc.name.toLowerCase().includes(kw) && !doc.id.toLowerCase().includes(kw)) return;
+    const tr=document.createElement("tr");
+    // doc cell
+    const td=document.createElement("td");td.className="doc";
+    const riskAtCur = isRisk(doc,CUR_STAGE);
+    td.innerHTML=`
+      <div class="doc-cell">
+        <div class="ic ${riskAtCur?'red':''}">${doc.icon}</div>
+        <div class="info">
+          <div class="name">${doc.name}</div>
+          <div class="meta">${doc.id} · ${doc.type} · 责任人 ${doc.owner}</div>
+        </div>
+        <span class="gate-tag ${doc.gate.startsWith('TR4')?'warn':''}">卡控 ${doc.gate}</span>
+      </div>`;
+    tr.appendChild(td);
+    STAGES.forEach(stage=>{
+      const st=doc.stages[stage] || "";
+      const td2=document.createElement("td");
+      if(stage===CUR_STAGE) td2.classList.add("col-cur");
+      const cell=document.createElement("div");cell.className="cell";
+      if(curFilter.status && st!==curFilter.status){
+        // filtered out: dim
+        cell.style.opacity="0.25";
+      }
+      if(st===""){
+        cell.classList.add("empty");
+        if(isRisk(doc,stage)){cell.classList.add("risk-now");}
+        cell.innerHTML=`<span class="tag s-empty">${isRisk(doc,stage)?'缺口':'—'}</span>`;
+      }else{
+        cell.innerHTML=`<span class="tag s-${st}"><span class="d"></span>${STATUS_LABEL[st]}</span>`;
+      }
+      cell.onclick=()=>openDrawer(doc,stage);
+      td2.appendChild(cell);
+      tr.appendChild(td2);
+    });
+    tb.appendChild(tr);
+  });
+}
+
+// ---------- drawer ----------
+function openDrawer(doc,stage){
+  const st=doc.stages[stage] || "";
+  document.getElementById("dTitle").textContent=doc.name;
+  document.getElementById("dSub").textContent=`${doc.id} · ${doc.type} · 责任人 ${doc.owner}`;
+  const body=document.getElementById("drawerBody");
+  const stagePills=STAGES.filter(s=>doc.stages[s]).map(s=>{
+    const v=doc.stages[s];
+    const cls = s===CUR_STAGE ? "stage-pill now" : "stage-pill";
+    return `<span class="${cls}" style="${s!==CUR_STAGE?'background:#'+{Initial:'eef1f6',Review:'fff0e2',Stable:'e8f0ff',Final:'e6f7ec'}[v]+';color:#'+{Initial:'9099a8',Review:'f0883e',Stable:'2b6cff',Final:'16a34a'}[v]:'">${s}: ${v}</span>`;
+  }).join("");
+  const expectedAtCur = STAGES.indexOf(CUR_STAGE)>=STAGES.indexOf(doc.gate);
+  const curStatus = st || (expectedAtCur ? "<span style='color:var(--empty);font-weight:600'>缺口（应交未交）</span>" : "未到卡控阶段");
+  body.innerHTML=`
+    <div class="sec">
+      <div class="h">基本信息</div>
+      <div class="kv"><span class="k">文档编号</span><span class="v">${doc.id}-2026-PX1</span></div>
+      <div class="kv"><span class="k">文档类型</span><span class="v">${doc.type}</span></div>
+      <div class="kv"><span class="k">责任人</span><span class="v">${doc.owner}</span></div>
+      <div class="kv"><span class="k">卡控阶段</span><span class="v">${doc.gate}</span></div>
+      <div class="kv"><span class="k">当前节点</span><span class="v">${CUR_STAGE}</span></div>
+      <div class="kv"><span class="k">该阶段状态</span><span class="v">${curStatus}</span></div>
+    </div>
+    <div class="sec">
+      <div class="h">说明</div>
+      <div style="font-size:13px;color:var(--text-sub);line-height:1.6">${doc.desc}</div>
+    </div>
+    <div class="sec">
+      <div class="h">各阶段状态</div>
+      <div class="status-row">${stagePills}</div>
+    </div>
+    <div class="sec">
+      <div class="h">当前阶段应交口径</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:#f7f9fc;border-radius:8px;border:1px solid var(--border)">
+        ${expectedAtCur ? `${CUR_STAGE} 节点要求该交付物达到 <b>Stable 及以上</b>状态，并在评审前完成责任人签核；如存在评审意见须在 48h 内闭环。` : `该交付物卡控阶段为 ${doc.gate}，当前 ${CUR_STAGE} 尚未到强制交付节点，可按计划推进。`}
+      </div>
+    </div>
+    <div class="sec">
+      <div class="h">文档链接</div>
+      <div class="link-row">
+        <div class="lk"><div class="ic ${doc.link.endsWith('.pdf')?'pdf':''}">${doc.link.split('.').pop().slice(0,3).toUpperCase()}</div><div>${doc.link}<div style="font-size:11px;color:var(--text-mute)">最近更新：${doc.updated}</div></div></div>
+        <a href="#" onclick="toast('演示链接，实际接入文档中心');return false;">查看 →</a>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="h">最近更新记录</div>
+      <div class="timeline">
+        <div class="tl-item done"><div class="time">2026-07-26  10:24</div><div class="txt">周浩然 上传版本 v0.5，补充老化仿真结果</div></div>
+        <div class="tl-item done"><div class="time">2026-07-23  16:08</div><div class="txt">${doc.owner} 提交评审，分配 3 位评审人</div></div>
+        <div class="tl-item"><div class="time">2026-07-28  计划</div><div class="txt">评审意见闭环，目标转 Stable / Final</div></div>
+      </div>
+    </div>
+  `;
+  document.getElementById("drawer").classList.add("show");
+  document.getElementById("overlay").classList.add("show");
+}
+function closeDrawer(){
+  document.getElementById("drawer").classList.remove("show");
+  document.getElementById("overlay").classList.remove("show");
+}
+
+// ---------- toast ----------
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+// ---------- interactions ----------
+document.querySelectorAll(".chip[data-status]").forEach(c=>{
+  c.onclick=()=>{
+    document.querySelectorAll(".chip[data-status]").forEach(x=>x.classList.remove("active"));
+    c.classList.add("active");
+    curFilter.status=c.dataset.status;
+    renderMatrix();
+    if(curFilter.status) toast("已筛选状态："+ (curFilter.status==="empty"?"缺口":curFilter.status));
+  };
+});
+document.getElementById("search").addEventListener("input",e=>{curFilter.kw=e.target.value;renderMatrix();});
+document.getElementById("viewTabs").addEventListener("click",e=>{
+  if(e.target.tagName!=="BUTTON") return;
+  document.querySelectorAll("#viewTabs button").forEach(b=>b.classList.remove("active"));
+  e.target.classList.add("active");
+  const v=e.target.dataset.view;
+  if(v==="risk"){curFilter.status="empty";document.querySelectorAll(".chip[data-status]").forEach(x=>x.classList.remove("active"));document.querySelector('.chip[data-status="empty"]').classList.add("active");toast("已切换风险视图：仅显示缺口交付物");}
+  else if(v==="byowner"){toast("按责任人分组视图（演示）");}
+  else{curFilter.status="";document.querySelectorAll(".chip[data-status]").forEach(x=>x.classList.remove("active"));document.querySelector('.chip[data-status=""]').classList.add("active");}
+  renderMatrix();
+});
+
+// init
+renderMatrix();
+</script>
+</body>
+</html>
