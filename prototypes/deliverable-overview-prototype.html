@@ -181,7 +181,7 @@
     <div class="right">
       <span class="pill"><span class="dot"></span>当前评审节点 · TR4-TO</span>
       <button class="btn" onclick="toast('已开始生成交付物体检报告')">⤓ 导出体检报告</button>
-      <button class="btn btn-primary" onclick="toast('已触发批量催办，已通知 6 位责任人')">⚡ 一键催办逾期</button>
+      <button class="btn btn-primary" id="btnUrge">⚡ 一键催办逾期</button>
     </div>
   </div>
 
@@ -202,39 +202,10 @@
     </div>
   </div>
 
-  <!-- KPIs -->
-  <div class="kpis">
-    <div class="kpi info">
-      <div class="k">📦 交付物总数</div>
-      <div class="v">28</div>
-      <div class="trend">12 类文档 · 跨 9 个阶段</div>
-      <div class="bar"><i style="width:100%;background:var(--stable)"></i></div>
-    </div>
-    <div class="kpi ok">
-      <div class="k">✅ 已达标（Final）</div>
-      <div class="v">15</div>
-      <div class="trend">占 53.6% · 较上周 +4</div>
-      <div class="bar"><i style="width:54%;background:var(--final)"></i></div>
-    </div>
-    <div class="kpi">
-      <div class="k">🔵 稳定中（Stable）</div>
-      <div class="v">7</div>
-      <div class="trend">等待评审转 Final</div>
-      <div class="bar"><i style="width:25%;background:var(--stable)"></i></div>
-    </div>
-    <div class="kpi warn">
-      <div class="k">🟠 评审中（Review）</div>
-      <div class="v">4</div>
-      <div class="trend">需在 TO 前闭环</div>
-      <div class="bar"><i style="width:14%;background:var(--review)"></i></div>
-    </div>
-    <div class="kpi risk">
-      <div class="k">⛔ 缺口 / 风险</div>
-      <div class="v">3</div>
-      <div class="trend">临近 TR4-TO 仍空缺</div>
-      <div class="bar"><i style="width:11%;background:var(--empty)"></i></div>
-    </div>
-  </div>
+  <!-- KPIs（数据依据下方 DOCS 数组，按 TR4-TO 当前节点口径统计） -->
+  <div class="kpis" id="kpis">
+    <!-- 由 renderKPIs() 动态填充 -->
+      </div>
 
   <!-- matrix panel -->
   <div class="panel">
@@ -256,7 +227,7 @@
         <span class="f-label">阶段</span>
         <select class="select" id="fStage">
           <option value="">全部阶段</option>
-          <option>Charter</option><option>TR1</option><option>TR2</option><option>TR3</option><option>TR4-85</option><option>TR4-95</option><option>TR4-100</option><option>TR4-TO</option><option>TR4A</option><option>TR5</option>
+          <option>Charter</option><option>TR1</option><option>TR2</option><option>TR3</option><option>TR4-85</option><option>TR4-95</option><option>TR4-100</option><option>TR4-TO</option><option>TR4A</option><option>TR5</option><option>TR6</option><option>GA</option>
         </select>
       </div>
       <div class="f-group">
@@ -271,14 +242,14 @@
         <span class="f-label">类型</span>
         <select class="select" id="fType">
           <option value="">全部类型</option>
-          <option>规划类</option><option>架构类</option><option>设计类</option><option>验证类</option><option>安全类</option><option>制造类</option>
+          <option>规划类</option><option>架构类</option><option>设计类</option><option>验证类</option><option>安全类</option>
         </select>
       </div>
       <div class="f-group">
         <span class="f-label">责任人</span>
         <select class="select" id="fOwner">
           <option value="">全部责任人</option>
-          <option>陈思远</option><option>王芷若</option><option>刘振宇</option><option>赵明轩</option><option>孙雨桐</option><option>周浩然</option>
+          <option>陈思远</option><option>王芷若</option><option>刘振宇</option><option>赵明轩</option><option>孙雨桐</option>
         </select>
       </div>
       <div class="f-group" style="margin-left:auto">
@@ -347,70 +318,72 @@ const STAGES = ["Charter","TR1","TR2","TR3","TR4-85","TR4-95","TR4-100","TR4-TO"
 const CUR_STAGE = "TR4-TO";
 
 // status per stage per doc; "" = empty/缺口
-const DOCS = [
-  {id:"BP",name:"Business Plan（BP）",type:"规划类",icon:"📋",owner:"陈思远",gate:"Charter",desc:"项目商业计划，定义市场机会、投资与回报模型。",
-   stages:{Charter:"Final",TR1:"Final",TR2:"Final",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR4A:"Final",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"BP_PolarisX1_v3.2.docx",updated:"2026-06-18  周浩然"},
-  {id:"MRD",name:"Market Requirement Doc",type:"规划类",icon:"📐",owner:"陈思远",gate:"Charter",
-   desc:"市场需求文档，承载目标客户场景与产品规格基线。",
-   stages:{Charter:"Final",TR1:"Final",TR2:"Final",TR3:"Stable","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR5:"Final",TR6:"Final",GA:"Final"},
+// 数据依据：原始需求 Excel 矩阵截图（序号1-15可见，16-19及20以后被截图底部裁切，
+  // 截图序号20=Chip-level DFMEA 已读出；其余截图未显示的行据需求描述点名的交付物补齐）
+   const DOCS = [
+   {id:"BP",name:"业务计划/BP",type:"规划类",icon:"📋",owner:"陈思远",gate:"Charter",desc:"项目商业计划，定义市场机会、投资与回报模型。",
+  stages:{Charter:"Stable",TR1:"Final",TR2:"",TR3:"Review","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"Review",TR4A:"",TR5:"",TR6:"Review",GA:"Review"},
+   link:"BP_PolarisX1_v3.2.docx",updated:"2026-06-18  陈思远"},
+   {id:"COST",name:"项目成本预算",type:"规划类",icon:"💰",owner:"陈思远",gate:"Charter",
+   desc:"项目全生命周期成本预算与人力投入测算。",
+  stages:{Charter:"Initial",TR1:"Stable",TR2:"",TR3:"Final","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"Review",TR4A:"",TR5:"",TR6:"Review",GA:""},
+   link:"CostBudget_PolarisX1_v1.4.xlsx",updated:"2026-06-22  陈思远"},
+   {id:"MRD",name:"MRD（含 UserCase）",type:"规划类",icon:"📐",owner:"陈思远",gate:"Charter",
+   desc:"市场需求文档，承载目标客户场景与产品规格基线，含典型 UserCase。",
+  stages:{Charter:"Stable",TR1:"Final",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
    link:"MRD_PolarisX1_v2.1.docx",updated:"2026-07-02  陈思远"},
-  {id:"ARCH",name:"芯片架构设计书",type:"架构类",icon:"🏗️",owner:"刘振宇",gate:"TR1",
-   desc:"芯片级架构设计，含模块划分、总线、地址空间、功耗与面积预算。",
-   stages:{Charter:"Initial",TR1:"Final",TR2:"Final",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"ARCH_PolarisX1_v4.0.pdf",updated:"2026-07-09  刘振宇"},
-  {id:"DR",name:"DR_Spec 详细设计规格",type:"设计类",icon:"📄",owner:"王芷若",gate:"TR2",
-   desc:"详细设计规格，作为 RTL 实现与验证计划的输入。",
-   stages:{Charter:"",TR1:"Stable",TR2:"Final",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Final",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"DRSpec_PolarisX1_v3.4.pdf",updated:"2026-07-15  王芷若"},
-  {id:"PIN",name:"PinPad Matrix 引脚矩阵",type:"设计类",icon:"🔌",owner:"王芷若",gate:"TR3",
+   {id:"SEooC",name:"SEooC",type:"安全类",icon:"🧩",owner:"孙雨桐",gate:"Charter",
+   desc:"独立要素（SEooC）声明与复用边界分析，支持安全复用。",
+  stages:{Charter:"",TR1:"Final",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"SEooC_PolarisX1_v1.0.docx",updated:"2026-05-30  孙雨桐"},
+   {id:"IMPACT",name:"Impact Analysis（若涉及）",type:"安全类",icon:"🔍",owner:"孙雨桐",gate:"Charter",
+   desc:"变更/复用影响分析，评估对下游设计与安全目标的影响。",
+  stages:{Charter:"",TR1:"Final",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"ImpactAnalysis_PolarisX1_v1.0.docx",updated:"2026-05-28  孙雨桐"},
+   {id:"DFX",name:"DFx Checklist",type:"设计类",icon:"🧾",owner:"王芷若",gate:"Charter",
+   desc:"可制造/可测试/可维修性检查清单，贯穿设计阶段。",
+  stages:{Charter:"",TR1:"Stable",TR2:"",TR3:"Stable","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"Final",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"DFxChecklist_PolarisX1_v1.8.xlsx",updated:"2026-07-18  王芷若"},
+   {id:"PESTRAT",name:"产品工程策略",type:"规划类",icon:"🗂️",owner:"陈思远",gate:"Charter",
+   desc:"产品工程总体策略，定义工艺/封装/测试路线。",
+  stages:{Charter:"",TR1:"Initial",TR2:"",TR3:"Final","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"Review",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"PEStrategy_PolarisX1_v1.2.docx",updated:"2026-07-10  陈思远"},
+   {id:"IPAVAIL",name:"项目平台和 IP 可获得性分析",type:"架构类",icon:"🔗",owner:"刘振宇",gate:"Charter",
+   desc:"评估平台与第三方 IP 的可获得性、授权与交付周期。",
+  stages:{Charter:"",TR1:"Initial",TR2:"",TR3:"Final","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"IPAvailability_PolarisX1_v1.1.docx",updated:"2026-06-15  刘振宇"},
+   {id:"IPEVAL",name:"第三方 IP 有效性评估报告",type:"架构类",icon:"🔬",owner:"刘振宇",gate:"Charter",
+   desc:"第三方 IP 功能/质量/合规有效性评估结论。",
+  stages:{Charter:"",TR1:"",TR2:"",TR3:"Final","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"IPEval_PolarisX1_v1.0.pdf",updated:"2026-06-28  刘振宇"},
+   {id:"PIN",name:"PinPad Matrix 引脚矩阵",type:"设计类",icon:"🔌",owner:"王芷若",gate:"TR3",
    desc:"封装引脚定义与复用矩阵，影响板级设计与封装厂对接。",
-   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+  stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"","TR4-85":"Stable","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Final",TR4A:"",TR5:"",TR6:"",GA:""},
    link:"PinPad_PolarisX1_v2.8.xlsx",updated:"2026-07-21  王芷若"},
-  {id:"DFMEA",name:"Chip-level DFMEA",type:"安全类",icon:"🛡️",owner:"孙雨桐",gate:"TR3",
-   desc:"芯片级失效模式与影响分析，对接 ISO 26262 安全目标。",
-   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Stable","TR4-85":"Review","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"DFMEA_PolarisX1_v1.9.xlsx",updated:"2026-07-23  孙雨桐"},
-  {id:"SAFETY",name:"Safety Plan 安全计划",type:"安全类",icon:"☣️",owner:"孙雨桐",gate:"TR3",
+   {id:"ARCH",name:"芯片架构设计",type:"架构类",icon:"🏗️",owner:"刘振宇",gate:"TR2",
+   desc:"芯片级架构设计，含模块划分、总线、地址空间、功耗与面积预算。",
+  stages:{Charter:"",TR1:"",TR2:"Stable",TR3:"Final","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"ARCH_PolarisX1_v4.0.pdf",updated:"2026-07-09  刘振宇"},
+   {id:"DR",name:"DR_Spec 详细设计规格",type:"设计类",icon:"📄",owner:"王芷若",gate:"TR2",
+   desc:"详细设计规格，作为 RTL 实现与验证计划的输入。",
+  stages:{Charter:"",TR1:"",TR2:"Final",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"DRSpec_PolarisX1_v3.4.pdf",updated:"2026-07-15  王芷若"},
+   {id:"SAFETY",name:"Safety Plan 安全计划",type:"安全类",icon:"☣️",owner:"孙雨桐",gate:"TR2",
    desc:"功能安全管理计划，定义活动、里程碑与证据归档要求。",
-   stages:{Charter:"",TR1:"Initial",TR2:"Stable",TR3:"Final","TR4-85":"Final","TR4-95":"Final","TR4-100":"Final","TR4-TO":"Stable",TR5:"Final",TR6:"Final",GA:"Final"},
+  stages:{Charter:"",TR1:"",TR2:"Final",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
    link:"SafetyPlan_PolarisX1_v2.0.docx",updated:"2026-07-19  孙雨桐"},
-  {id:"TSC",name:"Test Strategy & Coverage",type:"验证类",icon:"🧪",owner:"赵明轩",gate:"TR3",
+   {id:"TSC",name:"Test Strategy & Coverage",type:"验证类",icon:"🧪",owner:"赵明轩",gate:"TR2",
    desc:"测试策略与覆盖率计划，覆盖模块/系统/门级验证目标。",
-   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Stable","TR4-85":"Stable","TR4-95":"Stable","TR4-100":"Review","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
+  stages:{Charter:"",TR1:"",TR2:"Final",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
    link:"TSC_PolarisX1_v1.6.pdf",updated:"2026-07-22  赵明轩"},
-  {id:"DVPLAN",name:"Design Verification Plan",type:"验证类",icon:"✅",owner:"赵明轩",gate:"TR4-95",
-   desc:"验证执行计划，含用例分配、回归节奏与签核标准。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"Initial","TR4-85":"Stable","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Stable",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"DVPlan_PolarisX1_v1.3.xlsx",updated:"2026-07-20  赵明轩"},
-  {id:"PWR",name:"功耗分析报告",type:"架构类",icon:"⚡",owner:"刘振宇",gate:"TR4-95",
-   desc:"多场景功耗仿真与预算达成情况，车规低功耗指标对标。",
-   stages:{Charter:"",TR1:"",TR2:"Initial",TR3:"Stable","TR4-85":"Stable","TR4-95":"Review","TR4-100":"Review","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"Power_PolarisX1_v1.2.pdf",updated:"2026-07-24  刘振宇"},
-  {id:"DFT",name:"DFT 可测性设计报告",type:"设计类",icon:"🔬",owner:"王芷若",gate:"TR4-100",
-   desc:"扫描链、BIST、ATPG 覆盖率与测试时间评估。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"Initial","TR4-85":"Initial","TR4-95":"Stable","TR4-100":"Review","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"DFT_PolarisX1_v0.9.pdf",updated:"2026-07-25  王芷若"},
-  {id:"REL",name:"可靠性 & 老化评估",type:"制造类",icon:"⏳",owner:"周浩然",gate:"TR4-TO",
-   desc:"车规可靠性要求（AEC-Q100）达成评估，含老化仿真与寿命预测。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"Initial","TR4-100":"Stable","TR4-TO":"Stable",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"Reliability_PolarisX1_v0.5.pdf",updated:"2026-07-26  周浩然"},
-  {id:"ESD",name:"ESD 设计报告",type:"设计类",icon:"⚡",owner:"刘振宇",gate:"TR4-TO",
-   desc:"ESD 保护网络设计与 HBM/CDM 仿真达标情况。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"Initial","TR4-95":"Stable","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"ESD_PolarisX1_v1.1.pdf",updated:"2026-07-23  刘振宇"},
-  {id:"SIGN",name:"Signoff Checklist",type:"验证类",icon:"📑",owner:"赵明轩",gate:"TR4-TO",
-   desc:"TO 签核清单，含 STA/DRC/LVS/ERC/Antenna 全项检查。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"Initial","TR4-100":"Stable","TR4-TO":"Review",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"Signoff_PolarisX1_v0.7.xlsx",updated:"2026-07-25  赵明轩"},
-  {id:"PKG",name:"封装设计规格",type:"制造类",icon:"📦",owner:"周浩然",gate:"TR4A",
-   desc:"封装选型、基板设计与 SIP 集成方案。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"Initial","TR4-100":"Stable","TR4-TO":"Stable",TR4A:"Review",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"Package_PolarisX1_v0.6.pdf",updated:"2026-07-24  周浩然"},
-  {id:"FLOW",name:"流片 Release Note",type:"制造类",icon:"🚀",owner:"周浩然",gate:"TR4-TO",
-   desc:"流片 release 说明，含版本、掩膜版与 Foundry 交付清单。",
-   stages:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"Initial","TR4-TO":"Initial",TR5:"Final",TR6:"Final",GA:"Final"},
-   link:"FlowRN_PolarisX1_v0.2.docx",updated:"2026-07-26  周浩然"},
+   {id:"TSR",name:"TSR 测试规格需求",type:"验证类",icon:"🧷",owner:"赵明轩",gate:"TR2",
+   desc:"测试规格需求，定义各层级测试项与验收标准。",
+  stages:{Charter:"",TR1:"",TR2:"Final",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"",GA:""},
+   link:"TSR_PolarisX1_v1.3.pdf",updated:"2026-07-16  赵明轩"},
+   {id:"DFMEA",name:"Chip-level DFMEA",type:"安全类",icon:"🛡️",owner:"孙雨桐",gate:"TR3",
+   desc:"芯片级失效模式与影响分析，对接 ISO 26262 安全目标。",
+stages:{Charter:"",TR1:"",TR2:"",TR3:"Initial","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"Stable",TR4A:"",TR5:"",TR6:"Final",GA:""},
+   link:"DFMEA_PolarisX1_v1.9.xlsx",updated:"2026-07-23  孙雨桐"},
 ];
 
 // ---------- render ----------
@@ -422,6 +395,52 @@ function isRisk(doc,stage){
   // 当前评审节点前应交付（卡控阶段<=当前）但为空
   const gi=STAGES.indexOf(doc.gate), ci=STAGES.indexOf(stage);
   return stage===CUR_STAGE && (doc.stages[stage]==="" || doc.stages[stage]===undefined) && ci>=gi;
+}
+
+function renderKPIs(){
+  // 以当前评审节点 CUR_STAGE 的交付物状态为口径统计 KPI
+  const gi=STAGES.indexOf(CUR_STAGE);
+  const atCur=DOCS.map(d=>({d,st:d.stages[CUR_STAGE]||""}));
+  const total=DOCS.length;
+  const final=atCur.filter(x=>x.st==="Final").length;
+  const stable=atCur.filter(x=>x.st==="Stable").length;
+  const review=atCur.filter(x=>x.st==="Review").length;
+  // 缺口/风险：卡控阶段 <= 当前节点 且当前节点为空
+  const risk=DOCS.filter(d=>d.stages[CUR_STAGE]==="" && STAGES.indexOf(d.gate)<=gi).length;
+  const types=new Set(DOCS.map(d=>d.type)).size;
+  const pct=total?Math.round(final/total*100):0;
+  const html=`
+    <div class="kpi info">
+      <div class="k">📦 交付物总数</div>
+      <div class="v">${total}</div>
+      <div class="trend">${types} 类文档 · 跨 ${STAGES.length} 个阶段</div>
+      <div class="bar"><i style="width:100%;background:var(--stable)"></i></div>
+    </div>
+    <div class="kpi ok">
+      <div class="k">✅ 已达标（Final）@ ${CUR_STAGE}</div>
+      <div class="v">${final}</div>
+      <div class="trend">占 ${pct}% · 当前节点已定稿</div>
+      <div class="bar"><i style="width:${pct}%;background:var(--final)"></i></div>
+    </div>
+    <div class="kpi">
+      <div class="k">🔵 稳定中（Stable）@ ${CUR_STAGE}</div>
+      <div class="v">${stable}</div>
+      <div class="trend">等待评审转 Final</div>
+      <div class="bar"><i style="width:${total?Math.round(stable/total*100):0}%;background:var(--stable)"></i></div>
+    </div>
+    <div class="kpi warn">
+      <div class="k">🟠 评审中（Review）@ ${CUR_STAGE}</div>
+      <div class="v">${review}</div>
+      <div class="trend">需在 ${CUR_STAGE} 前闭环</div>
+      <div class="bar"><i style="width:${total?Math.round(review/total*100):0}%;background:var(--review)"></i></div>
+    </div>
+    <div class="kpi risk">
+      <div class="k">⛔ 缺口 / 风险 @ ${CUR_STAGE}</div>
+      <div class="v">${risk}</div>
+      <div class="trend">临近 ${CUR_STAGE} 应交未交</div>
+      <div class="bar"><i style="width:${total?Math.round(risk/total*100):0}%;background:var(--empty)"></i></div>
+    </div>`;
+  document.getElementById("kpis").innerHTML=html;
 }
 
 function renderMatrix(){
@@ -477,7 +496,10 @@ function openDrawer(doc,stage){
   const stagePills=STAGES.filter(s=>doc.stages[s]).map(s=>{
     const v=doc.stages[s];
     const cls = s===CUR_STAGE ? "stage-pill now" : "stage-pill";
-    return `<span class="${cls}" style="${s!==CUR_STAGE?'background:#'+{Initial:'eef1f6',Review:'fff0e2',Stable:'e8f0ff',Final:'e6f7ec'}[v]+';color:#'+{Initial:'9099a8',Review:'f0883e',Stable:'2b6cff',Final:'16a34a'}[v]:'">${s}: ${v}</span>`;
+    const bg = {Initial:"#eef1f6",Review:"#fff0e2",Stable:"#e8f0ff",Final:"#e6f7ec"}[v];
+    const fg = {Initial:"#9099a8",Review:"#f0883e",Stable:"#2b6cff",Final:"#16a34a"}[v];
+    const style = s===CUR_STAGE ? "" : `style="background:${bg};color:${fg}"`;
+    return `<span class="${cls}" ${style}>${s}: ${v}</span>`;
   }).join("");
   const expectedAtCur = STAGES.indexOf(CUR_STAGE)>=STAGES.indexOf(doc.gate);
   const curStatus = st || (expectedAtCur ? "<span style='color:var(--empty);font-weight:600'>缺口（应交未交）</span>" : "未到卡控阶段");
@@ -515,7 +537,7 @@ function openDrawer(doc,stage){
     <div class="sec">
       <div class="h">最近更新记录</div>
       <div class="timeline">
-        <div class="tl-item done"><div class="time">2026-07-26  10:24</div><div class="txt">周浩然 上传版本 v0.5，补充老化仿真结果</div></div>
+        <div class="tl-item done"><div class="time">${doc.updated}</div><div class="txt">${doc.owner.split('  ').pop()||doc.owner} 更新版本，当前状态：${st||'未启动'}</div></div>
         <div class="tl-item done"><div class="time">2026-07-23  16:08</div><div class="txt">${doc.owner} 提交评审，分配 3 位评审人</div></div>
         <div class="tl-item"><div class="time">2026-07-28  计划</div><div class="txt">评审意见闭环，目标转 Stable / Final</div></div>
       </div>
@@ -560,7 +582,19 @@ document.getElementById("viewTabs").addEventListener("click",e=>{
   renderMatrix();
 });
 
+// 一键催办：通知当前节点为缺口/Review 的责任人
+document.getElementById("btnUrge").onclick=()=>{
+  const gi=STAGES.indexOf(CUR_STAGE);
+  const targets=DOCS.filter(d=>{
+    const st=d.stages[CUR_STAGE]||"";
+    return st==="" && STAGES.indexOf(d.gate)<=gi || st==="Review";
+  });
+  const owners=[...new Set(targets.map(d=>d.owner))];
+  toast(`已触发批量催办，已通知 ${owners.length} 位责任人：${owners.join('、')}`);
+};
+
 // init
+renderKPIs();
 renderMatrix();
 </script>
 </body>
