@@ -5,3 +5,4 @@
 |---------|---------|---------|---------|
 | 交付物管理总览页 | [点击预览](https://goldentim.github.io/TimsRepository/prototypes/deliverable-overview-prototype.html) | [飞书需求](https://goldentim.feishu.cn/meego/6a6340e855a76436ede6e9bd/story/7058738695) | 2026-07-27 |
 | 项目资源规划系统 | [点击预览](https://goldentim.github.io/TimsRepository/prototypes/project-resource-planning-system.html) | [飞书需求](https://goldentim.feishu.cn/meego/6a6340e855a76436ede6e9bd/story/7058738695) | 2026-07-28 |
+| 人员任命表单原型 | [点击预览](https://goldentim.github.io/TimsRepository/prototypes/personnel-appointment-form.html) | [飞书需求](https://project.feishu.cn/1fknv3/story/detail/7059391675) | 2026-07-28 |
