@@ -1,0 +1,731 @@
+<!--
+  原型名称：项目资源规划系统
+  需求来源：https://goldentim.feishu.cn/meego/6a6340e855a76436ede6e9bd/story/7058738695
+  生成时间：2026-07-28
+  生成工具：CodeM Auto
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目资源规划系统 - MCU项目群资源规划</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --primary:#2468F2;--primary-dark:#1A4DCB;--primary-light:#EAF1FF;
+    --success:#16A34A;--warning:#F59E0B;--danger:#DC2626;--info:#0891B2;
+    --text-1:#1F2329;--text-2:#4E5969;--text-3:#86909C;--text-4:#C9CDD4;
+    --bg:#F7F8FA;--card:#FFFFFF;--border:#E5E6EB;--border-light:#F2F3F5;
+    --radius:8px;--radius-sm:6px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text-1);font-size:14px;line-height:1.5}
+  /* Layout */
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:220px;background:#1F2329;color:#C9CDD4;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:10}
+  .sidebar-logo{padding:18px 20px;font-size:15px;font-weight:600;color:#fff;border-bottom:1px solid #2C2F33;display:flex;align-items:center;gap:8px}
+  .sidebar-logo .dot{width:8px;height:8px;background:var(--primary);border-radius:2px}
+  .sidebar-version{padding:8px 20px;font-size:11px;color:var(--text-4);border-bottom:1px solid #2C2F33}
+  .nav{flex:1;overflow-y:auto;padding:8px 0}
+  .nav-group{padding:6px 20px 4px;font-size:11px;color:var(--text-4);text-transform:uppercase;letter-spacing:.5px}
+  .nav-item{padding:9px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;transition:background .15s;border-left:2px solid transparent}
+  .nav-item:hover{background:#2A2D33;color:#fff}
+  .nav-item.active{background:var(--primary);color:#fff;border-left-color:#fff}
+  .nav-item .icon{width:16px;text-align:center;opacity:.8}
+  .sidebar-footer{padding:12px 20px;border-top:1px solid #2C2F33;font-size:11px;color:var(--text-4)}
+  .main{flex:1;margin-left:220px;display:flex;flex-direction:column;min-width:0}
+  .header{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:9}
+  .header-left{display:flex;align-items:center;gap:14px}
+  .breadcrumb{font-size:13px;color:var(--text-2)}
+  .breadcrumb b{color:var(--text-1)}
+  .header-right{display:flex;align-items:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--text-1);font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .btn:hover{border-color:var(--primary);color:var(--primary)}
+  .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-dark);color:#fff}
+  .btn-sm{padding:4px 10px;font-size:12px}
+  .content{padding:20px 24px;flex:1;overflow-x:auto}
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden}
+  .card-header{padding:14px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+  .card-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .card-title .tag{font-size:11px;font-weight:400;padding:2px 7px;border-radius:4px;background:var(--primary-light);color:var(--primary)}
+  .card-body{padding:18px}
+  .card-desc{font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.7}
+  /* Stat cards */
+  .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+  .stat-label{font-size:12px;color:var(--text-3);margin-bottom:8px}
+  .stat-value{font-size:24px;font-weight:600;color:var(--text-1)}
+  .stat-value .unit{font-size:13px;color:var(--text-3);font-weight:400;margin-left:3px}
+  .stat-delta{font-size:11px;margin-top:6px}
+  .stat-delta.up{color:var(--success)}.stat-delta.down{color:var(--danger)}
+  /* Tabs */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border-light);margin-bottom:16px}
+  .tab{padding:8px 16px;cursor:pointer;font-size:13px;color:var(--text-2);border-bottom:2px solid transparent;transition:.15s}
+  .tab:hover{color:var(--primary)}
+  .tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:500}
+  .tab-panel{display:none}.tab-panel.active{display:block}
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--bg);color:var(--text-2);font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-1)}
+  tr:hover td{background:#FAFBFC}
+  .table-wrap{overflow-x:auto}
+  /* Badges */
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+  .badge-high{background:#FEF0F0;color:var(--danger)}
+  .badge-mid{background:#FFF7E6;color:var(--warning)}
+  .badge-low{background:#E8FFEA;color:var(--success)}
+  .badge-info{background:var(--primary-light);color:var(--primary)}
+  .badge-gray{background:var(--border-light);color:var(--text-2)}
+  .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  /* Bar */
+  .bar-cell{display:flex;align-items:center;gap:8px;min-width:120px}
+  .bar-track{flex:1;height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;min-width:50px}
+  .bar-fill{height:100%;border-radius:3px}
+  .bar-num{font-size:12px;color:var(--text-2);min-width:38px;text-align:right}
+  /* Section grid */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  /* Legend */
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--text-2);flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+  /* Modal */
+  .modal-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
+  .modal-mask.show{display:flex}
+  .modal{background:var(--card);border-radius:var(--radius);width:560px;max-height:80vh;overflow:auto;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+  .modal-header{padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center}
+  .modal-header h3{font-size:15px}
+  .modal-close{cursor:pointer;color:var(--text-3);font-size:18px;background:none;border:none}
+  .modal-body{padding:20px}
+  .modal-footer{padding:12px 20px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:8px}
+  .form-row{margin-bottom:14px}
+  .form-row label{display:block;font-size:12px;color:var(--text-2);margin-bottom:5px}
+  .form-row input,.form-row select,.form-row textarea{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit}
+  .form-row textarea{resize:vertical;min-height:60px}
+  .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  /* Toast */
+  .toast{position:fixed;top:70px;right:24px;background:var(--text-1);color:#fff;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;z-index:200;opacity:0;transform:translateY(-8px);transition:.25s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+  /* Pipeline / milestone */
+  .pipeline{display:flex;align-items:center;gap:0;overflow-x:auto;padding:10px 0}
+  .ms{flex-shrink:0;text-align:center;position:relative;min-width:96px}
+  .ms-dot{width:14px;height:14px;border-radius:50%;background:var(--text-4);margin:0 auto;position:relative;z-index:2;border:3px solid var(--card)}
+  .ms-dot.done{background:var(--success)}.ms-dot.current{background:var(--primary)}.ms-dot.future{background:#D9DDE3}
+  .ms-line{position:absolute;top:6px;left:50%;width:100%;height:2px;background:var(--border);z-index:1}
+  .ms:last-child .ms-line{display:none}
+  .ms.done .ms-line{background:var(--success)}
+  .ms-label{font-size:12px;margin-top:8px;font-weight:500}
+  .ms-date{font-size:11px;color:var(--text-3);margin-top:2px}
+  /* Misc */
+  .section-anchor{scroll-margin-top:70px}
+  .divider{height:1px;background:var(--border-light);margin:18px 0}
+  .kv-list{display:grid;grid-template-columns:160px 1fr;gap:8px 16px;font-size:13px}
+  .kv-list dt{color:var(--text-3)}.kv-list dd{color:var(--text-1)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:var(--border-light);color:var(--text-2);margin-right:4px}
+  .filter-bar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .filter-bar select,.filter-bar input{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit}
+  .heatmap{display:grid;grid-template-columns:120px repeat(6,1fr);gap:2px;font-size:12px}
+  .heatmap>div{padding:8px 6px;text-align:center;border-radius:3px}
+  .heatmap .hh{background:transparent;color:var(--text-3);font-weight:500;text-align:left}
+  .hm-0{background:#F0F5FF;color:var(--text-2)}.hm-1{background:#DBE6FF;color:var(--text-2)}
+  .hm-2{background:#FFEBD6;color:var(--text-1)}.hm-3{background:#FFD4A8;color:var(--text-1)}
+  .hm-4{background:#FFB0B0;color:var(--text-1)}.hm-5{background:#FF6B6B;color:#fff;font-weight:600}
+  .note-box{background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;color:#92400E;line-height:1.7;margin-top:12px}
+  .ref-link{color:var(--primary);text-decoration:none}.ref-link:hover{text-decoration:underline}
+  @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><span class="dot"></span>项目资源规划系统</div>
+    <div class="sidebar-version">MCU 项目群 · v2.1.0 · 2026W31</div>
+    <nav class="nav">
+      <div class="nav-group">规划视图</div>
+      <div class="nav-item active" onclick="goSec('cover')"><span class="icon">▦</span>封面与使用说明</div>
+      <div class="nav-item" onclick="goSec('data-dict')"><span class="icon">≣</span>数据字典</div>
+      <div class="nav-item" onclick="goSec('project-view')"><span class="icon">◰</span>项目维度汇总</div>
+      <div class="nav-item" onclick="goSec('dept-view')"><span class="icon">◳</span>部门维度汇总</div>
+      <div class="nav-group">过程管理</div>
+      <div class="nav-item" onclick="goSec('milestone')"><span class="icon">◈</span>项目里程碑管理</div>
+      <div class="nav-item" onclick="goSec('effort')"><span class="icon">◷</span>工时需求投入</div>
+      <div class="nav-item" onclick="goSec('pool')"><span class="icon">◉</span>部门资源池</div>
+      <div class="nav-item" onclick="goSec('tr-deviation')"><span class="icon">↕</span>TR 偏差分析</div>
+      <div class="nav-group">治理</div>
+      <div class="nav-item" onclick="goSec('rules')"><span class="icon">§</span>核心业务规则</div>
+      <div class="nav-item" onclick="goSec('version-log')"><span class="icon">⟲</span>版本日志</div>
+    </nav>
+    <div class="sidebar-footer">当前用户：李规划（PDTL）<br>数据刷新：2026-07-28 09:12</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <div class="breadcrumb">项目资源规划系统 / <b>项目维度汇总（PDTL 视图）</b></div>
+      </div>
+      <div class="header-right">
+        <select style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+          <option>2026W31（7月）</option><option>2026W30（6月）</option><option>2026W29（5月）</option>
+        </select>
+        <button class="btn" onclick="toast('已触发按需刷新，版本记录已生成')">⟳ 刷新 GAP</button>
+        <button class="btn btn-primary" onclick="openModal()">+ 新增填报</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- COVER -->
+      <section id="cover" class="section-anchor">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">封面与使用说明 <span class="tag">模块 1</span></div>
+            <span class="badge badge-gray">刷新频率：按需 / 每周自动</span>
+          </div>
+          <div class="card-body">
+            <div class="grid-2">
+              <div>
+                <p class="card-desc" style="font-size:13px;color:var(--text-2)">
+                  本系统用于 <b>MCU 项目群</b> 的研发资源规划与 GAP 监控，统一字段口径，替代多版本 Excel 汇总，支撑 PDTL、PM、部门经理、PMO、研发三级部门协同规划。核心围绕 <b>GAP = 评估人力 − 实际人力</b> 进行风险识别与资源调配。
+                </p>
+                <div class="divider"></div>
+                <dl class="kv-list">
+                  <dt>当前版本</dt><dd>v2.1.0（2026-07-28）</dd>
+                  <dt>刷新频率</dt><dd>按需刷新 GAP；部门预算刷新可选审批</dd>
+                  <dt>历史版本留存</dt><dd>全量保留，支持差异对比与回溯</dd>
+                  <dt>角色权限入口</dt><dd>PDTL/PM、部门经理、PMO/MKT、研发三级部门</dd>
+                  <dt>数据来源</dt><dd>工时填报 · 部门资源池 · 里程碑维护</dd>
+                </dl>
+              </div>
+              <div>
+                <div class="card" style="margin:0;border:1px solid var(--border)">
+                  <div class="card-header" style="padding:10px 14px"><div class="card-title" style="font-size:13px">本次刷新概览</div></div>
+                  <div class="card-body" style="padding:14px">
+                    <div class="kv-list">
+                      <dt>刷新时间</dt><dd>2026-07-28 09:12:34</dd>
+                      <dt>触发人</dt><dd>李规划（PDTL）</dd>
+                      <dt>涉及项目</dt><dd>12 个</dd>
+                      <dt>高风险项目</dt><dd><span class="badge badge-high">3 个</span></dd>
+                      <dt>整体 GAP</dt><dd><b style="color:var(--danger)">−18.5 人月</b></dd>
+                      <dt>版本编号</dt><dd>v2.1.0</dd>
+                    </div>
+                  </div>
+                </div>
+                <div class="note-box">关键变更已自动沉淀到版本日志（模块 9），支持后续追溯与差异分析。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="stat-row">
+          <div class="stat"><div class="stat-label">项目总数</div><div class="stat-value">12</div><div class="stat-delta up">▲ 较上期 +1</div></div>
+          <div class="stat"><div class="stat-label">评估人力</div><div class="stat-value">286<span class="unit">人月</span></div><div class="stat-delta">— 持平</div></div>
+          <div class="stat"><div class="stat-label">实际人力</div><div class="stat-value">267.5<span class="unit">人月</span></div><div class="stat-delta up">▲ +4.2</div></div>
+          <div class="stat"><div class="stat-label">整体 GAP</div><div class="stat-value" style="color:var(--danger)">−18.5<span class="unit">人月</span></div><div class="stat-delta down">▼ 缺口扩大 3.1</div></div>
+          <div class="stat"><div class="stat-label">高风险项目</div><div class="stat-value" style="color:var(--danger)">3<span class="unit">/12</span></div><div class="stat-delta down">▲ +1</div></div>
+        </div>
+      </section>
+
+      <!-- DATA DICTIONARY -->
+      <section id="data-dict" class="section-anchor">
+        <div class="card">
+          <div class="card-header"><div class="card-title">数据字典 <span class="tag">模块 2</span></div><span class="badge badge-gray">统一字段口径</span></div>
+          <div class="card-body">
+            <p class="card-desc">统一字段口径，避免 Excel 多版本不一致。各角色填报与计算均使用同一套字段定义。</p>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>字段名</th><th>字段标识</th><th>类型</th><th>单位</th><th>说明</th><th>来源模块</th></tr></thead>
+              <tbody>
+                <tr><td>项目名称</td><td>project_name</td><td>文本</td><td>—</td><td>项目唯一标识名称</td><td>项目维度汇总</td></tr>
+                <tr><td>领域</td><td>domain</td><td>枚举</td><td>—</td><td>设计 / 验证 / 实现</td><td>项目维度汇总</td></tr>
+                <tr><td>项目状态</td><td>status</td><td>枚举</td><td>—</td><td>规划中 / 进行中 / 已完成 / 暂停</td><td>项目维度汇总</td></tr>
+                <tr><td>版本号</td><td>version</td><td>文本</td><td>—</td><td>项目当前迭代版本</td><td>项目维度汇总</td></tr>
+                <tr><td>评估工时</td><td>est_effort_h</td><td>数值</td><td>小时 H</td><td>研发三级部门填报，200H=1人月</td><td>工时需求投入</td></tr>
+                <tr><td>评估人力</td><td>est_headcount</td><td>数值</td><td>人月</td><td>= 评估工时 / 200</td><td>计算字段</td></tr>
+                <tr><td>实际人力</td><td>actual_headcount</td><td>数值</td><td>人月</td><td>部门资源池折算后投入</td><td>部门资源池</td></tr>
+                <tr><td>GAP</td><td>gap</td><td>数值</td><td>人月</td><td>= 评估人力 − 实际人力；负值为缺口</td><td>计算字段</td></tr>
+                <tr><td>风险等级</td><td>risk_level</td><td>枚举</td><td>—</td><td>高 / 中 / 低，按 GAP 阈值识别</td><td>计算字段</td></tr>
+                <tr><td>里程碑节点</td><td>milestone</td><td>枚举</td><td>—</td><td>Charter/TR1/TR2&3/TR4/T·O/F·O/TR5/TR6</td><td>项目里程碑管理</td></tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECT VIEW (PDTL) -->
+      <section id="project-view" class="section-anchor">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">项目维度汇总（PDTL 视图） <span class="tag">模块 3</span></div>
+            <div>
+              <button class="btn btn-sm" onclick="toast('已导出 PDTL 视图 Excel')">导出</button>
+              <button class="btn btn-sm" onclick="toast('已切换为月度展开视图')">月度展开</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-desc">面向 PDTL / PM，从项目维度查看总需求、设计/验证/实现等领域 GAP、需求与可用资源，辅助识别项目群规划阶段的资源缺口与高风险项目。</p>
+            <div class="filter-bar">
+              <select><option>全部领域</option><option>设计</option><option>验证</option><option>实现</option></select>
+              <select><option>全部风险等级</option><option>高风险</option><option>中风险</option><option>低风险</option></select>
+              <select><option>全部状态</option><option>规划中</option><option>进行中</option><option>已完成</option></select>
+              <input placeholder="搜索项目名称…" style="flex:1;min-width:160px">
+            </div>
+            <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>项目名称</th><th>领域</th><th>状态</th><th>版本</th>
+                <th>评估人力(人月)</th><th>实际人力(人月)</th><th>GAP(人月)</th><th>风险</th><th>里程碑</th><th>操作</th>
+              </tr></thead>
+              <tbody id="proj-tbody"></tbody>
+            </table>
+            </div>
+            <div class="divider"></div>
+            <div class="legend">
+              <span><i style="background:var(--danger)"></i>高风险：GAP ≤ −8 人月</span>
+              <span><i style="background:var(--warning)"></i>中风险：−8 &lt; GAP ≤ −3</span>
+              <span><i style="background:var(--success)"></i>低风险：GAP &gt; −3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly detail expandable -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">月度 GAP 趋势（近 6 个月）</div><span class="badge badge-gray">单位：人月</span></div>
+          <div class="card-body">
+            <div class="heatmap" id="heatmap"></div>
+            <p class="card-desc" style="margin-top:12px">颜色越深表示缺口越大；点击单元格可查看该月明细。系统在里程碑、工时需求、部门资源池变更后自动重算并刷新本视图。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEPT VIEW -->
+      <section id="dept-view" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">部门维度汇总 <span class="tag">模块 4</span></div>
+            <button class="btn btn-sm" onclick="openAdjustModal()">资源调配</button>
+          </div>
+          <div class="card-body">
+            <p class="card-desc">面向部门经理，查看评估人力、实际人力、GAP、主要缺口项目与风险说明。部门资源调整后实时反映到本部门负载及关联项目 GAP。</p>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>部门</th><th>负责人</th><th>评估人力(人月)</th><th>实际人力(人月)</th><th>GAP(人月)</th><th>负载率</th><th>主要缺口项目</th><th>风险说明</th></tr></thead>
+              <tbody id="dept-tbody"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MILESTONE -->
+      <section id="milestone" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header"><div class="card-title">项目里程碑管理（PMO 视图） <span class="tag">模块 5</span></div><button class="btn btn-sm" onclick="toast('打开里程碑变更窗口')">变更里程碑</button></div>
+          <div class="card-body">
+            <p class="card-desc">由 PMO / MKT 维护项目关键里程碑节点。里程碑变更后触发版本记录，并联动刷新项目工时与 GAP 结果。</p>
+            <div class="filter-bar">
+              <select id="ms-proj-select" onchange="renderPipeline()"></select>
+            </div>
+            <div class="pipeline" id="pipeline"></div>
+            <div class="divider"></div>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>里程碑</th><th>计划日期</th><th>实际日期</th><th>状态</th><th>负责人</th><th>关联工时变更</th></tr></thead>
+              <tbody id="ms-tbody"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EFFORT -->
+      <section id="effort" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header"><div class="card-title">工时需求投入（研发填报入口） <span class="tag">模块 6</span></div><button class="btn btn-sm" onclick="openModal()">+ 填报工时</button></div>
+          <div class="card-body">
+            <p class="card-desc">由研发三级部门按项目、月份填报设计/验证/实现工时需求（单位 H）。系统按 200H = 1 人月换算为评估人力，作为项目与部门 GAP 计算的核心输入。</p>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>项目</th><th>部门</th><th>月份</th><th>设计(H)</th><th>验证(H)</th><th>实现(H)</th><th>合计(H)</th><th>评估人力(人月)</th><th>状态</th></tr></thead>
+              <tbody id="effort-tbody"></tbody>
+            </table>
+            </div>
+            <div class="note-box">换算规则：评估人力 = 合计工时 ÷ 200 H/人月。填报提交后自动联动项目维度与部门维度 GAP 重算。</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- POOL -->
+      <section id="pool" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header"><div class="card-title">部门资源池 <span class="tag">模块 7</span></div><button class="btn btn-sm" onclick="openAdjustModal()">调整资源</button></div>
+          <div class="card-body">
+            <p class="card-desc">由部门经理维护当前可投入研发人力。系统基于折算后可投入人力自动计算部门供给能力，支持预算刷新、工时调整、资源调配记录。</p>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>部门</th><th>总人力</th><th>实习</th><th>PM折算</th><th>请假</th><th>待补充HC</th><th>可投入人力(人月)</th><th>折算率</th><th>最近调整</th></tr></thead>
+              <tbody id="pool-tbody"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TR DEVIATION -->
+      <section id="tr-deviation" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header"><div class="card-title">TR 偏差分析 <span class="tag">模块 8</span></div></div>
+          <div class="card-body">
+            <p class="card-desc">沉淀项目在 TR 阶段的评估工时、实际工时、偏差、偏差率与偏差原因，反哺后续项目工时评估，提高项目群资源规划准确性。</p>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>项目</th><th>TR阶段</th><th>评估工时(H)</th><th>实际工时(H)</th><th>偏差(H)</th><th>偏差率</th><th>偏差原因</th><th>反哺建议</th></tr></thead>
+              <tbody id="tr-tbody"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RULES -->
+      <section id="rules" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header"><div class="card-title">核心业务规则 <span class="tag">模块 10</span></div></div>
+          <div class="card-body">
+            <div class="grid-2">
+              <div>
+                <h4 style="font-size:13px;margin-bottom:8px">GAP 计算</h4>
+                <p class="card-desc">GAP = 评估人力 − 实际人力。负值表示资源缺口，正值表示资源富余。</p>
+                <div style="background:var(--bg);padding:12px;border-radius:6px;font-family:monospace;font-size:13px;margin-bottom:14px">GAP = est_headcount − actual_headcount</div>
+              </div>
+              <div>
+                <h4 style="font-size:13px;margin-bottom:8px">风险阈值</h4>
+                <table><tbody>
+                  <tr><td><span class="badge badge-high">高风险</span></td><td>GAP ≤ −8 人月</td></tr>
+                  <tr><td><span class="badge badge-mid">中风险</span></td><td>−8 &lt; GAP ≤ −3 人月</td></tr>
+                  <tr><td><span class="badge badge-low">低风险</span></td><td>GAP &gt; −3 人月</td></tr>
+                </tbody></table>
+              </div>
+              <div>
+                <h4 style="font-size:13px;margin-bottom:8px">刷新机制</h4>
+                <p class="card-desc">支持按需刷新，每次刷新生成独立版本记录；部门预算刷新可选审批。</p>
+              </div>
+              <div>
+                <h4 style="font-size:13px;margin-bottom:8px">数据联动</h4>
+                <p class="card-desc">里程碑、工时需求、部门资源池变更后，项目维度与部门维度 GAP 自动重算。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VERSION LOG -->
+      <section id="version-log" class="section-anchor" style="display:none">
+        <div class="card">
+          <div class="card-header"><div class="card-title">版本日志 <span class="tag">模块 9</span></div><button class="btn btn-sm" onclick="toast('已生成版本对比报告')">差异对比</button></div>
+          <div class="card-body">
+            <p class="card-desc">自动记录所有关键变更，包括版本、日期、更新人、更新类型、涉及项目/模块、变更前后数据。支持历史版本追溯与差异对比。</p>
+            <div class="table-wrap">
+            <table>
+              <thead><tr><th>版本</th><th>日期</th><th>更新人</th><th>更新类型</th><th>涉及项目/模块</th><th>变更摘要</th></tr></thead>
+              <tbody id="log-tbody"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: effort fill -->
+<div class="modal-mask" id="modal">
+  <div class="modal">
+    <div class="modal-header"><h3>研发工时填报</h3><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-row"><label>项目</label><select><option>MCU-A1 主控芯片</option><option>MCU-B2 通信模组</option><option>MCU-C3 电源管理</option></select></div>
+        <div class="form-row"><label>填报部门</label><select><option>设计一部</option><option>验证二部</option><option>实现三部</option></select></div>
+        <div class="form-row"><label>月份</label><input type="month" value="2026-07"></div>
+        <div class="form-row"><label>领域</label><select><option>设计</option><option>验证</option><option>实现</option></select></div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-row"><label>设计工时 (H)</label><input type="number" value="320" placeholder="200H = 1人月"></div>
+        <div class="form-row"><label>验证工时 (H)</label><input type="number" value="180"></div>
+        <div class="form-row"><label>实现工时 (H)</label><input type="number" value="500"></div>
+        <div class="form-row"><label>评估人力换算</label><input value="5.00 人月" disabled></div>
+      </div>
+      <div class="form-row"><label>备注</label><textarea placeholder="补充说明…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitForm()">提交并刷新 GAP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: resource adjust -->
+<div class="modal-mask" id="adjustModal">
+  <div class="modal">
+    <div class="modal-header"><h3>部门资源调配</h3><button class="modal-close" onclick="closeAdjust()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-row"><label>调出部门</label><select><option>设计一部</option><option>验证二部</option></select></div>
+        <div class="form-row"><label>调入部门</label><select><option>实现三部</option><option>验证二部</option></select></div>
+        <div class="form-row"><label>调配人力 (人月)</label><input type="number" value="2.5"></div>
+        <div class="form-row"><label>生效月份</label><input type="month" value="2026-08"></div>
+      </div>
+      <div class="form-row"><label>调配原因</label><textarea placeholder="如：MCU-A1 实现阶段缺口较大，从设计一部富余人力调入支援"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeAdjust()">取消</button>
+      <button class="btn btn-primary" onclick="submitAdjust()">确认调配（联动重算 GAP）</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---- Data ---- */
+var projects = [
+  {name:"MCU-A1 主控芯片",domain:"实现",status:"进行中",ver:"v3.2",est:48.5,actual:36.0,ms:"TR4"},
+  {name:"MCU-B2 通信模组",domain:"设计",status:"进行中",ver:"v2.0",est:32.0,actual:28.5,ms:"TR2&3"},
+  {name:"MCU-C3 电源管理",domain:"验证",status:"进行中",ver:"v1.5",est:26.0,actual:22.0,ms:"TR2&3"},
+  {name:"MCU-D4 传感单元",domain:"实现",status:"规划中",ver:"v0.9",est:18.0,actual:12.5,ms:"Charter"},
+  {name:"MCU-E5 安全模块",domain:"设计",status:"进行中",ver:"v2.1",est:22.0,actual:20.0,ms:"TR4"},
+  {name:"MCU-F6 接口芯片",domain:"验证",status:"进行中",ver:"v1.8",est:30.0,actual:27.0,ms:"TR4"},
+  {name:"MCU-G7 存储控制",domain:"实现",status:"已完成",ver:"v3.0",est:15.0,actual:15.5,ms:"TR6"},
+  {name:"MCU-H8 时钟单元",domain:"设计",status:"进行中",ver:"v1.2",est:20.0,actual:17.0,ms:"TR2&3"},
+  {name:"MCU-I9 射频前端",domain:"实现",status:"进行中",ver:"v2.4",est:42.0,actual:30.0,ms:"TR4"},
+  {name:"MCU-J10 功放模块",domain:"验证",status:"规划中",ver:"v0.5",est:14.0,actual:9.0,ms:"Charter"},
+  {name:"MCU-K11 基带处理",domain:"设计",status:"进行中",ver:"v2.0",est:12.0,actual:11.0,ms:"TR2&3"},
+  {name:"MCU-L12 封装测试",domain:"验证",status:"进行中",ver:"v1.6",est:6.5,actual:6.0,ms:"TR5"}
+];
+function riskOf(gap){ if(gap<=-8) return 'high'; if(gap<=-3) return 'mid'; return 'low'; }
+function riskLabel(r){ return {high:'高风险',mid:'中风险',low:'低风险'}[r]; }
+
+/* Project table */
+(function(){
+  var tb=document.getElementById('proj-tbody'); var html='';
+  projects.forEach(function(p,i){
+    var gap=(p.actual-p.est).toFixed(1);
+    var r=riskOf(+gap);
+    var pct=Math.round(p.actual/p.est*100);
+    var barColor = r==='high'?'var(--danger)':r==='mid'?'var(--warning)':'var(--success)';
+    html+='<tr onclick="toast(\'查看 '+p.name+' 详情\')" style="cursor:pointer">'+
+      '<td><b>'+p.name+'</b></td><td>'+p.domain+'</td>'+
+      '<td><span class="status-dot" style="background:'+(p.status==='进行中'?'var(--success)':p.status==='规划中'?'var(--warning)':'var(--text-4)')+'"></span>'+p.status+'</td>'+
+      '<td>'+p.ver+'</td><td>'+p.est.toFixed(1)+'</td><td>'+p.actual.toFixed(1)+'</td>'+
+      '<td style="color:'+(+gap<0?'var(--danger)':'var(--success)')+';font-weight:600">'+(+gap>=0?'+':'')+gap+'</td>'+
+      '<td><span class="badge badge-'+r+'">'+riskLabel(r)+'</span></td>'+
+      '<td>'+p.ms+'</td>'+
+      '<td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div><span class="bar-num">'+pct+'%</span></div></td>'+
+      '</tr>';
+  });
+  tb.innerHTML=html;
+})();
+
+/* Heatmap */
+(function(){
+  var months=['2026-02','2026-03','2026-04','2026-05','2026-06','2026-07'];
+  var data={
+    'MCU-A1 主控芯片':[2,-3,-5,-8,-11,-12.5],
+    'MCU-B2 通信模组':[1,0,-2,-3,-3.5,-3.5],
+    'MCU-C3 电源管理':[0,-1,-2,-3,-4,-4],
+    'MCU-I9 射频前端':[0,-4,-7,-9,-11,-12],
+    'MCU-D4 传感单元':[0,0,-1,-2,-4,-5.5]
+  };
+  var h='<div class="hh">项目 \\ 月份</div>';
+  months.forEach(function(m){h+='<div class="hh">'+m+'</div>';});
+  Object.keys(data).forEach(function(p){
+    h+='<div class="hh">'+p+'</div>';
+    data[p].forEach(function(v){
+      var lvl=0; if(v<=-10)lvl=5; else if(v<=-8)lvl=4; else if(v<=-5)lvl=3; else if(v<=-3)lvl=2; else if(v<0)lvl=1;
+      h+='<div class="hm-'+lvl+'">'+(v>0?'+':'')+v.toFixed(1)+'</div>';
+    });
+  });
+  document.getElementById('heatmap').innerHTML=h;
+})();
+
+/* Dept view */
+(function(){
+  var depts=[
+    {name:'设计一部',owner:'王设计',est:78,actual:68.5,gap:-9.5,short:'MCU-A1, MCU-I9',risk:'设计人力不足，A1/I9 设计缺口最大'},
+    {name:'设计二部',owner:'赵设',est:42,actual:40,gap:-2,short:'MCU-H8',risk:'整体可控，H8 略有缺口'},
+    {name:'验证一部',owner:'孙验证',est:66,actual:58,gap:-8,short:'MCU-C3, MCU-F6',risk:'验证高峰期，C3/F6 集中缺口'},
+    {name:'验证二部',owner:'周验',est:30,actual:27.5,gap:-2.5,short:'MCU-J10',risk:'规划阶段，风险较低'},
+    {name:'实现一部',owner:'吴实现',est:70,actual:73.5,gap:3.5,short:'—',risk:'富余，可支援 A1/I9'}
+  ];
+  var tb=document.getElementById('dept-tbody'); var html='';
+  depts.forEach(function(d){
+    var r=riskOf(d.gap); var load=Math.round(d.actual/d.est*100);
+    html+='<tr><td><b>'+d.name+'</b></td><td>'+d.owner+'</td><td>'+d.est+'</td><td>'+d.actual+'</td>'+
+      '<td style="color:'+(d.gap<0?'var(--danger)':'var(--success)')+';font-weight:600">'+(d.gap>=0?'+':'')+d.gap.toFixed(1)+'</td>'+
+      '<td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(load,100)+'%;background:'+(load>100?'var(--danger)':'var(--primary)')+'"></div></div><span class="bar-num">'+load+'%</span></div></td>'+
+      '<td>'+d.short+'</td><td style="font-size:12px;color:var(--text-2)">'+d.risk+'</td></tr>';
+  });
+  tb.innerHTML=html;
+})();
+
+/* Milestone */
+var msData={
+  'MCU-A1 主控芯片':[
+    {k:'Charter',date:'2025-11-10',act:'2025-11-12',st:'done',owner:'PMO-张'},
+    {k:'TR1',date:'2026-01-15',act:'2026-01-18',st:'done',owner:'PMO-张'},
+    {k:'TR2&3',date:'2026-03-20',act:'2026-03-25',st:'done',owner:'MKT-刘'},
+    {k:'TR4',date:'2026-07-30',act:'—',st:'current',owner:'PMO-张'},
+    {k:'T·O',date:'2026-09-15',act:'—',st:'future',owner:'MKT-刘'},
+    {k:'F·O',date:'2026-10-20',act:'—',st:'future',owner:'MKT-刘'},
+    {k:'TR5',date:'2026-12-05',act:'—',st:'future',owner:'PMO-张'},
+    {k:'TR6',date:'2027-02-10',act:'—',st:'future',owner:'PMO-张'}
+  ]
+};
+(function(){
+  var sel=document.getElementById('ms-proj-select');
+  sel.innerHTML=projects.map(function(p,i){return '<option '+(i===0?'selected':'')+'>'+p.name+'</option>'}).join('');
+})();
+function renderPipeline(){
+  var sel=document.getElementById('ms-proj-select');
+  var name=sel.value;
+  var data=msData[name]||msData['MCU-A1 主控芯片'];
+  var html=''; var reachedCurrent=false;
+  data.forEach(function(m){
+    var cls=m.st;
+    html+='<div class="ms '+cls+'"><div class="ms-dot '+cls+'"></div><div class="ms-line"></div>'+
+      '<div class="ms-label">'+m.k+'</div><div class="ms-date">'+(m.act&&m.act!=='—'?m.act:m.date)+'</div></div>';
+  });
+  document.getElementById('pipeline').innerHTML=html;
+  // table
+  var tb=document.getElementById('ms-tbody'); var h='';
+  data.forEach(function(m){
+    var stMap={done:'<span class="badge badge-low">已完成</span>',current:'<span class="badge badge-info">进行中</span>',future:'<span class="badge badge-gray">未开始</span>'};
+    var link = m.st==='current' ? '触发工时重算 (+5.5 人月)' : m.st==='done' ? '已记录' : '—';
+    h+='<tr><td><b>'+m.k+'</b></td><td>'+m.date+'</td><td>'+(m.act||'—')+'</td><td>'+stMap[m.st]+'</td><td>'+m.owner+'</td><td>'+link+'</td></tr>';
+  });
+  tb.innerHTML=h;
+}
+
+/* Effort */
+(function(){
+  var rows=[
+    {p:'MCU-A1 主控芯片',d:'实现三部',m:'2026-07',des:800,val:600,impl:8300,tot:9700,st:'已提交'},
+    {p:'MCU-A1 主控芯片',d:'设计一部',m:'2026-07',des:1600,val:400,impl:2000,tot:4000,st:'已提交'},
+    {p:'MCU-B2 通信模组',d:'设计一部',m:'2026-07',des:3200,val:1800,impl:1400,tot:6400,st:'已提交'},
+    {p:'MCU-C3 电源管理',d:'验证一部',m:'2026-07',des:1200,val:3800,impl:200,tot:5200,st:'已提交'},
+    {p:'MCU-I9 射频前端',d:'实现三部',m:'2026-07',des:2400,val:1000,impl:5000,tot:8400,st:'待审核'},
+    {p:'MCU-D4 传感单元',d:'设计二部',m:'2026-07',des:1800,val:600,impl:1200,tot:3600,st:'草稿'}
+  ];
+  var tb=document.getElementById('effort-tbody'); var h='';
+  rows.forEach(function(r){
+    var hc=(r.tot/200).toFixed(2);
+    var stBadge = r.st==='已提交'?'badge-low':r.st==='待审核'?'badge-mid':'badge-gray';
+    h+='<tr><td>'+r.p+'</td><td>'+r.d+'</td><td>'+r.m+'</td><td>'+r.des+'</td><td>'+r.val+'</td><td>'+r.impl+'</td><td><b>'+r.tot+'</b></td><td>'+hc+'</td><td><span class="badge '+stBadge+'">'+r.st+'</span></td></tr>';
+  });
+  tb.innerHTML=h;
+})();
+
+/* Pool */
+(function(){
+  var rows=[
+    {d:'设计一部',total:28,intern:2,pm:1.5,leave:1,hc:2,avail:25.5,rate:'91%',adj:'2026-07-25 王设计'},
+    {d:'设计二部',total:16,intern:1,pm:0.5,leave:0,hc:1,avail:14.5,rate:'91%',adj:'2026-07-20 赵设'},
+    {d:'验证一部',total:24,intern:2,pm:1,leave:1,hc:1,avail:21,rate:'88%',adj:'2026-07-26 孙验证'},
+    {d:'验证二部',total:12,intern:0,pm:0.5,leave:0,hc:0,avail:11.5,rate:'96%',adj:'2026-07-18 周验'},
+    {d:'实现一部',total:30,intern:3,pm:2,leave:1,hc:3,avail:27.5,rate:'92%',adj:'2026-07-27 吴实现'}
+  ];
+  var tb=document.getElementById('pool-tbody'); var h='';
+  rows.forEach(function(r){
+    h+='<tr><td><b>'+r.d+'</b></td><td>'+r.total+'</td><td>'+r.intern+'</td><td>'+r.pm+'</td><td>'+r.leave+'</td><td>'+r.hc+'</td><td><b>'+r.avail+'</b></td><td>'+r.rate+'</td><td style="font-size:12px;color:var(--text-3)">'+r.adj+'</td></tr>';
+  });
+  tb.innerHTML=h;
+})();
+
+/* TR deviation */
+(function(){
+  var rows=[
+    {p:'MCU-A1 主控芯片',tr:'TR2&3',est:4200,act:5100,dev:900,rate:'+21.4%',reason:'验证用例返工增多，仿真环境搭建超预期',adv:'后续 TR4 预留 15% 验证缓冲'},
+    {p:'MCU-B2 通信模组',tr:'TR2&3',est:3000,act:2800,dev:-200,rate:'-6.7%',reason:'设计复用率高于预期',adv:'维持当前评估模型'},
+    {p:'MCU-I9 射频前端',tr:'TR4',est:6800,act:8400,dev:1600,rate:'+23.5%',reason:'实现阶段联调问题频发，人力投入超标',adv:'TR5 评估上浮 20%，提前协调实现人力'},
+    {p:'MCU-C3 电源管理',tr:'TR1',est:1600,act:1750,dev:150,rate:'+9.4%',reason:'需求变更导致设计返工',adv:'需求冻结后锁定基线'}
+  ];
+  var tb=document.getElementById('tr-tbody'); var h='';
+  rows.forEach(function(r){
+    var color=r.dev>0?'var(--danger)':'var(--success)';
+    h+='<tr><td>'+r.p+'</td><td>'+r.tr+'</td><td>'+r.est+'</td><td>'+r.act+'</td><td style="color:'+color+';font-weight:600">'+(r.dev>0?'+':'')+r.dev+'</td><td style="color:'+color+'">'+r.rate+'</td><td style="font-size:12px">'+r.reason+'</td><td style="font-size:12px;color:var(--text-2)">'+r.adv+'</td></tr>';
+  });
+  tb.innerHTML=h;
+})();
+
+/* Version log */
+(function(){
+  var rows=[
+    {v:'v2.1.0',date:'2026-07-28',user:'李规划',type:'按需刷新',scope:'MCU-A1 / 项目维度汇总',summary:'A1 实际人力下调 4.5 人月，GAP 由 −8.0 扩大至 −12.5，风险升级为高'},
+    {v:'v2.0.3',date:'2026-07-25',user:'王设计',type:'资源调整',scope:'设计一部 / 部门资源池',summary:'设计一部调入 2 人月支援 A1，预算刷新已审批'},
+    {v:'v2.0.2',date:'2026-07-20',user:'PMO-张',type:'里程碑变更',scope:'MCU-A1 / TR4',summary:'TR4 计划由 07-25 调整至 07-30，工时重算 +5.5 人月'},
+    {v:'v2.0.1',date:'2026-07-15',user:'吴实现',type:'工时填报',scope:'MCU-I9 / 工时需求投入',summary:'I9 实现工时上报 8400H，评估人力 42 人月，触发 GAP 重算'},
+    {v:'v2.0.0',date:'2026-07-01',user:'系统',type:'版本初始化',scope:'全量',summary:'2026W31 规划周期基线版本，纳入 12 个项目'}
+  ];
+  var tb=document.getElementById('log-tbody'); var h='';
+  rows.forEach(function(r){
+    var tBadge={high:'badge-high',mid:'badge-mid',low:'badge-low',info:'badge-info',gray:'badge-gray'}[r.type==='按需刷新'?'info':r.type==='里程碑变更'?'mid':r.type==='资源调整'?'low':'gray'];
+    h+='<tr><td><b>'+r.v+'</b></td><td>'+r.date+'</td><td>'+r.user+'</td><td><span class="badge '+tBadge+'">'+r.type+'</span></td><td style="font-size:12px">'+r.scope+'</td><td style="font-size:12px;color:var(--text-2)">'+r.summary+'</td></tr>';
+  });
+  tb.innerHTML=h;
+})();
+
+/* ---- Navigation ---- */
+var navItems=document.querySelectorAll('.nav-item');
+var sections={
+  'cover':document.getElementById('cover'),
+  'data-dict':document.getElementById('data-dict'),
+  'project-view':document.getElementById('project-view'),
+  'dept-view':document.getElementById('dept-view'),
+  'milestone':document.getElementById('milestone'),
+  'effort':document.getElementById('effort'),
+  'pool':document.getElementById('pool'),
+  'tr-deviation':document.getElementById('tr-deviation'),
+  'rules':document.getElementById('rules'),
+  'version-log':document.getElementById('version-log')
+};
+var titles={
+  'cover':'封面与使用说明','data-dict':'数据字典','project-view':'项目维度汇总（PDTL 视图）',
+  'dept-view':'部门维度汇总','milestone':'项目里程碑管理（PMO 视图）','effort':'工时需求投入',
+  'pool':'部门资源池','tr-deviation':'TR 偏差分析','rules':'核心业务规则','version-log':'版本日志'
+};
+function goSec(id){
+  navItems.forEach(function(n){n.classList.remove('active')});
+  // find nav item by onclick id
+  navItems.forEach(function(n){ if(n.getAttribute('onclick')&&n.getAttribute('onclick').indexOf(id)>-1) n.classList.add('active'); });
+  Object.keys(sections).forEach(function(k){ sections[k].style.display = (k===id)?'block':'none'; });
+  // keep KPI visible only on cover
+  document.querySelector('.stat-row').style.display = (id==='cover')?'grid':'none';
+  document.querySelector('.breadcrumb b').textContent=titles[id];
+  if(id==='milestone') renderPipeline();
+  window.scrollTo(0,0);
+}
+// init milestone data for later
+renderPipeline();
+
+/* ---- Modal ---- */
+function openModal(){ document.getElementById('modal').classList.add('show'); }
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+function submitForm(){ closeModal(); toast('工时已提交，GAP 已联动刷新（版本 v2.1.1）'); }
+function openAdjust(){ document.getElementById('adjustModal').classList.add('show'); }
+function closeAdjust(){ document.getElementById('adjustModal').classList.remove('show'); }
+function submitAdjust(){ closeAdjust(); toast('资源调配已记录，部门与项目 GAP 已重算'); }
+
+/* ---- Toast ---- */
+var toastTimer;
+function toast(msg){
+  var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('show');},2600);
+}
+</script>
+</body>
+</html>
