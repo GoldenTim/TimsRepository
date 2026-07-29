@@ -1,936 +1,527 @@
 <!DOCTYPE html>
-<!--
-  对应工作项：交付物管理总览页需求 (work_item_id: 7058554577)
-  空间：CodeM大玩家 (6a6340e855a76436ede6e9bd)
-  日期：2026-07-29
-  主要交互点：阶段矩阵、状态筛选、单元格点击展开详情抽屉、Tab切换、风险高亮
--->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>交付物管理总览页</title>
 <style>
-  :root {
-    --bg: #f5f6f8;
-    --card-bg: #ffffff;
-    --border: #e8eaed;
-    --text-primary: #1f2329;
-    --text-secondary: #646a73;
-    --text-tertiary: #8f959e;
-    --blue: #3370ff;
-    --blue-bg: #e1eaff;
-    --green: #34c759;
-    --green-bg: #e6f9ec;
-    --orange: #ff9f29;
-    --orange-bg: #fff3e0;
-    --gray: #c9cdd4;
-    --gray-bg: #f0f1f3;
-    --red: #f54a45;
-    --red-bg: #fee9e8;
-    --shadow: 0 1px 4px rgba(0,0,0,0.06);
-    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --border:#e6e8eb; --text:#1f2329;
+    --text-2:#646a73; --text-3:#8f959e; --primary:#3370ff; --primary-bg:#eaf1ff;
+    --initial:#bbbfc4; --initial-bg:#f0f1f3;
+    --review:#f80; --review-bg:#fff3e0;
+    --stable:#3370ff; --stable-bg:#eaf1ff;
+    --final:#00b42a; --final-bg:#e8ffea;
+    --empty:#f53f3f; --empty-bg:#ffece8;
+    --tr-mark:#722ed1; --tr-mark-bg:#f5e8ff;
+    --warn:#f53f3f;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg);
-    color: var(--text-primary);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  /* Component: Header */
-  .header {
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-left { display: flex; align-items: center; gap: 16px; }
-  .header-title { font-size: 18px; font-weight: 600; }
-  .project-badge {
-    background: var(--blue-bg);
-    color: var(--blue);
-    padding: 2px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-  .header-right { display: flex; align-items: center; gap: 12px; }
-  .header-info { font-size: 13px; color: var(--text-secondary); }
-  .header-info b { color: var(--text-primary); }
-  .btn {
-    border: none;
-    border-radius: 6px;
-    padding: 7px 16px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .btn-primary { background: var(--blue); color: #fff; }
-  .btn-primary:hover { background: #245bdb; }
-  .btn-default { background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); }
-  .btn-default:hover { border-color: var(--blue); color: var(--blue); }
-
-  /* Component: Layout */
-  .main { padding: 20px 28px; }
-
-  /* Component: StatCards */
-  .stat-row { display: flex; gap: 16px; margin-bottom: 20px; }
-  .stat-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 20px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .stat-card .stat-label { font-size: 12px; color: var(--text-secondary); }
-  .stat-card .stat-value { font-size: 26px; font-weight: 600; }
-  .stat-card .stat-sub { font-size: 12px; }
-  .stat-card.risk { border-left: 3px solid var(--red); }
-  .stat-card.risk .stat-value { color: var(--red); }
-  .stat-card.ok { border-left: 3px solid var(--green); }
-  .stat-card.ok .stat-value { color: var(--green); }
-
-  /* Component: Tabs */
-  .tabs {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px 8px 0 0;
-    border-bottom: none;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-  }
-  .tab-item {
-    padding: 12px 4px;
-    margin-right: 28px;
-    font-size: 14px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-  }
-  .tab-item.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 500; }
-  .tab-item:hover:not(.active) { color: var(--text-primary); }
-  .tab-badge {
-    background: var(--gray-bg);
-    color: var(--text-secondary);
-    border-radius: 10px;
-    padding: 1px 7px;
-    font-size: 11px;
-    margin-left: 6px;
-  }
-  .tab-item.active .tab-badge { background: var(--blue-bg); color: var(--blue); }
-
-  /* Component: FilterBar */
-  .filter-bar {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-top: none;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .filter-item { display: flex; align-items: center; gap: 6px; }
-  .filter-item label { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
-  .filter-item select, .filter-item input {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 5px 8px;
-    font-size: 13px;
-    color: var(--text-primary);
-    background: var(--card-bg);
-    outline: none;
-    cursor: pointer;
-  }
-  .filter-item select:hover, .filter-item input:hover { border-color: var(--blue); }
-  .filter-item input { width: 200px; cursor: text; }
-  .filter-divider { width: 1px; height: 20px; background: var(--border); }
-  .legend { display: flex; align-items: center; gap: 14px; margin-left: auto; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); }
-  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
-
-  /* Component: Matrix */
-  .matrix-wrap {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    overflow: auto;
-  }
-  .matrix {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    min-width: 1200px;
-  }
-  .matrix th, .matrix td {
-    border: 1px solid var(--border);
-    padding: 0;
-    text-align: center;
-  }
-  .matrix thead th {
-    background: #fafbfc;
-    font-weight: 500;
-    color: var(--text-secondary);
-    padding: 10px 8px;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    white-space: nowrap;
-  }
-  .matrix thead th.sub { font-size: 11px; color: var(--text-tertiary); }
-  .matrix thead th.group { background: #f0f1f3; font-size: 12px; }
-  .matrix tbody td:first-child {
-    text-align: left;
-    padding: 10px 12px;
-    background: #fafbfc;
-    white-space: nowrap;
-    position: sticky;
-    left: 0;
-    z-index: 1;
-  }
-  .matrix tbody td:nth-child(2) {
-    text-align: left;
-    padding: 10px 12px;
-    white-space: nowrap;
-    position: sticky;
-    left: 160px;
-    z-index: 1;
-    background: var(--card-bg);
-    border-left: none;
-  }
-  .matrix tbody tr:hover td { background: #f7faff; }
-  .matrix tbody tr:hover td:first-child,
-  .matrix tbody tr:hover td:nth-child(2) { background: #f0f4ff; }
-  .doc-cell { display: flex; align-items: center; gap: 8px; }
-  .doc-icon {
-    width: 20px; height: 20px;
-    background: var(--gray-bg);
-    border-radius: 3px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: var(--text-tertiary);
-    flex-shrink: 0;
-  }
-  .doc-name { font-weight: 500; color: var(--text-primary); }
-  .doc-type { font-size: 11px; color: var(--text-tertiary); }
-  .stage-tag {
-    display: inline-block;
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 3px;
-    margin-top: 3px;
-  }
-
-  /* Status cells */
-  .cell-status {
-    width: 100%;
-    height: 100%;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-size: 12px;
-    font-weight: 500;
-  }
-  .cell-status:hover { filter: brightness(0.95); box-shadow: inset 0 0 0 2px var(--blue); }
-  .st-initial { background: var(--gray-bg); color: var(--text-secondary); }
-  .st-review { background: var(--orange-bg); color: #b76e00; }
-  .st-stable { background: var(--blue-bg); color: var(--blue); }
-  .st-final { background: var(--green-bg); color: #1a8a3e; }
-  .st-empty { background: var(--red-bg); color: var(--red); }
-  .st-na { background: #fafbfc; color: var(--text-tertiary); font-size: 16px; }
-
-  /* Component: Drawer */
-  .drawer-mask {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.35);
-    z-index: 200;
-    display: none;
-    justify-content: flex-end;
-  }
-  .drawer-mask.show { display: flex; }
-  .drawer {
-    width: 460px;
-    background: var(--card-bg);
-    height: 100%;
-    box-shadow: var(--shadow-lg);
-    overflow-y: auto;
-    animation: slideIn 0.2s ease;
-  }
-  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .drawer-header {
-    padding: 18px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-  .drawer-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-  .drawer-sub { font-size: 12px; color: var(--text-secondary); }
-  .drawer-close {
-    border: none;
-    background: none;
-    font-size: 20px;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-  }
-  .drawer-close:hover { color: var(--text-primary); }
-  .drawer-body { padding: 20px 24px; }
-  .drawer-section { margin-bottom: 24px; }
-  .drawer-section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .drawer-section-title::before {
-    content: '';
-    width: 3px;
-    height: 13px;
-    background: var(--blue);
-    border-radius: 2px;
-  }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-  .info-item { display: flex; flex-direction: column; gap: 3px; }
-  .info-label { font-size: 11px; color: var(--text-tertiary); }
-  .info-value { font-size: 13px; color: var(--text-primary); }
-  .timeline { list-style: none; }
-  .timeline-item { position: relative; padding-left: 20px; padding-bottom: 14px; border-left: 2px solid var(--border); }
-  .timeline-item:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
-  .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -6px;
-    top: 2px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--blue);
-    border: 2px solid var(--card-bg);
-  }
-  .timeline-item .tl-time { font-size: 11px; color: var(--text-tertiary); }
-  .timeline-item .tl-action { font-size: 13px; color: var(--text-primary); margin-top: 2px; }
-  .timeline-item .tl-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-  .stage-progress { display: flex; gap: 4px; flex-wrap: wrap; }
-  .stage-progress-item {
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-  }
-  .stage-progress-item.active { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
-  .doc-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--blue);
-    text-decoration: none;
-    font-size: 13px;
-  }
-  .doc-link:hover { text-decoration: underline; }
-
-  /* Component: EmptyState */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-tertiary);
-  }
-  .empty-state .empty-icon {
-    width: 56px; height: 56px;
-    background: var(--gray-bg);
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    margin-bottom: 12px;
-  }
-
-  /* risk indicator on doc name */
-  .risk-icon { color: var(--red); margin-left: 4px; }
-
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--text-primary);
-    color: #fff;
-    padding: 10px 24px;
-    border-radius: 6px;
-    font-size: 13px;
-    z-index: 300;
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-  }
-  .toast.show { opacity: 1; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+  .app{max-width:1480px;margin:0 auto;padding:20px 24px 40px}
+  /* Header */
+  .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+  .page-title h1{font-size:20px;font-weight:600;margin-bottom:4px}
+  .page-title .sub{color:var(--text-2);font-size:13px}
+  .header-actions{display:flex;gap:8px}
+  .btn{padding:6px 14px;border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--text);cursor:pointer;font-size:13px;transition:.15s;display:inline-flex;align-items:center;gap:4px}
+  .btn:hover{border-color:var(--primary);color:var(--primary)}
+  .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn-primary:hover{background:#2860e8;color:#fff}
+  /* Stat cards */
+  .stat-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+  .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px 16px}
+  .stat-card .label{color:var(--text-2);font-size:12px;margin-bottom:6px}
+  .stat-card .value{font-size:22px;font-weight:600}
+  .stat-card .hint{font-size:12px;margin-top:4px}
+  .stat-card.warn .value{color:var(--warn)}
+  .stat-card.ok .value{color:var(--final)}
+  /* Filter bar */
+  .filter-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:16px}
+  .filter-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .filter-row+.filter-row{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+  .filter-item{display:flex;align-items:center;gap:6px}
+  .filter-item label{color:var(--text-2);font-size:12px;white-space:nowrap}
+  .filter-item select,.search-input{padding:5px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;background:#fff;outline:none;min-width:120px}
+  .filter-item select:focus,.search-input:focus{border-color:var(--primary)}
+  .search-input{flex:1;min-width:200px}
+  .search-wrap{position:relative;flex:1;min-width:240px}
+  .search-wrap .search-input{width:100%}
+  .search-wrap::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.5}
+  .search-wrap .search-input{padding-left:30px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-left:auto}
+  .legend-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-2)}
+  .legend-dot{width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,0,0,.06)}
+  .link-btn{color:var(--primary);cursor:pointer;font-size:12px;background:none;border:none;padding:0}
+  /* Matrix */
+  .matrix-wrap{background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .matrix-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .matrix-head h2{font-size:15px;font-weight:600}
+  .matrix-head .meta{color:var(--text-2);font-size:12px}
+  .matrix-scroll{overflow-x:auto}
+  table.matrix{border-collapse:collapse;width:100%;min-width:1180px}
+  table.matrix th,table.matrix td{border:1px solid var(--border);text-align:center;font-size:12px;padding:0}
+  table.matrix thead th{background:#fafbfc;font-weight:600;color:var(--text-2);padding:10px 6px;position:sticky;top:0;z-index:2}
+  table.matrix thead .phase-group{background:#f0f2f5}
+  table.matrix thead .tr-col{color:var(--tr-mark);font-weight:600}
+  table.matrix thead .sub-col{font-size:11px;color:var(--text-3);font-weight:normal}
+  table.matrix tbody th{background:#fafbfc;text-align:left;padding:10px 12px;font-weight:500;position:sticky;left:0;z-index:1;min-width:200px;max-width:240px}
+  table.matrix tbody th .doc-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+  table.matrix tbody th .doc-type{font-size:11px;color:var(--text-3)}
+  table.matrix tbody th .ctrl-phase{display:inline-block;margin-top:4px;padding:1px 6px;border-radius:3px;background:var(--primary-bg);color:var(--primary);font-size:11px}
+  table.matrix td{height:46px;cursor:pointer;transition:.12s}
+  table.matrix td.cell:hover{transform:scale(1.04);box-shadow:0 2px 8px rgba(0,0,0,.12);z-index:1;position:relative}
+  .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:4px;font-size:11px;font-weight:600;border-radius:3px;margin:2px}
+  .cell .num{font-size:10px;font-weight:normal;opacity:.7;margin-top:2px}
+  .cell-initial{background:var(--initial-bg);color:#6b7075}
+  .cell-review{background:var(--review-bg);color:var(--review)}
+  .cell-stable{background:var(--stable-bg);color:var(--stable)}
+  .cell-final{background:var(--final-bg);color:var(--final)}
+  .cell-empty{background:var(--empty-bg);color:var(--empty);position:relative}
+  .cell-empty::after{content:"⚠";position:absolute;top:2px;right:4px;font-size:10px}
+  .cell-na{background:#fafbfc;color:var(--text-3);cursor:default}
+  .cell-na:hover{transform:none;box-shadow:none}
+  table.matrix tbody tr:hover th{background:#f0f4ff}
+  /* Drawer */
+  .drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:none}
+  .drawer-mask.active{display:block}
+  .drawer{position:fixed;top:0;right:0;width:460px;height:100%;background:#fff;z-index:51;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;box-shadow:-4px 0 16px rgba(0,0,0,.1)}
+  .drawer.active{transform:translateX(0)}
+  .drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+  .drawer-head h3{font-size:16px;font-weight:600;margin-bottom:4px}
+  .drawer-head .phase-tag{display:inline-block;padding:2px 8px;background:var(--primary-bg);color:var(--primary);border-radius:3px;font-size:12px;margin-right:6px}
+  .drawer-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-3);line-height:1}
+  .drawer-body{flex:1;overflow-y:auto;padding:18px 20px}
+  .drawer-section{margin-bottom:22px}
+  .drawer-section h4{font-size:13px;color:var(--text-2);margin-bottom:8px;font-weight:600}
+  .info-grid{display:grid;grid-template-columns:90px 1fr;gap:8px 12px;font-size:13px}
+  .info-grid .k{color:var(--text-2)}
+  .info-grid .v{color:var(--text)}
+  .status-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:600}
+  .doc-link{display:flex;align-items:center;gap:6px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;color:var(--primary);cursor:pointer;font-size:13px}
+  .doc-link:hover{background:var(--primary-bg)}
+  .timeline{list-style:none}
+  .timeline li{position:relative;padding-left:18px;padding-bottom:14px;font-size:13px;color:var(--text)}
+  .timeline li::before{content:"";position:absolute;left:4px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+  .timeline li::after{content:"";position:absolute;left:7px;top:14px;bottom:0;width:1px;background:var(--border)}
+  .timeline li:last-child::after{display:none}
+  .timeline .time{color:var(--text-3);font-size:11px;margin-top:2px}
+  .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px}
+  .drawer-foot .btn{flex:1;justify-content:center}
+  /* Toast */
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:#1f2329;color:#fff;padding:10px 20px;border-radius:4px;z-index:100;transition:.25s;opacity:0}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  /* Risk panel */
+  .risk-panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-top:16px}
+  .risk-panel h2{font-size:15px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .risk-panel h2 .count{color:var(--warn);font-size:13px;background:var(--empty-bg);padding:1px 8px;border-radius:10px}
+  .risk-list{display:flex;flex-direction:column;gap:8px}
+  .risk-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px}
+  .risk-item .r-doc{font-weight:600;min-width:180px}
+  .risk-item .r-phase{color:var(--text-2)}
+  .risk-item .r-tag{margin-left:auto;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600}
+  .tag-empty{background:var(--empty-bg);color:var(--empty)}
+  .tag-review{background:var(--review-bg);color:var(--review)}
+  /* tabs */
+  .tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border)}
+  .tab{padding:8px 16px;cursor:pointer;color:var(--text-2);border-bottom:2px solid transparent;font-size:14px}
+  .tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+  .tab:hover{color:var(--primary)}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+  /* empty state in drawer */
+  .empty-tip{color:var(--text-3);font-size:13px;text-align:center;padding:20px}
 </style>
 </head>
 <body>
-
-<!-- Component: Header -->
-<div class="header">
-  <div class="header-left">
-    <div class="header-title">交付物管理总览</div>
-    <span class="project-badge">芯片项目 X2026</span>
+<div class="app">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <h1>交付物管理总览</h1>
+      <div class="sub">芯片项目交付物矩阵 · 项目：NS-2000 智能座舱SoC · 当前节点：TR4-TO 评审准备中</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="exportMatrix()">导出矩阵</button>
+      <button class="btn" onclick="showToast('已生成体检报告，共发现 5 项风险')">一键体检</button>
+      <button class="btn btn-primary" onclick="showToast('已发起 TR4-TO 交付物评审')">发起评审</button>
+    </div>
   </div>
-  <div class="header-right">
-    <div class="header-info">当前阶段：<b>TR4-TO</b> · 交付物共 <b>9</b> 项 · 风险 <b style="color:var(--red)">3</b> 项</div>
-    <button class="btn btn-default" onclick="exportChecklist()">导出体检清单</button>
-    <button class="btn btn-primary" onclick="showToast('已刷新，数据截止 2026-07-29 09:00')">刷新数据</button>
-  </div>
-</div>
 
-<!-- Component: Main -->
-<div class="main">
-
-  <!-- Component: StatCards -->
+  <!-- Stat cards -->
   <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-label">交付物总数</div>
-      <div class="stat-value">9</div>
-      <div class="stat-sub">覆盖 Charter → GA 全阶段</div>
-    </div>
-    <div class="stat-card ok">
-      <div class="stat-label">已完成 (Final)</div>
-      <div class="stat-value">21</div>
-      <div class="stat-sub">占单元格 29%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">进行中 (Stable/Review)</div>
-      <div class="stat-value">30</div>
-      <div class="stat-sub">占单元格 41%</div>
-    </div>
-    <div class="stat-card risk">
-      <div class="stat-label">风险项 (空/逾期)</div>
-      <div class="stat-value">3</div>
-      <div class="stat-sub">需在 TR4-TO 前补齐</div>
-    </div>
+    <div class="stat-card"><div class="label">交付物总数</div><div class="value">12</div><div class="hint">覆盖全研发阶段</div></div>
+    <div class="stat-card ok"><div class="label">已 Final</div><div class="value">5</div><div class="hint">42% 已定稿</div></div>
+    <div class="stat-card"><div class="label">Stable</div><div class="value">3</div><div class="hint">稳定待定稿</div></div>
+    <div class="stat-card"><div class="label" style="color:var(--review)">Review 中</div><div class="value" style="color:var(--review)">2</div><div class="hint">需评审跟进</div></div>
+    <div class="stat-card"><div class="label">Initial</div><div class="value">1</div><div class="hint">初稿待完善</div></div>
+    <div class="stat-card warn"><div class="label">空白 / 风险</div><div class="value">5</div><div class="hint">单元格缺状态</div></div>
   </div>
 
-  <!-- Component: Tabs -->
+  <!-- Tabs -->
   <div class="tabs">
-    <div class="tab-item active" onclick="switchTab(this,'matrix')">矩阵视图<span class="tab-badge">9</span></div>
-    <div class="tab-item" onclick="switchTab(this,'list')">清单视图<span class="tab-badge">9</span></div>
-    <div class="tab-item" onclick="switchTab(this,'risk')">风险视图<span class="tab-badge">3</span></div>
+    <div class="tab active" onclick="switchTab('matrix',this)">交付物矩阵</div>
+    <div class="tab" onclick="switchTab('risk',this)">风险清单</div>
   </div>
 
-  <!-- Component: FilterBar -->
-  <div class="filter-bar">
-    <div class="filter-item">
-      <label>阶段</label>
-      <select id="f-stage" onchange="applyFilter()">
-        <option value="">全部阶段</option>
-        <option value="Charter">Charter</option>
-        <option value="TR1">TR1</option>
-        <option value="TR2">TR2</option>
-        <option value="TR3">TR3</option>
-        <option value="TR4">TR4</option>
-        <option value="TR5">TR5</option>
-        <option value="TR6">TR6</option>
-        <option value="GA">GA</option>
-      </select>
-    </div>
-    <div class="filter-item">
-      <label>状态</label>
-      <select id="f-status" onchange="applyFilter()">
-        <option value="">全部状态</option>
-        <option value="Final">Final</option>
-        <option value="Stable">Stable</option>
-        <option value="Review">Review</option>
-        <option value="Initial">Initial</option>
-        <option value="empty">空白(风险)</option>
-      </select>
-    </div>
-    <div class="filter-item">
-      <label>类型</label>
-      <select id="f-type" onchange="applyFilter()">
-        <option value="">全部类型</option>
-        <option value="规划">规划类</option>
-        <option value="架构">架构类</option>
-        <option value="设计">设计类</option>
-        <option value="质量">质量类</option>
-        <option value="安全">安全类</option>
-      </select>
-    </div>
-    <div class="filter-item">
-      <label>责任人</label>
-      <select id="f-owner" onchange="applyFilter()">
-        <option value="">全部责任人</option>
-        <option value="张明远">张明远</option>
-        <option value="李思琪">李思琪</option>
-        <option value="王浩然">王浩然</option>
-        <option value="陈雨桐">陈雨桐</option>
-        <option value="刘振华">刘振华</option>
-        <option value="赵晓岚">赵晓岚</option>
-      </select>
-    </div>
-    <div class="filter-item">
-      <input type="text" id="f-search" placeholder="搜索交付物名称…" oninput="applyFilter()">
-    </div>
-    <div class="filter-divider"></div>
-    <div class="legend">
-      <div class="legend-item"><span class="legend-dot" style="background:var(--gray-bg)"></span>Initial</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--orange-bg)"></span>Review</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--blue-bg)"></span>Stable</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--green-bg)"></span>Final</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--red-bg)"></span>空白/风险</div>
-    </div>
-  </div>
-
-  <!-- Component: Matrix -->
-  <div class="matrix-wrap" id="view-matrix">
-    <table class="matrix">
-      <thead>
-        <tr>
-          <th rowspan="2" style="width:160px;text-align:left;padding-left:12px">交付物</th>
-          <th rowspan="2" style="width:120px;text-align:left;padding-left:12px">类型 / 责任人</th>
-          <th colspan="1">Charter</th>
-          <th colspan="1">TR1</th>
-          <th colspan="1">TR2</th>
-          <th colspan="1">TR3</th>
-          <th colspan="4" class="group">TR4</th>
-          <th colspan="1">TR4A</th>
-          <th colspan="1">TR5</th>
-          <th colspan="1">TR6</th>
-          <th colspan="1">GA</th>
-        </tr>
-        <tr>
-          <th>Charter</th>
-          <th>TR1</th>
-          <th>TR2</th>
-          <th>TR3</th>
-          <th class="sub">85%</th>
-          <th class="sub">95%</th>
-          <th class="sub">100%</th>
-          <th class="sub">TO</th>
-          <th>TR4A</th>
-          <th>TR5</th>
-          <th>TR6</th>
-          <th>GA</th>
-        </tr>
-      </thead>
-      <tbody id="matrix-body"></tbody>
-    </table>
-  </div>
-
-  <!-- Component: List View -->
-  <div id="view-list" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:20px;">
-    <div id="list-body"></div>
-  </div>
-
-  <!-- Component: Risk View -->
-  <div id="view-risk" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:20px;">
-    <div id="risk-body"></div>
-  </div>
-
-</div>
-
-<!-- Component: Drawer -->
-<div class="drawer-mask" id="drawer-mask" onclick="closeDrawer(event)">
-  <div class="drawer" id="drawer" onclick="event.stopPropagation()">
-    <div class="drawer-header">
-      <div>
-        <div class="drawer-title" id="d-title">交付物详情</div>
-        <div class="drawer-sub" id="d-sub"></div>
+  <!-- Tab: Matrix -->
+  <div id="tab-matrix" class="tab-content active">
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-item">
+          <label>研发阶段</label>
+          <select id="f-phase"><option value="">全部阶段</option><option>Charter</option><option>TR1</option><option>TR2</option><option>TR3</option><option>TR4</option><option>TR5</option><option>TR6</option><option>GA</option></select>
+        </div>
+        <div class="filter-item">
+          <label>状态</label>
+          <select id="f-status"><option value="">全部状态</option><option value="final">Final</option><option value="stable">Stable</option><option value="review">Review</option><option value="initial">Initial</option><option value="empty">空白</option></select>
+        </div>
+        <div class="filter-item">
+          <label>交付物类型</label>
+          <select id="f-type"><option value="">全部类型</option><option>规划类</option><option>架构类</option><option>设计类</option><option>质量类</option><option>交付类</option></select>
+        </div>
+        <div class="filter-item">
+          <label>责任人</label>
+          <select id="f-owner"><option value="">全部责任人</option><option>李博文</option><option>陈思远</option><option>王雪松</option><option>赵敏</option><option>周航</option><option>孙琳</option></select>
+        </div>
+        <div class="search-wrap">
+          <input class="search-input" id="f-keyword" placeholder="搜索交付物名称、关键词…">
+        </div>
       </div>
-      <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+      <div class="filter-row">
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--initial-bg)"></span>Initial 初稿</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--review-bg)"></span>Review 评审中</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--stable-bg)"></span>Stable 稳定</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--final-bg)"></span>Final 定稿</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--empty-bg)"></span>空白风险</div>
+        </div>
+        <button class="link-btn" onclick="resetFilter()">重置筛选</button>
+      </div>
     </div>
-    <div class="drawer-body" id="drawer-body"></div>
+
+    <!-- Matrix table -->
+    <div class="matrix-wrap">
+      <div class="matrix-head">
+        <h2>交付物 × 研发阶段 矩阵</h2>
+        <div class="meta">共 12 个交付物 · 点击单元格查看详情 · 列含 TR4 的 85/95/100/TO 子阶段</div>
+      </div>
+      <div class="matrix-scroll">
+        <table class="matrix" id="matrix-table">
+          <thead>
+            <tr>
+              <th rowspan="2">交付物文档</th>
+              <th class="phase-group" rowspan="2">Charter</th>
+              <th class="phase-group" rowspan="2">TR1</th>
+              <th class="phase-group" rowspan="2">TR2</th>
+              <th class="phase-group" rowspan="2">TR3</th>
+              <th class="phase-group tr-col" colspan="4">TR4</th>
+              <th class="phase-group" rowspan="2">TR4A</th>
+              <th class="phase-group" rowspan="2">TR5</th>
+              <th class="phase-group" rowspan="2">TR6</th>
+              <th class="phase-group" rowspan="2">GA</th>
+            </tr>
+            <tr>
+              <th class="sub-col">85</th>
+              <th class="sub-col">95</th>
+              <th class="sub-col">100</th>
+              <th class="sub-col tr-col">TO</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Risk -->
+  <div id="tab-risk" class="tab-content">
+    <div class="risk-panel">
+      <h2>交付物风险清单 <span class="count" id="risk-count">0</span></h2>
+      <div class="risk-list" id="risk-list"></div>
+    </div>
   </div>
 </div>
 
-<!-- Component: Toast -->
+<!-- Drawer -->
+<div class="drawer-mask" id="drawer-mask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <h3 id="d-title">交付物详情</h3>
+      <div id="d-phase-tag"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot">
+    <button class="btn" onclick="showToast('已复制文档链接到剪贴板')">复制链接</button>
+    <button class="btn" onclick="showToast('已发送催办提醒给责任人')">催办责任人</button>
+    <button class="btn btn-primary" onclick="showToast('已跳转文档编辑页')">打开文档</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-/* ================= Mock Data Layer ================= */
-var STAGES = ["Charter","TR1","TR2","TR3","TR4-85","TR4-95","TR4-100","TR4-TO","TR4A","TR5","TR6","GA"];
-var STAGE_LABELS = ["Charter","TR1","TR2","TR3","85%","95%","100%","TO","TR4A","TR5","TR6","GA"];
+/* ============ Mock Data Layer ============ */
+const STATUSES = {
+  initial:{label:'Initial',cls:'cell-initial'},
+  review:{label:'Review',cls:'cell-review'},
+  stable:{label:'Stable',cls:'cell-stable'},
+  final:{label:'Final',cls:'cell-final'},
+  empty:{label:'未提交',cls:'cell-empty'},
+  na:{label:'—',cls:'cell-na'}
+};
+// 9 phase columns: Charter,TR1,TR2,TR3,85,95,100,TO,TR4A,TR5,TR6,GA
+const PHASES=['Charter','TR1','TR2','TR3','85','95','100','TO','TR4A','TR5','TR6','GA'];
+const PHASE_LABEL=['Charter','TR1','TR2','TR3','TR4-85','TR4-95','TR4-100','TR4-TO','TR4A','TR5','TR6','GA'];
 
-var deliverables = [
-  {
-    id: "BP",
-    name: "Business Plan (BP)",
-    type: "规划",
-    owner: "张明远",
-    controlStage: "Charter",
-    statuses: ["Final","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final"],
-    link: "BP_芯片X2026_v3.2.docx",
-    desc: "项目商业计划书，明确市场机会、投资回报和里程碑。",
-    timeline: [
-      { time: "2026-07-15", action: "李思琪", desc: "状态更新为 Final" },
-      { time: "2026-06-20", action: "张明远", desc: "状态更新为 Stable" },
-      { time: "2026-05-10", action: "张明远", desc: "提交 Review，评审意见3条" }
-    ]
-  },
-  {
-    id: "MRD",
-    name: "Market Requirement Doc (MRD)",
-    type: "规划",
-    owner: "李思琪",
-    controlStage: "TR1",
-    statuses: ["Initial","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final"],
-    link: "MRD_芯片X2026_v2.1.docx",
-    desc: "市场需求文档，定义目标客户场景和功能优先级。",
-    timeline: [
-      { time: "2026-07-20", action: "李思琪", desc: "状态更新为 Final" },
-      { time: "2026-06-01", action: "李思琪", desc: "状态更新为 Stable" }
-    ]
-  },
-  {
-    id: "ARCH",
-    name: "芯片架构设计文档",
-    type: "架构",
-    owner: "王浩然",
-    controlStage: "TR2",
-    statuses: ["empty","Initial","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final"],
-    link: "ArchSpec_芯片X2026_v4.0.pdf",
-    desc: "芯片总体架构设计，含模块划分、总线拓扑和面积估算。",
-    timeline: [
-      { time: "2026-07-22", action: "王浩然", desc: "状态更新为 Final" },
-      { time: "2026-06-15", action: "陈雨桐", desc: "Review 通过，建议补充低功耗章节" }
-    ]
-  },
-  {
-    id: "DRSPEC",
-    name: "DR_Spec 详细设计规格",
-    type: "设计",
-    owner: "陈雨桐",
-    controlStage: "TR3",
-    statuses: ["empty","empty","Initial","Stable","Stable","Stable","Review","Review","Stable","Stable","Final","Final"],
-    link: "DRSpec_芯片X2026_v3.5.xlsx",
-    desc: "各模块详细设计规格，含寄存器定义、时序约束和验证计划。",
-    timeline: [
-      { time: "2026-07-28", action: "陈雨桐", desc: "TR4-TO 阶段提交 Review，等待评审" },
-      { time: "2026-07-10", action: "陈雨桐", desc: "状态更新为 Stable" },
-      { time: "2026-06-05", action: "陈雨桐", desc: "创建初稿，状态 Initial" }
-    ]
-  },
-  {
-    id: "PINPAD",
-    name: "PinPad Matrix",
-    type: "设计",
-    owner: "刘振华",
-    controlStage: "TR3",
-    statuses: ["empty","empty","empty","Initial","Stable","Stable","Stable","Stable","Review","Stable","Final","Final"],
-    link: "PinPad_芯片X2026_v2.8.xlsx",
-    desc: "引脚定义矩阵，含封装映射、电源域和复用配置。",
-    timeline: [
-      { time: "2026-07-26", action: "刘振华", desc: "TR4A 阶段提交 Review" },
-      { time: "2026-07-05", action: "刘振华", desc: "状态更新为 Stable" }
-    ]
-  },
-  {
-    id: "DFMEA",
-    name: "Chip-level DFMEA",
-    type: "质量",
-    owner: "赵晓岚",
-    controlStage: "TR3",
-    statuses: ["empty","empty","empty","Initial","Initial","Review","Review","empty","empty","Stable","Stable","Final"],
-    link: "DFMEA_芯片X2026_v1.3.xlsx",
-    desc: "芯片级失效模式分析，覆盖失效机理、探测机制和风险等级。",
-    timeline: [
-      { time: "2026-07-25", action: "赵晓岚", desc: "TR4-95/100 阶段提交 Review" },
-      { time: "2026-06-20", action: "赵晓岚", desc: "创建初稿，状态 Initial" }
-    ]
-  },
-  {
-    id: "SAFETY",
-    name: "Safety Plan",
-    type: "安全",
-    owner: "赵晓岚",
-    controlStage: "TR3",
-    statuses: ["empty","empty","empty","empty","empty","empty","empty","empty","Initial","Review","Stable","Final"],
-    link: "SafetyPlan_芯片X2026_v1.0.docx",
-    desc: "功能安全计划，遵循 ISO 26262，含 ASIL 分解和验证活动。",
-    timeline: [
-      { time: "2026-07-20", action: "赵晓岚", desc: "TR5 阶段提交 Review" },
-      { time: "2026-07-01", action: "赵晓岚", desc: "创建初稿，状态 Initial" }
-    ]
-  },
-  {
-    id: "TSC",
-    name: "Technical Specification Checklist",
-    type: "质量",
-    owner: "王浩然",
-    controlStage: "TR4",
-    statuses: ["empty","empty","empty","empty","Initial","Stable","Stable","Review","Stable","Stable","Final","Final"],
-    link: "TSC_芯片X2026_v2.0.xlsx",
-    desc: "技术规格检查清单，确认所有关键参数满足设计目标。",
-    timeline: [
-      { time: "2026-07-28", action: "王浩然", desc: "TR4-TO 阶段提交 Review，待评审" },
-      { time: "2026-07-12", action: "王浩然", desc: "状态更新为 Stable" }
-    ]
-  },
-  {
-    id: "VERIF",
-    name: "Verification Plan",
-    type: "质量",
-    owner: "刘振华",
-    controlStage: "TR2",
-    statuses: ["empty","Initial","Stable","Stable","Stable","Stable","Review","Review","Review","Stable","Stable","Final"],
-    link: "VerifPlan_芯片X2026_v3.1.docx",
-    desc: "验证计划，含覆盖率目标、测试用例分解和回归策略。",
-    timeline: [
-      { time: "2026-07-27", action: "刘振华", desc: "TR4-TO/4A 阶段提交 Review" },
-      { time: "2026-07-08", action: "刘振华", desc: "状态更新为 Stable" }
-    ]
-  }
+const DELIVERABLES=[
+  {name:'Business Plan (BP)',type:'规划类',ctrl:'Charter',owner:'李博文',ownerRole:'项目总监',deadline:'2026-08-10',docLink:'docs://ns2000/bp-v2.3',desc:'项目商业计划书，包含投资回报、市场定位、资源投入估算。',
+   states:['final','final','final','final','final','final','final','final','final','final','final','final'],
+   timeline:[
+     {t:'2026-07-28 陈思远 标记为 Final',d:'TR4-TO 前完成最终定稿'},
+     {t:'2026-07-20 李博文 上传 v2.3',d:'补充量产成本测算'},
+     {t:'2026-06-15 李博文 创建初稿',d:'Charter 阶段启动'}
+   ]},
+  {name:'Market Requirements (MRD)',type:'规划类',ctrl:'Charter',owner:'陈思远',ownerRole:'产品经理',deadline:'2026-08-10',docLink:'docs://ns2000/mrd-v1.8',desc:'市场需求文档，定义目标客户、竞品分析、核心功能优先级。',
+   states:['final','final','final','final','stable','stable','stable','stable','stable','final','final','final'],
+   timeline:[
+     {t:'2026-07-26 赵敏 提交评审意见',d:'建议补充座舱域竞品对比'},
+     {t:'2026-07-15 陈思远 标记 Stable',d:'TR3 后进入稳定维护'},
+     {t:'2026-05-10 陈思远 创建初稿',d:'Charter 阶段'}
+   ]},
+  {name:'芯片架构设计文档',type:'架构类',ctrl:'TR2',owner:'王雪松',ownerRole:'架构师',deadline:'2026-08-15',docLink:'docs://ns2000/arch-v3.1',desc:'系统级架构设计，含总线拓扑、功耗预算、IP 集成清单。',
+   states:['initial','initial','stable','stable','stable','stable','stable','review','review','stable','final','final'],
+   timeline:[
+     {t:'2026-07-29 周航 发起 Review',d:'TO 子阶段功耗预算需复核'},
+     {t:'2026-07-22 王雪松 更新 IP 清单',d:'新增 NPU IP v2'},
+     {t:'2026-06-01 王雪松 标记 Stable',d:'TR2 评审通过'}
+   ]},
+  {name:'DR_Spec 详细设计规格',type:'设计类',ctrl:'TR3',owner:'赵敏',ownerRole:'设计负责人',deadline:'2026-08-18',docLink:'docs://ns2000/drspec-v2.0',desc:'详细设计规格书，覆盖各子系统接口、时序、验证策略。',
+   states:['empty','empty','initial','stable','stable','stable','review','review','empty','empty','empty','empty'],
+   timeline:[
+     {t:'2026-07-28 赵敏 标记 Review',d:'95 子阶段进入评审'},
+     {t:'2026-07-10 赵敏 标记 Stable',d:'TR3 评审通过'},
+     {t:'2026-06-20 赵敏 创建初稿',d:'TR2 启动'}
+   ]},
+  {name:'PinPad Matrix 引脚矩阵',type:'设计类',ctrl:'TR3',owner:'周航',ownerRole:'封装工程师',deadline:'2026-08-20',docLink:'docs://ns2000/pinpad-v1.5',desc:'芯片引脚分配矩阵，含电源域、复用功能、封装映射。',
+   states:['empty','empty','empty','initial','stable','stable','stable','stable','stable','stable','final','final'],
+   timeline:[
+     {t:'2026-07-25 周航 标记 Stable',d:'95 子阶段稳定'},
+     {t:'2026-07-05 周航 创建初稿',d:'TR3 启动引脚规划'}
+   ]},
+  {name:'Chip-level DFMEA',type:'质量类',ctrl:'TR3',owner:'孙琳',ownerRole:'质量工程师',deadline:'2026-08-22',docLink:'docs://ns2000/dfmea-v1.2',desc:'芯片级设计失效模式分析，覆盖失效模式、影响、RPN 评分。',
+   states:['empty','empty','empty','empty','initial','review','review','review','empty','empty','empty','empty'],
+   timeline:[
+     {t:'2026-07-27 孙琳 发起 Review',d:'100 子阶段评审中，3 项 RPN>100 待闭环'},
+     {t:'2026-07-12 孙琳 创建初稿',d:'TR4-85 启动'}
+   ]},
+  {name:'Safety Plan 安全计划',type:'质量类',ctrl:'TR3',owner:'孙琳',ownerRole:'质量工程师',deadline:'2026-08-22',docLink:'docs://ns2000/safety-v1.0',desc:'功能安全计划，含 ASIL 分级、安全目标、验证活动。',
+   states:['empty','empty','initial','stable','stable','stable','stable','review','review','stable','stable','final'],
+   timeline:[
+     {t:'2026-07-28 孙琳 发起 Review',d:'TO 子阶段安全目标复核'},
+     {t:'2026-07-08 孙琳 标记 Stable',d:'TR3 评审通过'}
+   ]},
+  {name:'TSC 技术状态基线',type:'交付类',ctrl:'TR4',owner:'王雪松',ownerRole:'架构师',deadline:'2026-08-25',docLink:'docs://ns2000/tsc-v2.0',desc:'技术状态基线文档，锁定 TO 点的技术配置项。',
+   states:['empty','empty','empty','empty','empty','initial','initial','review','empty','empty','empty','empty'],
+   timeline:[
+     {t:'2026-07-29 王雪松 发起 Review',d:'TO 前需锁定基线，风险高'},
+     {t:'2026-07-18 王雪松 创建初稿',d:'95 子阶段启动'}
+   ]},
+  {name:'验证测试计划 VTP',type:'质量类',ctrl:'TR3',owner:'赵敏',ownerRole:'设计负责人',deadline:'2026-08-20',docLink:'docs://ns2000/vtp-v1.3',desc:'验证测试计划，定义测试用例、覆盖目标、回归策略。',
+   states:['empty','empty','initial','stable','stable','stable','final','final','final','final','final','final'],
+   timeline:[
+     {t:'2026-07-24 赵敏 标记 Final',d:'100 子阶段定稿'},
+     {t:'2026-07-02 赵敏 标记 Stable',d:'TR3 评审通过'}
+   ]},
+  {name:'量产测试规范',type:'交付类',ctrl:'TR5',owner:'周航',ownerRole:'封装工程师',deadline:'2026-09-10',docLink:'docs://ns2000/prodtest-v0.9',desc:'量产测试规范，含 ATE 测试项、良率目标、测试时间。',
+   states:['empty','empty','empty','empty','empty','empty','empty','empty','initial','review','stable','final'],
+   timeline:[
+     {t:'2026-07-26 周航 发起 Review',d:'TR4A 评审中'},
+     {t:'2026-07-15 周航 创建初稿',d:'TR4A 启动'}
+   ]},
+  {name:'可靠性评估报告',type:'质量类',ctrl:'TR5',owner:'孙琳',ownerRole:'质量工程师',deadline:'2026-09-12',docLink:'docs://ns2000/reliab-v1.1',desc:'可靠性评估报告，含 HTOL、TC、uHAST 测试结果与结论。',
+   states:['empty','empty','empty','empty','empty','empty','empty','empty','empty','initial','stable','final'],
+   timeline:[
+     {t:'2026-07-23 孙琳 标记 Stable',d:'TR5 评审通过'},
+     {t:'2026-07-01 孙琳 创建初稿',d:'TR5 启动'}
+   ]},
+  {name:'量产交付清单 BOM',type:'交付类',ctrl:'TR6',owner:'李博文',ownerRole:'项目总监',deadline:'2026-09-20',docLink:'docs://ns2000/bom-v1.0',desc:'量产交付物料清单，锁定最终 BOM 版本与供应商。',
+   states:['empty','empty','empty','empty','empty','empty','empty','empty','empty','empty','initial','review'],
+   timeline:[
+     {t:'2026-07-27 李博文 发起 Review',d:'TR6 评审中，2 项物料待确认'},
+     {t:'2026-07-10 李博文 创建初稿',d:'TR6 启动'}
+   ]}
 ];
 
-var statusMeta = {
-  "Final":   { cls: "st-final",   label: "Final" },
-  "Stable":  { cls: "st-stable",  label: "Stable" },
-  "Review":  { cls: "st-review",  label: "Review" },
-  "Initial": { cls: "st-initial", label: "Initial" },
-  "empty":   { cls: "st-empty",   label: "未交付" }
-};
+/* ============ Render Layer ============ */
+function renderMatrix(){
+  const tbody=document.getElementById('matrix-body');
+  tbody.innerHTML='';
+  const fPhase=document.getElementById('f-phase').value;
+  const fStatus=document.getElementById('f-status').value;
+  const fType=document.getElementById('f-type').value;
+  const fOwner=document.getElementById('f-owner').value;
+  const fKw=document.getElementById('f-keyword').value.trim().toLowerCase();
 
-/* ================= Render Layer ================= */
-function renderMatrix() {
-  var tbody = document.getElementById("matrix-body");
-  tbody.innerHTML = "";
-  deliverables.forEach(function(d) {
-    var tr = document.createElement("tr");
-    tr.setAttribute("data-id", d.id);
+  DELIVERABLES.forEach((doc,di)=>{
+    // filter
+    if(fType && doc.type!==fType) return;
+    if(fOwner && doc.owner!==fOwner) return;
+    if(fKw && !(doc.name.toLowerCase().includes(fKw)||doc.desc.toLowerCase().includes(fKw))) return;
+    if(fStatus){
+      if(!doc.states.some((s,idx)=>(s!=='na'&&s!=='empty'?'empty':'empty')&&true)){}
+      const has=doc.states.some((s,idx)=>{
+        if(fStatus==='empty') return s==='empty';
+        return s===fStatus;
+      });
+      if(!has) return;
+    }
+    if(fPhase){
+      let idx=-1;
+      if(fPhase==='TR4') idx=-2; // any TR4 sub
+      else idx=PHASE_LABEL.indexOf(fPhase);
+      if(idx>=0 && doc.states[idx]!=='final' && doc.states[idx]!=='stable' && doc.states[idx]!=='review' && doc.states[idx]!=='initial'){}
+    }
 
-    // Doc cell
-    var td1 = document.createElement("td");
-    var hasRisk = d.statuses.indexOf("empty") >= 0 && d.statuses.indexOf("empty") < STAGES.indexOf("TR4-TO") + 1;
-    td1.innerHTML = '<div class="doc-cell">' +
-      '<span class="doc-icon">📄</span>' +
-      '<div><div class="doc-name">' + d.name + (hasRisk ? '<span class="risk-icon">⚠</span>' : '') + '</div>' +
-      '<span class="stage-tag" style="background:var(--gray-bg);color:var(--text-secondary)">卡控: ' + d.controlStage + '</span></div>' +
-      '</div>';
-    tr.appendChild(td1);
-
-    // Type / owner cell
-    var td2 = document.createElement("td");
-    td2.innerHTML = '<div class="doc-type">' + d.type + '类</div><div style="font-size:12px;color:var(--text-primary)">' + d.owner + '</div>';
-    tr.appendChild(td2);
-
-    // Status cells
-    d.statuses.forEach(function(st, idx) {
-      var td = document.createElement("td");
-      var meta = statusMeta[st];
-      if (st === "empty" && idx > STAGES.indexOf("TR4-TO")) {
-        // future empty stages show as N/A
-        td.innerHTML = '<div class="cell-status st-na">—</div>';
-      } else {
-        td.innerHTML = '<div class="cell-status ' + meta.cls + '" onclick="openDrawer(\'' + d.id + '\',' + idx + ')">' + meta.label + '</div>';
-      }
+    const tr=document.createElement('tr');
+    const th=document.createElement('th');
+    th.innerHTML=`<div class="doc-name">${doc.name}</div><div class="doc-type">${doc.type} · ${doc.owner}</div><div class="ctrl-phase">卡控：${doc.ctrl}</div>`;
+    tr.appendChild(th);
+    doc.states.forEach((st,pi)=>{
+      const td=document.createElement('td');
+      const s=STATUSES[st];
+      const cell=document.createElement('div');
+      cell.className='cell '+s.cls;
+      if(st==='na'){td.className='';td.innerHTML='<span style="color:var(--text-3)">—</span>';tr.appendChild(td);return;}
+      cell.textContent=s.label;
+      if(st!=='empty'){const num=document.createElement('div');num.className='num';num.textContent='v'+(1+ (di%3))+'.'+pi;cell.appendChild(num);}
+      td.appendChild(cell);
+      td.onclick=()=>openDrawer(di,pi);
       tr.appendChild(td);
     });
-
     tbody.appendChild(tr);
   });
+  if(tbody.children.length===0){
+    tbody.innerHTML='<tr><td colspan="13" style="padding:40px;color:var(--text-3)">无匹配交付物，请调整筛选条件</td></tr>';
+  }
 }
 
-function renderList() {
-  var container = document.getElementById("list-body");
-  var html = '<table class="matrix" style="min-width:auto"><thead><tr>' +
-    '<th style="text-align:left;padding-left:12px">交付物</th>' +
-    '<th style="text-align:left;padding-left:12px">类型</th>' +
-    '<th>责任人</th><th>卡控阶段</th><th>当前状态</th><th>已完成阶段</th><th>风险</th>' +
-    '</tr></thead><tbody>';
-  deliverables.forEach(function(d) {
-    var latest = getLatestStatus(d);
-    var doneCount = d.statuses.filter(function(s){return s==="Final"}).length;
-    var risk = d.statuses.indexOf("empty") >= 0 && d.statuses.indexOf("empty") <= STAGES.indexOf("TR4-TO");
-    var meta = statusMeta[latest];
-    html += '<tr>' +
-      '<td style="text-align:left;padding-left:12px"><div class="doc-cell"><span class="doc-icon">📄</span><span class="doc-name">' + d.name + '</span></div></td>' +
-      '<td style="text-align:left;padding-left:12px">' + d.type + '类</td>' +
-      '<td>' + d.owner + '</td>' +
-      '<td>' + d.controlStage + '</td>' +
-      '<td><span class="cell-status ' + meta.cls + '" style="display:inline-block;padding:2px 10px;min-height:auto;cursor:pointer" onclick="openDrawer(\'' + d.id + '\')">' + meta.label + '</span></td>' +
-      '<td>' + doneCount + ' / ' + STAGES.length + '</td>' +
-      '<td>' + (risk ? '<span style="color:var(--red);font-weight:500">⚠ 有空白</span>' : '<span style="color:var(--green)">无</span>') + '</td>' +
-      '</tr>';
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-function renderRisk() {
-  var container = document.getElementById("risk-body");
-  var risks = [];
-  deliverables.forEach(function(d) {
-    d.statuses.forEach(function(st, idx) {
-      if (st === "empty" && idx <= STAGES.indexOf("TR4-TO")) {
-        risks.push({ doc: d, stageIdx: idx });
+function renderRisk(){
+  const list=document.getElementById('risk-list');
+  list.innerHTML='';
+  let risks=[];
+  DELIVERABLES.forEach((doc,di)=>{
+    doc.states.forEach((st,pi)=>{
+      if(st==='empty'){
+        // only show empty cells at or before TO (index<=7) to focus near-term risk
+        if(pi<=7){
+          risks.push({doc:doc.name,owner:doc.owner,phase:PHASE_LABEL[pi],tag:'空白',cls:'tag-empty',di,pi});
+        }
+      } else if(st==='review' && pi<=7){
+        risks.push({doc:doc.name,owner:doc.owner,phase:PHASE_LABEL[pi],tag:'评审中',cls:'tag-review',di,pi});
       }
     });
   });
-  if (risks.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✓</div><div>暂无风险项，所有交付物在 TR4-TO 前均已就绪</div></div>';
-    return;
+  document.getElementById('risk-count').textContent=risks.length;
+  if(risks.length===0){
+    list.innerHTML='<div class="empty-tip">暂无风险项 🎉</div>';return;
   }
-  var html = '<div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary)">以下交付物在当前阶段（TR4-TO）及之前存在未交付项，需在评审前补齐：</div>';
-  risks.forEach(function(r) {
-    html += '<div style="border:1px solid var(--border);border-left:3px solid var(--red);border-radius:6px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="openDrawer(\'' + r.doc.id + '\',' + r.stageIdx + ')">' +
-      '<div><div style="font-weight:500;font-size:14px">' + r.doc.name + '</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary);margin-top:3px">责任人：' + r.doc.owner + ' · 阶段：' + STAGE_LABELS[r.stageIdx] + ' · 卡控阶段：' + r.doc.controlStage + '</div></div>' +
-      '<span class="cell-status st-empty" style="display:inline-block;padding:4px 14px;min-height:auto">未交付</span>' +
-      '</div>';
-  });
-  container.innerHTML = html;
-}
-
-function getLatestStatus(d) {
-  for (var i = d.statuses.length - 1; i >= 0; i--) {
-    if (d.statuses[i] !== "empty") return d.statuses[i];
-  }
-  return "empty";
-}
-
-/* ================= Drawer ================= */
-function openDrawer(docId, stageIdx) {
-  var d = deliverables.filter(function(x){return x.id === docId;})[0];
-  if (!d) return;
-  var meta = statusMeta[getLatestStatus(d)];
-
-  document.getElementById("d-title").textContent = d.name;
-  document.getElementById("d-sub").textContent = d.type + "类 · 责任人：" + d.owner + " · 卡控阶段：" + d.controlStage;
-
-  var stageProgressHtml = "";
-  STAGE_LABELS.forEach(function(s, i) {
-    var st = d.statuses[i];
-    var cls = st !== "empty" && st !== undefined ? "active" : "";
-    stageProgressHtml += '<span class="stage-progress-item ' + cls + '">' + s + '</span>';
-  });
-
-  var timelineHtml = "";
-  d.timeline.forEach(function(t) {
-    timelineHtml += '<li class="timeline-item">' +
-      '<div class="tl-time">' + t.time + '</div>' +
-      '<div class="tl-action">' + t.action + '</div>' +
-      '<div class="tl-desc">' + t.desc + '</div>' +
-      '</li>';
-  });
-
-  var body = '<div class="drawer-body">' +
-    '<div class="drawer-section">' +
-      '<div class="drawer-section-title">基本信息</div>' +
-      '<div class="info-grid">' +
-        '<div class="info-item"><div class="info-label">当前状态</div><div class="info-value"><span class="cell-status ' + meta.cls + '" style="display:inline-block;padding:2px 10px;min-height:auto">' + meta.label + '</span></div></div>' +
-        '<div class="info-item"><div class="info-label">卡控阶段</div><div class="info-value">' + d.controlStage + '</div></div>' +
-        '<div class="info-item"><div class="info-label">责任人</div><div class="info-value">' + d.owner + '</div></div>' +
-        '<div class="info-item"><div class="info-label">交付物类型</div><div class="info-value">' + d.type + '类</div></div>' +
-      '</div>' +
-      '<div style="margin-top:12px"><div class="info-label">说明</div><div class="info-value" style="margin-top:3px">' + d.desc + '</div></div>' +
-      '<div style="margin-top:12px"><div class="info-label">文档链接</div><div style="margin-top:3px"><a class="doc-link" href="javascript:void(0)" onclick="showToast(\'文档链接需在系统中打开\')">📎 ' + d.link + '</a></div></div>' +
-    '</div>' +
-    '<div class="drawer-section">' +
-      '<div class="drawer-section-title">阶段进度</div>' +
-      '<div class="stage-progress">' + stageProgressHtml + '</div>' +
-      '<div style="font-size:12px;color:var(--text-tertiary);margin-top:8px">蓝色标记表示该阶段已有交付记录，灰色表示尚未启动</div>' +
-    '</div>' +
-    '<div class="drawer-section">' +
-      '<div class="drawer-section-title">最近更新记录</div>' +
-      '<ul class="timeline">' + timelineHtml + '</ul>' +
-    '</div>' +
-    '<div class="drawer-section">' +
-      '<div class="drawer-section-title">当前阶段应交口径</div>' +
-      '<div style="font-size:13px;color:var(--text-secondary);background:var(--gray-bg);padding:12px;border-radius:6px">' +
-        '在 <b style="color:var(--text-primary)">' + d.controlStage + '</b> 评审节点前，该交付物需达到 <b style="color:var(--blue)">Stable</b> 以上状态。Final 状态表示已通过评审且冻结，可作为下游输入。' +
-      '</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:10px;margin-top:8px">' +
-      '<button class="btn btn-default" style="flex:1" onclick="showToast(\'已催办，已通过飞书通知责任人\')">催办责任人</button>' +
-      '<button class="btn btn-primary" style="flex:1" onclick="showToast(\'已跳转文档编辑页（演示）\')">查看文档</button>' +
-    '</div>' +
-  '</div>';
-
-  document.getElementById("drawer-body").innerHTML = body;
-  document.getElementById("drawer-mask").classList.add("show");
-}
-
-function closeDrawer(e) {
-  if (e && e.target !== document.getElementById("drawer-mask")) return;
-  document.getElementById("drawer-mask").classList.remove("show");
-}
-
-/* ================= Interaction ================= */
-function switchTab(el, view) {
-  document.querySelectorAll(".tab-item").forEach(function(t){t.classList.remove("active");});
-  el.classList.add("active");
-  document.getElementById("view-matrix").style.display = view === "matrix" ? "block" : "none";
-  document.getElementById("view-list").style.display = view === "list" ? "block" : "none";
-  document.getElementById("view-risk").style.display = view === "risk" ? "block" : "none";
-  if (view === "list") renderList();
-  if (view === "risk") renderRisk();
-}
-
-function applyFilter() {
-  var stage = document.getElementById("f-stage").value;
-  var status = document.getElementById("f-status").value;
-  var type = document.getElementById("f-type").value;
-  var owner = document.getElementById("f-owner").value;
-  var search = document.getElementById("f-search").value.toLowerCase();
-
-  var rows = document.querySelectorAll("#matrix-body tr");
-  rows.forEach(function(row) {
-    var id = row.getAttribute("data-id");
-    var d = deliverables.filter(function(x){return x.id === id;})[0];
-    var match = true;
-    if (type && d.type !== type) match = false;
-    if (owner && d.owner !== owner) match = false;
-    if (search && d.name.toLowerCase().indexOf(search) < 0) match = false;
-    if (status && d.statuses.indexOf(status) < 0) match = false;
-    if (stage) {
-      var idx = STAGES.map(function(s){return s.split("-")[0];}).indexOf(stage);
-      if (idx < 0 || d.statuses[idx] === "empty") match = false;
-    }
-    row.style.display = match ? "" : "none";
+  risks.forEach(r=>{
+    const d=document.createElement('div');
+    d.className='risk-item';
+    d.innerHTML=`<div class="r-doc">${r.doc}</div><div class="r-phase">${r.phase} · 责任人 ${r.owner}</div><div class="r-tag ${r.cls}">${r.tag}</div>`;
+    d.style.cursor='pointer';
+    d.onclick=()=>openDrawer(r.di,r.pi);
+    list.appendChild(d);
   });
 }
 
-function exportChecklist() {
-  showToast("体检清单已生成，请查收飞书文件通知");
+/* ============ Drawer ============ */
+function openDrawer(di,pi){
+  const doc=DELIVERABLES[di];
+  const st=doc.states[pi];
+  const s=STATUSES[st];
+  document.getElementById('d-title').textContent=doc.name;
+  document.getElementById('d-phase-tag').innerHTML=`<span class="phase-tag">${PHASE_LABEL[pi]}</span><span class="status-badge ${s.cls}" style="background:var(--${st==='final'?'final':st==='stable'?'stable':st==='review'?'review':st==='initial'?'initial':'empty'}-bg);color:var(--${st==='final'?'final':st==='stable'?'stable':st==='review'?'review':st==='initial'?'initial':'empty'})">${s.label}</span>`;
+  const body=document.getElementById('drawer-body');
+  const expectedStates={initial:'初稿',stable:'稳定',review:'评审中',final:'定稿',empty:'尚未提交'};
+  body.innerHTML=`
+    <div class="drawer-section">
+      <h4>基本信息</h4>
+      <div class="info-grid">
+        <div class="k">交付物类型</div><div class="v">${doc.type}</div>
+        <div class="k">卡控阶段</div><div class="v">${doc.ctrl}</div>
+        <div class="k">责任人</div><div class="v">${doc.owner}（${doc.ownerRole}）</div>
+        <div class="k">截止日期</div><div class="v">${doc.deadline}</div>
+        <div class="k">当前阶段应交口径</div><div class="v">${PHASE_LABEL[pi]} 阶段期望：${expectedStates[st]||'—'}</div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h4>说明</h4>
+      <div style="color:var(--text-2);font-size:13px">${doc.desc}</div>
+    </div>
+    <div class="drawer-section">
+      <h4>文档链接</h4>
+      <div class="doc-link" onclick="showToast('已打开文档：${doc.docLink}')">📄 ${doc.docLink}</div>
+    </div>
+    <div class="drawer-section">
+      <h4>最近更新记录</h4>
+      <ul class="timeline">
+        ${doc.timeline.map(t=>`<li>${t.t}<div class="time">${t.d}</div></li>`).join('')}
+      </ul>
+    </div>
+  `;
+  document.getElementById('drawer-mask').classList.add('active');
+  document.getElementById('drawer').classList.add('active');
+}
+function closeDrawer(){
+  document.getElementById('drawer-mask').classList.remove('active');
+  document.getElementById('drawer').classList.remove('active');
 }
 
-var toastTimer;
-function showToast(msg) {
-  var t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
+/* ============ Interaction ============ */
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='risk') renderRisk();
+}
+function resetFilter(){
+  document.getElementById('f-phase').value='';
+  document.getElementById('f-status').value='';
+  document.getElementById('f-type').value='';
+  document.getElementById('f-owner').value='';
+  document.getElementById('f-keyword').value='';
+  renderMatrix();
+}
+function exportMatrix(){showToast('矩阵已导出为 Excel：交付物矩阵_20260729.xlsx');}
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){t.classList.remove("show");}, 2500);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-/* ================= Init ================= */
-renderMatrix();
+/* ============ Init ============ */
+function bindEvents(){
+  ['f-phase','f-status','f-type','f-owner','f-keyword'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',renderMatrix);
+    document.getElementById(id).addEventListener('change',renderMatrix);
+  });
+}
+function init(){
+  renderMatrix();
+  renderRisk();
+  bindEvents();
+}
+init();
 </script>
 </body>
 </html>
