@@ -1,754 +1,768 @@
-<!--
-  原型名称：交付物管理总览页
-  需求来源：https://project.feishu.cn/1fknv3/story/detail/7058554577
-  生成时间：2026-07-29
-  生成工具：CodeM Auto
--->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>交付物管理总览页</title>
-<style>
-  /* ===== Reset & Base ===== */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: #f5f6fa;
-    color: #1f2329;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  /* ===== Layout ===== */
-  .app { min-height: 100vh; display: flex; flex-direction: column; }
-  .header {
-    background: #fff;
-    border-bottom: 1px solid #e5e6eb;
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; }
-  .header-logo {
-    width: 32px; height: 32px;
-    background: #3370ff;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 700; font-size: 16px;
-  }
-  .header-title { font-size: 16px; font-weight: 600; color: #1f2329; }
-  .header-sub { font-size: 12px; color: #86909c; margin-left: 8px; }
-  .header-right { display: flex; align-items: center; gap: 16px; }
-  .header-tag {
-    background: #e8f3ff; color: #3370ff; font-size: 12px;
-    padding: 2px 10px; border-radius: 4px;
-  }
-  .header-user {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #c9cdd4; display:flex; align-items:center; justify-content:center;
-    color:#fff; font-size:12px; font-weight:600;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交付物管理总览页</title>
+  <!--
+    原型名称：交付物总览页需求
+    需求来源：https://project.feishu.cn/1fknv3/story/detail/7058554577
+    生成时间：2026-07-29
+    生成工具：CodeM Auto
+  -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f5f6f8;
+      --card-bg: #ffffff;
+      --border: #e8eaed;
+      --text-primary: #1f2329;
+      --text-secondary: #646a73;
+      --text-tertiary: #8f959e;
+      --blue: #3370ff;
+      --blue-bg: #e8f0ff;
+      --green: #34c759;
+      --green-bg: #e8f8ec;
+      --orange: #f7ba1e;
+      --orange-bg: #fdf3e0;
+      --gray: #8f959e;
+      --gray-bg: #f0f1f4;
+      --red: #f54a45;
+      --red-bg: #fee9e9;
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    /* Component: Header */
+    .header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-title { font-size: 18px; font-weight: 600; }
+    .header-sub { font-size: 12px; color: var(--text-tertiary); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      background: var(--gray-bg);
+      color: var(--text-secondary);
+    }
+    .stat-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-initial { background: var(--gray); }
+    .dot-review { background: var(--orange); }
+    .dot-stable { background: var(--blue); }
+    .dot-final { background: var(--green); }
+    .dot-blank { background: var(--red); }
 
-  .main { flex: 1; padding: 20px 24px; }
+    /* Component: FilterBar */
+    .filter-bar {
+      background: var(--card-bg);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-group { display: flex; align-items: center; gap: 6px; }
+    .filter-label { font-size: 12px; color: var(--text-tertiary); }
+    .filter-select, .filter-input {
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+    }
+    .filter-select:hover, .filter-input:hover { border-color: var(--blue); }
+    .filter-input { width: 220px; cursor: text; }
+    .filter-spacer { flex: 1; }
 
-  /* ===== Stats Cards ===== */
-  .stats-row { display: flex; gap: 16px; margin-bottom: 20px; }
-  .stat-card {
-    flex: 1; background: #fff; border-radius: 10px; padding: 16px 20px;
-    border: 1px solid #f0f1f5; display: flex; align-items: center; gap: 14px;
-    transition: box-shadow .2s;
-  }
-  .stat-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.06); }
-  .stat-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .stat-icon.blue { background: #e8f3ff; color: #3370ff; }
-  .stat-icon.green { background: #e8ffea; color: #00b42a; }
-  .stat-icon.orange { background: #fff3e0; color: #ff7d00; }
-  .stat-icon.red { background: #ffece8; color: #f53f3f; }
-  .stat-value { font-size: 22px; font-weight: 700; line-height: 1.2; }
-  .stat-label { font-size: 12px; color: #86909c; }
+    /* Component: Matrix */
+    .matrix-wrap {
+      padding: 16px 24px;
+      overflow-x: auto;
+    }
+    .matrix-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    table.matrix {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+    table.matrix th, table.matrix td {
+      border: 1px solid var(--border);
+      padding: 0;
+      text-align: center;
+    }
+    table.matrix thead th {
+      background: #fafbfc;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 10px 8px;
+      position: sticky;
+      top: 0;
+    }
+    table.matrix thead th.col-deliv { text-align: left; padding-left: 16px; min-width: 200px; }
+    table.matrix thead th.col-stage { min-width: 96px; }
+    table.matrix thead th.sub-stage { font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
+    table.matrix thead th.stage-group { background: #f0f2f5; font-size: 11px; color: var(--text-tertiary); }
+    table.matrix tbody tr:hover { background: #f8faff; }
+    table.matrix td.col-deliv {
+      text-align: left;
+      padding: 12px 16px;
+      vertical-align: middle;
+    }
+    .deliv-name { font-weight: 600; font-size: 13px; }
+    .deliv-stage-tag {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 11px;
+      padding: 1px 8px;
+      border-radius: 10px;
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+    .deliv-type { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
 
-  /* ===== Filter Bar ===== */
-  .filter-bar {
-    background: #fff; border-radius: 10px; border: 1px solid #f0f1f5;
-    padding: 16px 20px; margin-bottom: 16px;
-    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
-  }
-  .filter-item { display: flex; flex-direction: column; gap: 4px; }
-  .filter-label { font-size: 12px; color: #86909c; }
-  .filter-item select, .filter-item input {
-    height: 32px; border: 1px solid #e5e6eb; border-radius: 6px;
-    padding: 0 10px; font-size: 13px; background: #fff; color: #1f2329;
-    outline: none; min-width: 120px;
-  }
-  .filter-item select:focus, .filter-item input:focus { border-color: #3370ff; }
-  .search-box { flex: 1; min-width: 200px; }
-  .filter-actions { display: flex; gap: 8px; margin-left: auto; }
-  .btn {
-    height: 32px; padding: 0 16px; border-radius: 6px; border: none;
-    font-size: 13px; cursor: pointer; transition: all .15s;
-    display: inline-flex; align-items: center; gap: 4px;
-  }
-  .btn-primary { background: #3370ff; color: #fff; }
-  .btn-primary:hover { background: #2a5ddb; }
-  .btn-ghost { background: #f2f3f5; color: #4e5969; }
-  .btn-ghost:hover { background: #e5e6eb; }
+    /* Status cells */
+    .cell {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .cell:hover { transform: scale(1.06); }
+    .status-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .st-initial { background: var(--gray-bg); color: var(--gray); }
+    .st-review { background: var(--orange-bg); color: var(--orange); }
+    .st-stable { background: var(--blue-bg); color: var(--blue); }
+    .st-final { background: var(--green-bg); color: var(--green); }
+    .st-blank { background: var(--red-bg); color: var(--red); font-weight: 600; }
+    .st-blank::before { content: "⚠ "; }
 
-  /* ===== Legend ===== */
-  .legend {
-    display: flex; gap: 18px; align-items: center; margin-bottom: 12px;
-    font-size: 12px; color: #86909c; padding: 0 4px;
-  }
-  .legend-item { display: flex; align-items: center; gap: 5px; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+    /* Component: Drawer */
+    .drawer-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      display: none;
+    }
+    .drawer-mask.open { display: block; }
+    .drawer {
+      position: fixed;
+      top: 0; right: -440px;
+      width: 420px;
+      height: 100%;
+      background: var(--card-bg);
+      box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+      z-index: 201;
+      transition: right 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.open { right: 0; }
+    .drawer-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-title { font-size: 15px; font-weight: 600; }
+    .drawer-close { cursor: pointer; font-size: 18px; color: var(--text-tertiary); background: none; border: none; }
+    .drawer-close:hover { color: var(--text-primary); }
+    .drawer-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+    .drawer-section { margin-bottom: 20px; }
+    .drawer-section h4 { font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 500; }
+    .drawer-row { display: flex; margin-bottom: 10px; }
+    .drawer-row .k { width: 110px; color: var(--text-secondary); font-size: 13px; flex-shrink: 0; }
+    .drawer-row .v { font-size: 13px; flex: 1; }
+    .doc-link { color: var(--blue); text-decoration: none; cursor: pointer; }
+    .doc-link:hover { text-decoration: underline; }
+    .timeline-item {
+      position: relative;
+      padding-left: 16px;
+      padding-bottom: 14px;
+      border-left: 2px solid var(--border);
+      margin-left: 4px;
+    }
+    .timeline-item:last-child { border-left-color: transparent; }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+    .timeline-time { font-size: 11px; color: var(--text-tertiary); }
+    .timeline-text { font-size: 13px; margin-top: 2px; }
+    .stage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .stage-grid .si { font-size: 11px; padding: 4px 8px; border-radius: 6px; background: #f5f6f8; display: flex; justify-content: space-between; }
+    .si .ok { color: var(--green); }
+    .si .no { color: var(--red); }
 
-  /* ===== Matrix Table ===== */
-  .matrix-wrap {
-    background: #fff; border-radius: 10px; border: 1px solid #f0f1f5;
-    overflow: hidden;
-  }
-  .matrix-scroll { overflow-x: auto; }
-  table.matrix {
-    border-collapse: separate; border-spacing: 0; width: 100%;
-    min-width: 1100px;
-  }
-  table.matrix th, table.matrix td {
-    border-bottom: 1px solid #f0f1f5; border-right: 1px solid #f0f1f5;
-    padding: 0; text-align: center; font-size: 13px;
-  }
-  table.matrix thead th {
-    background: #fafbfc; color: #4e5969; font-weight: 600;
-    padding: 12px 8px; position: sticky; top: 0; z-index: 5;
-    white-space: nowrap;
-  }
-  table.matrix thead .phase-group {
-    background: #f2f3f5; font-size: 12px; color: #86909c;
-  }
-  table.matrix thead .sub-phase {
-    font-size: 11px; color: #86909c; font-weight: 500;
-  }
-  table.matrix tbody tr:hover { background: #f7f8fa; }
-  table.matrix td.col-deliverable {
-    text-align: left; padding: 12px 14px; min-width: 200px;
-    position: sticky; left: 0; background: #fff; z-index: 4;
-  }
-  table.matrix tbody tr:hover td.col-deliverable { background: #f7f8fa; }
-  .deliv-name { font-weight: 600; color: #1f2329; margin-bottom: 2px; }
-  .deliv-stage { font-size: 11px; color: #86909c; }
-  .deliv-stage .tag-stage {
-    display: inline-block; background: #f2f3f5; color: #4e5969;
-    padding: 1px 6px; border-radius: 3px; margin-right: 4px; font-size: 10px;
-  }
-  td.cell { height: 44px; cursor: pointer; transition: background .12s; }
-  td.cell:hover { background: #e8f3ff !important; }
-  .status-pill {
-    display: inline-block; padding: 3px 10px; border-radius: 4px;
-    font-size: 11px; font-weight: 600; min-width: 44px;
-  }
-  .s-initial { background: #f2f3f5; color: #86909c; }
-  .s-review { background: #fff3e0; color: #ff7d00; }
-  .s-stable { background: #e8f3ff; color: #3370ff; }
-  .s-final { background: #e8ffea; color: #00b42a; }
-  .s-empty { background: #ffece8; color: #f53f3f; font-weight: 700; }
-  .s-na { background: transparent; color: #c9cdd4; }
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 16px;
+      padding: 8px 24px 0;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
 
-  /* ===== Drawer ===== */
-  .drawer-mask {
-    position: fixed; inset: 0; background: rgba(0,0,0,.4);
-    z-index: 200; display: none; opacity: 0; transition: opacity .2s;
-  }
-  .drawer-mask.show { display: block; opacity: 1; }
-  .drawer {
-    position: fixed; top: 0; right: -460px; width: 440px; height: 100vh;
-    background: #fff; z-index: 201; transition: right .25s ease;
-    box-shadow: -4px 0 20px rgba(0,0,0,.1); display: flex; flex-direction: column;
-  }
-  .drawer.show { right: 0; }
-  .drawer-header {
-    padding: 20px 24px 16px; border-bottom: 1px solid #f0f1f5;
-    display: flex; justify-content: space-between; align-items: flex-start;
-  }
-  .drawer-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .drawer-sub { font-size: 12px; color: #86909c; }
-  .drawer-close {
-    background: none; border: none; font-size: 20px; color: #86909c;
-    cursor: pointer; line-height: 1;
-  }
-  .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
-  .drawer-section { margin-bottom: 24px; }
-  .drawer-section-title {
-    font-size: 13px; font-weight: 600; color: #4e5969; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .drawer-section-title::before {
-    content: ""; width: 3px; height: 12px; background: #3370ff; border-radius: 2px;
-  }
-  .info-row { display: flex; margin-bottom: 10px; font-size: 13px; }
-  .info-label { color: #86909c; width: 100px; flex-shrink: 0; }
-  .info-value { color: #1f2329; flex: 1; }
-  .timeline-item {
-    display: flex; gap: 10px; margin-bottom: 14px; font-size: 12px;
-  }
-  .timeline-dot {
-    width: 8px; height: 8px; border-radius: 50%; background: #3370ff;
-    margin-top: 4px; flex-shrink: 0;
-  }
-  .timeline-dot.gray { background: #c9cdd4; }
-  .timeline-time { color: #86909c; margin-bottom: 2px; }
-  .timeline-text { color: #1f2329; }
-  .doc-link {
-    display: inline-flex; align-items: center; gap: 4px; color: #3370ff;
-    text-decoration: none; font-size: 13px;
-  }
-  .doc-link:hover { text-decoration: underline; }
-  .drawer-footer {
-    padding: 16px 24px; border-top: 1px solid #f0f1f5;
-    display: flex; gap: 10px;
-  }
-
-  /* ===== Toast ===== */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: #1f2329; color: #fff; padding: 10px 20px; border-radius: 8px;
-    font-size: 13px; z-index: 300; opacity: 0; transition: all .25s;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-  @media (max-width: 768px) {
-    .stats-row { flex-wrap: wrap; }
-    .stat-card { flex: 1 1 calc(50% - 8px); }
-    .header-sub { display: none; }
-    .drawer { width: 100%; right: -100%; }
-    .drawer.show { right: 0; }
-  }
-</style>
+    .empty-row td { padding: 40px; color: var(--text-tertiary); }
+  </style>
 </head>
 <body>
-<div class="app">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-left">
-      <div class="header-logo">芯</div>
-      <div>
-        <span class="header-title">交付物管理总览页</span>
-        <span class="header-sub">IPD 交付物体检仪表盘</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <span class="header-tag">TR4-TO 临近</span>
-      <div class="header-user">黄</div>
+
+<!-- Component: Header -->
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="header-title">交付物管理总览页</div>
+      <div class="header-sub">项目：X100 车规级芯片 · IPD 交付物矩阵 · 当前阶段 TR4-TO</div>
     </div>
   </div>
-
-  <div class="main">
-    <!-- Stats Cards -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon blue">📄</div>
-        <div>
-          <div class="stat-value" id="stat-total">28</div>
-          <div class="stat-label">交付物总数</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon green">✓</div>
-        <div>
-          <div class="stat-value" id="stat-final">11</div>
-          <div class="stat-label">已定稿 (Final)</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon orange">⏳</div>
-        <div>
-          <div class="stat-value" id="stat-review">6</div>
-          <div class="stat-label">评审中 (Review)</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon red">!</div>
-        <div>
-          <div class="stat-value" id="stat-risk">5</div>
-          <div class="stat-label">缺失/风险</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-      <div class="filter-item">
-        <span class="filter-label">研发阶段</span>
-        <select id="filter-phase">
-          <option value="">全部阶段</option>
-          <option value="charter">Charter</option>
-          <option value="tr1">TR1</option>
-          <option value="tr2">TR2</option>
-          <option value="tr3">TR3</option>
-          <option value="tr4">TR4</option>
-          <option value="tr5">TR5</option>
-          <option value="ga">GA量产</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <span class="filter-label">状态</span>
-        <select id="filter-status">
-          <option value="">全部状态</option>
-          <option value="Initial">Initial</option>
-          <option value="Review">Review</option>
-          <option value="Stable">Stable</option>
-          <option value="Final">Final</option>
-          <option value="empty">缺失</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <span class="filter-label">交付物类型</span>
-        <select id="filter-type">
-          <option value="">全部类型</option>
-          <option value="plan">计划类</option>
-          <option value="spec">规格类</option>
-          <option value="design">设计类</option>
-          <option value="safety">安全类</option>
-          <option value="verify">验证类</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <span class="filter-label">责任人</span>
-        <select id="filter-owner">
-          <option value="">全部责任人</option>
-          <option value="张伟">张伟</option>
-          <option value="李娜">李娜</option>
-          <option value="王强">王强</option>
-          <option value="陈静">陈静</option>
-          <option value="刘洋">刘洋</option>
-        </select>
-      </div>
-      <div class="filter-item search-box">
-        <span class="filter-label">关键词搜索</span>
-        <input type="text" id="filter-keyword" placeholder="搜索交付物名称…">
-      </div>
-      <div class="filter-actions">
-        <button class="btn btn-ghost" onclick="resetFilters()">重置</button>
-        <button class="btn btn-primary" onclick="applyFilters()">应用筛选</button>
-      </div>
-    </div>
-
-    <!-- Legend -->
-    <div class="legend">
-      <span style="color:#4e5969;font-weight:600;">状态图例：</span>
-      <div class="legend-item"><span class="legend-dot s-initial"></span>Initial 初始</div>
-      <div class="legend-item"><span class="legend-dot s-review"></span>Review 评审中</div>
-      <div class="legend-item"><span class="legend-dot s-stable"></span>Stable 稳定</div>
-      <div class="legend-item"><span class="legend-dot s-final"></span>Final 定稿</div>
-      <div class="legend-item"><span class="legend-dot s-empty"></span>缺失/风险</div>
-      <div class="legend-item"><span class="legend-dot s-na"></span>— 不适用</div>
-    </div>
-
-    <!-- Matrix Table -->
-    <div class="matrix-wrap">
-      <div class="matrix-scroll">
-        <table class="matrix" id="matrix-table">
-          <thead>
-            <tr class="phase-group">
-              <th rowspan="2" style="min-width:200px;">交付物文档</th>
-              <th colspan="1">立项</th>
-              <th colspan="3">TR1-TR2</th>
-              <th colspan="1">TR3</th>
-              <th colspan="4">TR4</th>
-              <th colspan="1">TR5</th>
-              <th colspan="1">TR6</th>
-              <th colspan="1">GA</th>
-            </tr>
-            <tr>
-              <th class="sub-phase">Charter</th>
-              <th class="sub-phase">TR1</th>
-              <th class="sub-phase">TR2</th>
-              <th class="sub-phase">TR3</th>
-              <th class="sub-phase">85%</th>
-              <th class="sub-phase">95%</th>
-              <th class="sub-phase">100%</th>
-              <th class="sub-phase">TO</th>
-              <th class="sub-phase">TR5</th>
-              <th class="sub-phase">TR6</th>
-              <th class="sub-phase">GA量产</th>
-            </tr>
-          </thead>
-          <tbody id="matrix-body"></tbody>
-        </table>
-      </div>
-    </div>
+  <div class="header-right">
+    <span class="stat-pill"><span class="dot dot-initial"></span>Initial <b id="cnt-initial">0</b></span>
+    <span class="stat-pill"><span class="dot dot-review"></span>Review <b id="cnt-review">0</b></span>
+    <span class="stat-pill"><span class="dot dot-stable"></span>Stable <b id="cnt-stable">0</b></span>
+    <span class="stat-pill"><span class="dot dot-final"></span>Final <b id="cnt-final">0</b></span>
+    <span class="stat-pill"><span class="dot dot-blank"></span>空白风险 <b id="cnt-blank">0</b></span>
   </div>
 </div>
 
-<!-- Drawer -->
-<div class="drawer-mask" id="drawer-mask" onclick="closeDrawer()"></div>
+<!-- Component: FilterBar -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">阶段</span>
+    <select class="filter-select" id="f-stage">
+      <option value="">全部阶段</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">状态</span>
+    <select class="filter-select" id="f-status">
+      <option value="">全部状态</option>
+      <option value="Initial">Initial</option>
+      <option value="Review">Review</option>
+      <option value="Stable">Stable</option>
+      <option value="Final">Final</option>
+      <option value="blank">空白</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">类型</span>
+    <select class="filter-select" id="f-type">
+      <option value="">全部类型</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">责任人</span>
+    <select class="filter-select" id="f-owner">
+      <option value="">全部责任人</option>
+    </select>
+  </div>
+  <div class="filter-spacer"></div>
+  <input class="filter-input" id="f-kw" placeholder="搜索交付物名称/关键词…" />
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="status-badge st-initial">Initial</span> 刚创建，内容待填充</div>
+  <div class="legend-item"><span class="status-badge st-review">Review</span> 已提交评审中</div>
+  <div class="legend-item"><span class="status-badge st-stable">Stable</span> 内容稳定</div>
+  <div class="legend-item"><span class="status-badge st-final">Final</span> 已定稿签发</div>
+  <div class="legend-item"><span class="status-badge st-blank">空白</span> 应交未交，风险</div>
+</div>
+
+<!-- Component: Matrix -->
+<div class="matrix-wrap">
+  <div class="matrix-card">
+    <table class="matrix">
+      <thead id="matrix-head"></thead>
+      <tbody id="matrix-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Component: Drawer -->
+<div class="drawer-mask" id="drawer-mask"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header">
-    <div>
-      <div class="drawer-title" id="drawer-title">交付物详情</div>
-      <div class="drawer-sub" id="drawer-sub"></div>
-    </div>
-    <button class="drawer-close" onclick="closeDrawer()">×</button>
+    <div class="drawer-title" id="drawer-title">交付物详情</div>
+    <button class="drawer-close" id="drawer-close">×</button>
   </div>
   <div class="drawer-body" id="drawer-body"></div>
-  <div class="drawer-footer">
-    <button class="btn btn-ghost" style="flex:1;" onclick="closeDrawer()">关闭</button>
-    <button class="btn btn-primary" style="flex:1;" onclick="showToast('已跳转文档编辑页')">查看文档</button>
-  </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
 <script>
-/* ===== Mock Data Layer ===== */
-// 阶段列定义：key 对应数据中每个交付物的状态数组索引
-var PHASES = ["charter","tr1","tr2","tr3","tr4_85","tr4_95","tr4_100","tr4_to","tr5","tr6","ga"];
-var PHASE_LABELS = ["Charter","TR1","TR2","TR3","85%","95%","100%","TO","TR5","TR6","GA量产"];
+/* ====================== Mock Data Layer ====================== */
+const STAGES = [
+  { key: "charter", name: "Charter" },
+  { key: "tr1", name: "TR1" },
+  { key: "tr2", name: "TR2" },
+  { key: "tr3", name: "TR3" },
+  { key: "tr4", name: "TR4", subs: ["85%","95%","100%","TO"] },
+  { key: "tr4a", name: "TR4A" },
+  { key: "tr5", name: "TR5" },
+  { key: "tr6", name: "TR6" },
+  { key: "ga", name: "GA量产" }
+];
 
-var DELIVERABLES = [
+const DELIVERABLES = [
   {
-    name: "Business Plan (BP)",
-    type: "plan", stageTag: "卡控: Charter", owner: "张伟",
-    docLink: "docs://bp-2026",
-    statusLine: ["Final","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final"],
-    detail: {
-      criterion: "Charter 阶段需完成商业计划书定稿，明确投资回报与市场定位",
-      updates: [
-        { time: "2026-07-25 14:30", text: "张伟 更新至 Final 版本 v2.1" },
-        { time: "2026-07-10 10:00", text: "李娜 完成 Review 评审，建议补充竞品分析" },
-        { time: "2026-06-28 09:15", text: "张伟 创建初始版本" }
-      ]
-    }
+    id: "BP", name: "Business Plan (BP)", type: "商业", gateStage: "Charter", owner: "王磊",
+    docLink: "docs.feishu.cn/docx/BP2026",
+    criteria: "Charter 阶段需完成商业论证与立项决策，明确投入产出与市场定位。",
+    states: { charter:"Final", tr1:"Final", tr2:"Final", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-03-12", text:"王磊定稿 V3.0，通过 Charter 评审" },
+      { t:"2026-04-02", text:"TR1 复核无变更" },
+      { t:"2026-05-20", text:"财务数据更新至 V3.1" }
+    ]
   },
   {
-    name: "Market Requirements Doc (MRD)",
-    type: "plan", stageTag: "卡控: Charter", owner: "李娜",
-    docLink: "docs://mrd-2026",
-    statusLine: ["Stable","Final","Final","Final","Final","Final","Final","Final","Final","Final","Final"],
-    detail: {
-      criterion: "Charter 完成时 MRD 须 Stable，TR1 前定稿",
-      updates: [
-        { time: "2026-07-20 16:00", text: "李娜 更新至 Final 版本 v1.3" },
-        { time: "2026-07-05 11:20", text: "王强 完成 Review" }
-      ]
-    }
+    id: "MRD", name: "MRD 市场需求文档", type: "商业", gateStage: "Charter", owner: "李娜",
+    docLink: "docs.feishu.cn/docx/MRD-X100",
+    criteria: "Charter 阶段提交市场需求，TR2 前完成 Stable。",
+    states: { charter:"Stable", tr1:"Stable", tr2:"Final", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-03-15", text:"李娜完成 Stable 版" },
+      { t:"2026-04-10", text:"TR2 评审通过，定稿 Final" }
+    ]
   },
   {
-    name: "芯片架构设计文档",
-    type: "design", stageTag: "卡控: TR2", owner: "王强",
-    docLink: "docs://arch-2026",
-    statusLine: ["Initial","Initial","Stable","Final","Final","Final","Final","Final","Final","Final","Final"],
-    detail: {
-      criterion: "TR2 评审时架构设计须 Stable，TR3 前定稿",
-      updates: [
-        { time: "2026-07-26 18:00", text: "王强 更新架构 Section 3（总线接口）" },
-        { time: "2026-07-15 14:00", text: "评审组提出 12 条意见，已闭环 10 条" }
-      ]
-    }
+    id: "ARCH", name: "芯片架构设计文档", type: "设计", gateStage: "TR1", owner: "陈志远",
+    docLink: "docs.feishu.cn/docx/ARCH-X100",
+    criteria: "TR1 需达到 Stable，TR2 定稿 Final，作为 RTL 设计输入。",
+    states: { charter:"Initial", tr1:"Stable", tr2:"Final", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-04-05", text:"架构方案初稿 Initial" },
+      { t:"2026-04-22", text:"TR1 评审通过 Stable" },
+      { t:"2026-05-18", text:"TR2 定稿 Final" }
+    ]
   },
   {
-    name: "DR_Spec (设计需求规格)",
-    type: "spec", stageTag: "卡控: TR2", owner: "陈静",
-    docLink: "docs://drspec-2026",
-    statusLine: ["empty","Initial","Review","Stable","Final","Final","Final","Final","Final","Final","Final"],
-    detail: {
-      criterion: "TR2 前 DR_Spec 须进入 Review，TR3 达 Stable",
-      updates: [
-        { time: "2026-07-28 10:30", text: "陈静 提交 Review 版本，等待架构组评审" },
-        { time: "2026-07-12 09:00", text: "陈静 创建初稿" }
-      ]
-    }
+    id: "DRSPEC", name: "DR_Spec 设计规格", type: "设计", gateStage: "TR2", owner: "陈志远",
+    docLink: "docs.feishu.cn/docx/DRSPEC-X100",
+    criteria: "TR2 需 Stable，TR3 前定稿，覆盖全部功能模块设计规格。",
+    states: { charter:"", tr1:"Initial", tr2:"Stable", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-04-20", text:"完成模块划分 Initial" },
+      { t:"2026-05-10", text:"TR2 Stable，待评审意见闭环" },
+      { t:"2026-06-01", text:"TR3 定稿 Final" }
+    ]
   },
   {
-    name: "PinPad Matrix",
-    type: "spec", stageTag: "卡控: TR3", owner: "刘洋",
-    docLink: "docs://pinpad-2026",
-    statusLine: ["empty","empty","Initial","Review","Stable","Stable","Final","Final","Final","Final","Final"],
-    detail: {
-      criterion: "TR3 评审时 PinPad 须 Review，TR4-85% 达 Stable",
-      updates: [
-        { time: "2026-07-27 15:00", text: "刘洋 更新 32 个引脚定义" },
-        { time: "2026-07-18 13:30", text: "封装团队确认引脚排列" }
-      ]
-    }
+    id: "PINPAD", name: "PinPad Matrix", type: "设计", gateStage: "TR3", owner: "张工",
+    docLink: "docs.feishu.cn/sheets/PINPAD-X100",
+    criteria: "TR3 需 Stable，TO 前 Final，引脚定义冻结后不可变更。",
+    states: { charter:"", tr1:"", tr2:"Initial", tr3:"Stable", tr4_85:"Review", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-05-25", text:"初版引脚分配 Initial" },
+      { t:"2026-06-15", text:"TR3 评审 Stable" },
+      { t:"2026-07-02", text:"封装团队 Review 中，85% 节点" },
+      { t:"2026-07-10", text:"95% 节点定稿 Final" }
+    ]
   },
   {
-    name: "Chip-level DFMEA",
-    type: "safety", stageTag: "卡控: TR3", owner: "王强",
-    docLink: "docs://dfmea-2026",
-    statusLine: ["empty","empty","Initial","Initial","Review","Review","Stable","Stable","Final","Final","Final"],
-    detail: {
-      criterion: "TR3 前 DFMEA 须 Initial，TR4-100% 达 Stable",
-      updates: [
-        { time: "2026-07-28 16:20", text: "王强 补充 5 项失效模式分析" },
-        { time: "2026-07-20 10:00", text: "安全组开始 Review" }
-      ]
-    }
+    id: "DFMEA", name: "Chip-level DFMEA", type: "质量", gateStage: "TR3", owner: "刘敏",
+    docLink: "docs.feishu.cn/docx/DFMEA-X100",
+    criteria: "TR3 需 Initial，TR4-95% 前完成 Stable，TO 前 Final。",
+    states: { charter:"", tr1:"", tr2:"", tr3:"Initial", tr4_85:"Initial", tr4_95:"Stable", tr4_100:"Review", tr4_to:"", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-06-10", text:"启动 DFMEA 分析 Initial" },
+      { t:"2026-07-05", text:"85% 节点补充失效模式" },
+      { t:"2026-07-18", text:"95% 节点 Stable" },
+      { t:"2026-07-26", text:"100% 节点 Review，TO 节点待补" }
+    ]
   },
   {
-    name: "Safety Plan",
-    type: "safety", stageTag: "卡控: TR3", owner: "陈静",
-    docLink: "docs://safety-2026",
-    statusLine: ["empty","empty","empty","Initial","Review","Review","Stable","Stable","Stable","Final","Final"],
-    detail: {
-      criterion: "TR3 前 Safety Plan 须 Initial，TR4-TO 达 Stable",
-      updates: [
-        { time: "2026-07-26 11:00", text: "陈静 更新安全目标与 ASIL 等级" },
-        { time: "2026-07-14 14:30", text: "ISO 26262 顾问介入评审" }
-      ]
-    }
+    id: "SAFETY", name: "Safety Plan", type: "安全", gateStage: "TR4", owner: "刘敏",
+    docLink: "docs.feishu.cn/docx/SAFETY-X100",
+    criteria: "TR4-85% 需 Initial，TO 前 Stable，TR5 前 Final，满足 ISO 26262。",
+    states: { charter:"", tr1:"", tr2:"", tr3:"Initial", tr4_85:"Review", tr4_95:"Stable", tr4_100:"Stable", tr4_to:"Stable", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-06-20", text:"安全目标分析 Initial" },
+      { t:"2026-07-08", text:"85% 节点提交 Review" },
+      { t:"2026-07-16", text:"95% 节点 Stable" },
+      { t:"2026-07-25", text:"TR4A 定稿 Final" }
+    ]
   },
   {
-    name: "TSC (Test Strategy Coverage)",
-    type: "verify", stageTag: "卡控: TR4", owner: "刘洋",
-    docLink: "docs://tsc-2026",
-    statusLine: ["empty","empty","empty","empty","Initial","Review","Review","Stable","Stable","Final","Final"],
-    detail: {
-      criterion: "TR4-85% 前 TSC 须 Initial，TR4-TO 达 Stable",
-      updates: [
-        { time: "2026-07-29 09:00", text: "刘洋 提交 Review 版本，覆盖率 78%" },
-        { time: "2026-07-22 16:00", text: "验证团队开始制定测试策略" }
-      ]
-    }
+    id: "TSC", name: "TSC 时序约束文件", type: "设计", gateStage: "TR4", owner: "张工",
+    docLink: "docs.feishu.cn/docx/TSC-X100",
+    criteria: "TR4-95% 需 Stable，TO 前 Final，约束需与 PinPad 一致。",
+    states: { charter:"", tr1:"", tr2:"", tr3:"", tr4_85:"Initial", tr4_95:"Review", tr4_100:"", tr4_to:"", tr4a:"Stable", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-07-03", text:"初版约束 Initial" },
+      { t:"2026-07-15", text:"95% 节点提交 Review" },
+      { t:"2026-07-24", text:"100% 节点空白，待补" }
+    ]
   },
   {
-    name: "Verification Plan",
-    type: "verify", stageTag: "卡控: TR4", owner: "张伟",
-    docLink: "docs://vplan-2026",
-    statusLine: ["empty","empty","empty","Initial","Stable","Stable","Final","Final","Final","Final","Final"],
-    detail: {
-      criterion: "TR4-85% 前 Verification Plan 须 Stable",
-      updates: [
-        { time: "2026-07-24 15:30", text: "张伟 更新至 Final，覆盖 312 项测试用例" }
-      ]
-    }
+    id: "RTL", name: "RTL 设计代码", type: "实现", gateStage: "TR2", owner: "陈志远",
+    docLink: "repo.feishu.cn/x100-rtl",
+    criteria: "TR2 起 Initial，TR3 Stable，TR4-TO 前 Final 冻结。",
+    states: { charter:"", tr1:"Initial", tr2:"Initial", tr3:"Stable", tr4_85:"Stable", tr4_95:"Stable", tr4_100:"Review", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-04-18", text:"开始 RTL 编码" },
+      { t:"2026-06-12", text:"TR3 代码 Stable" },
+      { t:"2026-07-22", text:"100% 节点 Review，TO 冻结 Final" }
+    ]
   },
   {
-    name: "Physical Design Spec",
-    type: "design", stageTag: "卡控: TR4", owner: "王强",
-    docLink: "docs://pds-2026",
-    statusLine: ["empty","empty","empty","empty","Initial","Review","Review","Review","Stable","Final","Final"],
-    detail: {
-      criterion: "TR4-95% 前 Physical Design 须 Review，TR5 达 Stable",
-      updates: [
-        { time: "2026-07-28 17:00", text: "王强 提交 Review 版本，时序收敛中" },
-        { time: "2026-07-19 11:00", text: "后端团队反馈布局布线问题" }
-      ]
-    }
+    id: "VERIFY", name: "验证计划与报告", type: "验证", gateStage: "TR3", owner: "周浩",
+    docLink: "docs.feishu.cn/docx/VERIFY-X100",
+    criteria: "TR3 需 Stable 计划，TO 前覆盖率达 95%，TR5 Final。",
+    states: { charter:"", tr1:"", tr2:"Initial", tr3:"Stable", tr4_85:"Stable", tr4_95:"Review", tr4_100:"Review", tr4_to:"Stable", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-05-20", text:"验证计划 Initial" },
+      { t:"2026-06-18", text:"TR3 计划 Stable" },
+      { t:"2026-07-14", text:"95% 覆盖率 Review" },
+      { t:"2026-07-26", text:"TR4A 定稿 Final" }
+    ]
   },
   {
-    name: "Reliability Report",
-    type: "verify", stageTag: "卡控: TR5", owner: "陈静",
-    docLink: "docs://rel-2026",
-    statusLine: ["empty","empty","empty","empty","empty","empty","Initial","Initial","Review","Stable","Final"],
-    detail: {
-      criterion: "TR5 前 Reliability Report 须 Review，TR6 达 Stable",
-      updates: [
-        { time: "2026-07-27 14:00", text: "陈静 提交 Review 版本" }
-      ]
-    }
+    id: "DFT", name: "DFT 可测性设计文档", type: "设计", gateStage: "TR4", owner: "周浩",
+    docLink: "docs.feishu.cn/docx/DFT-X100",
+    criteria: "TR4-85% Initial，TO 前 Stable，TR5 前 Final。",
+    states: { charter:"", tr1:"", tr2:"", tr3:"", tr4_85:"", tr4_95:"Initial", tr4_100:"Review", tr4_to:"Review", tr4a:"Stable", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-07-10", text:"85% 节点空白，风险" },
+      { t:"2026-07-16", text:"95% 节点提交 Initial" },
+      { t:"2026-07-24", text:"100% 节点 Review" }
+    ]
   },
   {
-    name: "Datasheet",
-    type: "spec", stageTag: "卡控: TR5", owner: "李娜",
-    docLink: "docs://ds-2026",
-    statusLine: ["empty","empty","empty","empty","empty","empty","empty","Initial","Review","Stable","Final"],
-    detail: {
-      criterion: "TR5 前 Datasheet 须 Review，GA 前 Final",
-      updates: [
-        { time: "2026-07-26 10:00", text: "李娜 更新电气特性参数表" }
-      ]
-    }
+    id: "PKG", name: "封装设计文档", type: "设计", gateStage: "TR4", owner: "张工",
+    docLink: "docs.feishu.cn/docx/PKG-X100",
+    criteria: "TR4-95% 需 Stable，TO 前 Final。",
+    states: { charter:"", tr1:"", tr2:"", tr3:"Initial", tr4_85:"Stable", tr4_95:"Review", tr4_100:"Review", tr4_to:"", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
+    timeline: [
+      { t:"2026-06-22", text:"封装方案 Initial" },
+      { t:"2026-07-06", text:"85% 节点 Stable" },
+      { t:"2026-07-20", text:"95% 节点 Review，TO 空白" }
+    ]
   }
 ];
 
-// "empty" 在数据中表示该阶段尚未要求该交付物（不适用），用 na 显示
-// "missing" 表示应交未交——这里用 phaseContext 标注
-var NA_BEFORE = {}; // 每个交付物在其"卡控阶段"之前均为 N/A
+const STATUS_ORDER = ["Initial","Review","Stable","Final"];
 
-/* ===== Render Layer ===== */
-function getStatusClass(s) {
-  if (s === "Initial") return "s-initial";
-  if (s === "Review") return "s-review";
-  if (s === "Stable") return "s-stable";
-  if (s === "Final") return "s-final";
-  return "";
-}
-
-function renderMatrix(data) {
-  var tbody = document.getElementById("matrix-body");
-  tbody.innerHTML = "";
-  data.forEach(function(d, di) {
-    var tr = document.createElement("tr");
-    // 交付物名称列
-    var tdName = document.createElement("td");
-    tdName.className = "col-deliverable";
-    tdName.innerHTML =
-      '<div class="deliv-name">' + d.name + '</div>' +
-      '<div class="deliv-stage"><span class="tag-stage">' + d.stageTag + '</span>' +
-      '<span>责任人: ' + d.owner + '</span></div>';
-    tr.appendChild(tdName);
-
-    // 状态单元格
-    var firstNonEmpty = -1;
-    for (var k = 0; k < d.statusLine.length; k++) {
-      if (d.statusLine[k] !== "empty") { firstNonEmpty = k; break; }
+/* ====================== Render Layer ====================== */
+function buildHead() {
+  let html = "<tr>";
+  html += '<th class="col-deliv">交付物文档</th>';
+  STAGES.forEach(s => {
+    if (s.subs) {
+      html += `<th class="stage-group" colspan="${s.subs.length}">${s.name}</th>`;
+    } else {
+      html += `<th class="col-stage">${s.name}</th>`;
     }
-
-    d.statusLine.forEach(function(s, si) {
-      var td = document.createElement("td");
-      td.className = "cell";
-      var isNA = (firstNonEmpty === -1 || si < firstNonEmpty);
-      if (isNA) {
-        td.innerHTML = '<span class="s-na">—</span>';
-        td.style.cursor = "default";
-      } else if (s === "empty") {
-        // 应交未交 = 缺失风险
-        td.innerHTML = '<span class="status-pill s-empty">缺失</span>';
-        td.onclick = (function(item, idx) {
-          return function() { openDrawer(item, idx); };
-        })(d, si);
-      } else {
-        td.innerHTML = '<span class="status-pill ' + getStatusClass(s) + '">' + s + '</span>';
-        td.onclick = (function(item, idx) {
-          return function() { openDrawer(item, idx); };
-        })(d, si);
-      }
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
   });
-}
-
-/* ===== Drawer ===== */
-function openDrawer(d, phaseIdx) {
-  document.getElementById("drawer-title").textContent = d.name;
-  document.getElementById("drawer-sub").textContent = d.stageTag + " · 责任人: " + d.owner;
-
-  var status = d.statusLine[phaseIdx];
-  var statusText = (status === "empty") ? "缺失（未提交）" : status;
-  var body = "";
-
-  // 当前状态
-  body += '<div class="drawer-section">';
-  body += '<div class="drawer-section-title">当前状态</div>';
-  body += '<div class="info-row"><span class="info-label">所处阶段</span><span class="info-value">' + PHASE_LABELS[phaseIdx] + '</span></div>';
-  body += '<div class="info-row"><span class="info-label">状态</span><span class="info-value"><span class="status-pill ' + getStatusClass(status) + '">' + statusText + '</span></span></div>';
-  body += '<div class="info-row"><span class="info-label">责任人</span><span class="info-value">' + d.owner + '</span></div>';
-  body += '</div>';
-
-  // 应交口径
-  body += '<div class="drawer-section">';
-  body += '<div class="drawer-section-title">阶段应交口径</div>';
-  body += '<div class="info-row"><span class="info-value" style="line-height:1.6;">' + d.detail.criterion + '</span></div>';
-  body += '</div>';
-
-  // 文档链接
-  body += '<div class="drawer-section">';
-  body += '<div class="drawer-section-title">文档链接</div>';
-  body += '<a class="doc-link" href="javascript:void(0)" onclick="showToast(\'打开文档: ' + d.name + '\')">📄 ' + d.docLink + '</a>';
-  body += '</div>';
-
-  // 更新记录
-  body += '<div class="drawer-section">';
-  body += '<div class="drawer-section-title">最近更新记录</div>';
-  d.detail.updates.forEach(function(u, i) {
-    body += '<div class="timeline-item">';
-    body += '<div class="timeline-dot ' + (i === d.detail.updates.length - 1 ? "gray" : "") + '"></div>';
-    body += '<div><div class="timeline-time">' + u.time + '</div><div class="timeline-text">' + u.text + '</div></div>';
-    body += '</div>';
-  });
-  body += '</div>';
-
-  document.getElementById("drawer-body").innerHTML = body;
-  document.getElementById("drawer-mask").classList.add("show");
-  document.getElementById("drawer").classList.add("show");
-}
-
-function closeDrawer() {
-  document.getElementById("drawer-mask").classList.remove("show");
-  document.getElementById("drawer").classList.remove("show");
-}
-
-/* ===== Filter Logic ===== */
-function applyFilters() {
-  var phase = document.getElementById("filter-phase").value;
-  var status = document.getElementById("filter-status").value;
-  var type = document.getElementById("filter-type").value;
-  var owner = document.getElementById("filter-owner").value;
-  var kw = document.getElementById("filter-keyword").value.trim().toLowerCase();
-
-  var filtered = DELIVERABLES.filter(function(d) {
-    if (type && d.type !== type) return false;
-    if (owner && d.owner !== owner) return false;
-    if (kw && d.name.toLowerCase().indexOf(kw) === -1) return false;
-    if (status) {
-      var hasStatus = false;
-      var firstNonEmpty = -1;
-      for (var k = 0; k < d.statusLine.length; k++) {
-        if (d.statusLine[k] !== "empty") { firstNonEmpty = k; break; }
-      }
-      for (var i = 0; i < d.statusLine.length; i++) {
-        var isNA = (firstNonEmpty === -1 || i < firstNonEmpty);
-        if (isNA) continue;
-        var s = d.statusLine[i];
-        if (status === "empty" && s === "empty") hasStatus = true;
-        if (s === status) hasStatus = true;
-      }
-      if (!hasStatus) return false;
-    }
-    if (phase) {
-      var phaseMap = {
-        "charter": 0, "tr1": 1, "tr2": 2, "tr3": 3,
-        "tr4": [4,5,6,7], "tr5": 8, "ga": 10
-      };
-      var idx = phaseMap[phase];
-      var indices = Array.isArray(idx) ? idx : [idx];
-      var phaseHas = false;
-      indices.forEach(function(i) {
-        var firstNonEmpty = -1;
-        for (var k = 0; k < d.statusLine.length; k++) {
-          if (d.statusLine[k] !== "empty") { firstNonEmpty = k; break; }
-        }
-        var isNA = (firstNonEmpty === -1 || i < firstNonEmpty);
-        if (!isNA) phaseHas = true;
+  html += "</tr><tr>";
+  html += '<th class="col-deliv"></th>';
+  STAGES.forEach(s => {
+    if (s.subs) {
+      s.subs.forEach(sub => {
+        html += `<th class="col-stage sub-stage">${sub}</th>`;
       });
-      if (!phaseHas) return false;
+    } else {
+      html += `<th class="col-stage sub-stage">${s.name}</th>`;
+    }
+  });
+  html += "</tr>";
+  document.getElementById('matrix-head').innerHTML = html;
+}
+
+function stageKeyToCol(key) {
+  // returns the column index (0-based from first stage col)
+  let idx = 0;
+  for (const s of STAGES) {
+    if (s.subs) {
+      if (s.subs.some(sub => key === s.key + "_" + sub.replace('%','').toLowerCase())) return idx;
+      idx += s.subs.length;
+    } else {
+      if (s.key === key) return idx;
+      idx += 1;
+    }
+  }
+  return -1;
+}
+
+function getAllStateEntries(d) {
+  // returns [{stage, sub, key, value}]
+  const entries = [];
+  STAGES.forEach(s => {
+    if (s.subs) {
+      s.subs.forEach(sub => {
+        const k = s.key + "_" + sub.replace('%','').toLowerCase();
+        entries.push({ stage: s.name, sub, key: k, value: d.states[k] || "" });
+      });
+    } else {
+      entries.push({ stage: s.name, sub: "", key: s.key, value: d.states[s.key] || "" });
+    }
+  });
+  return entries;
+}
+
+function statusClass(v) {
+  if (!v) return "st-blank";
+  return "st-" + v.toLowerCase();
+}
+
+function statusLabel(v) {
+  return v || "空白";
+}
+
+function buildBody() {
+  const tbody = document.getElementById('matrix-body');
+  const rows = getFiltered();
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="13">无符合条件的交付物，请调整筛选条件。</td></tr>';
+    return;
+  }
+  let html = "";
+  rows.forEach(d => {
+    html += `<tr>`;
+    html += `<td class="col-deliv">
+      <div class="deliv-name">${d.name}</div>
+      <span class="deliv-stage-tag">卡控：${d.gateStage}</span>
+      <div class="deliv-type">类型：${d.type} · 责任人：${d.owner}</div>
+    </td>`;
+    STAGES.forEach(s => {
+      if (s.subs) {
+        s.subs.forEach(sub => {
+          const k = s.key + "_" + sub.replace('%','').toLowerCase();
+          const v = d.states[k] || "";
+          html += `<td><div class="cell" data-did="${d.id}" data-dkey="${k}" data-stage="${s.name}" data-sub="${sub}">`;
+          if (v) {
+            html += `<span class="status-badge ${statusClass(v)}">${v}</span>`;
+          } else {
+            html += `<span class="status-badge st-blank">空白</span>`;
+          }
+          html += `</div></td>`;
+        });
+      } else {
+        const v = d.states[s.key] || "";
+        html += `<td><div class="cell" data-did="${d.id}" data-dkey="${s.key}" data-stage="${s.name}" data-sub="">`;
+        if (v) {
+          html += `<span class="status-badge ${statusClass(v)}">${v}</span>`;
+        } else {
+          html += `<span class="status-badge st-blank">空白</span>`;
+        }
+        html += `</div></td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+  tbody.innerHTML = html;
+  bindCellClicks();
+}
+
+function updateStats() {
+  let ci=0, cr=0, cs=0, cf=0, cb=0;
+  DELIVERABLES.forEach(d => {
+    getAllStateEntries(d).forEach(e => {
+      if (e.value === "Initial") ci++;
+      else if (e.value === "Review") cr++;
+      else if (e.value === "Stable") cs++;
+      else if (e.value === "Final") cf++;
+      else cb++;
+    });
+  });
+  document.getElementById('cnt-initial').textContent = ci;
+  document.getElementById('cnt-review').textContent = cr;
+  document.getElementById('cnt-stable').textContent = cs;
+  document.getElementById('cnt-final').textContent = cf;
+  document.getElementById('cnt-blank').textContent = cb;
+}
+
+/* ====================== Filter Layer ====================== */
+function getFiltered() {
+  const fStage = document.getElementById('f-stage').value;
+  const fStatus = document.getElementById('f-status').value;
+  const fType = document.getElementById('f-type').value;
+  const fOwner = document.getElementById('f-owner').value;
+  const kw = document.getElementById('f-kw').value.trim().toLowerCase();
+
+  return DELIVERABLES.filter(d => {
+    if (fType && d.type !== fType) return false;
+    if (fOwner && d.owner !== fOwner) return false;
+    if (kw && !d.name.toLowerCase().includes(kw) && !d.type.toLowerCase().includes(kw)) return false;
+    const entries = getAllStateEntries(d);
+    if (fStage) {
+      // fStage is stage name; only show deliverables that have non-blank in that stage group
+      const stageObj = STAGES.find(s => s.name === fStage);
+      if (stageObj) {
+        let hasInStage = false;
+        if (stageObj.subs) {
+          stageObj.subs.forEach(sub => {
+            const k = stageObj.key + "_" + sub.replace('%','').toLowerCase();
+            if (d.states[k]) hasInStage = true;
+          });
+        } else {
+          if (d.states[stageObj.key]) hasInStage = true;
+        }
+        if (!hasInStage) return false;
+      }
+    }
+    if (fStatus) {
+      if (fStatus === "blank") {
+        if (!entries.some(e => !e.value)) return false;
+      } else {
+        if (!entries.some(e => e.value === fStatus)) return false;
+      }
     }
     return true;
   });
-
-  renderMatrix(filtered);
-  showToast("筛选完成，共 " + filtered.length + " 项");
 }
 
-function resetFilters() {
-  document.getElementById("filter-phase").value = "";
-  document.getElementById("filter-status").value = "";
-  document.getElementById("filter-type").value = "";
-  document.getElementById("filter-owner").value = "";
-  document.getElementById("filter-keyword").value = "";
-  renderMatrix(DELIVERABLES);
-  showToast("已重置筛选");
+function initFilters() {
+  const stageSel = document.getElementById('f-stage');
+  STAGES.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.name;
+    opt.textContent = s.name;
+    stageSel.appendChild(opt);
+  });
+  const typeSel = document.getElementById('f-type');
+  [...new Set(DELIVERABLES.map(d => d.type))].forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = t;
+    typeSel.appendChild(opt);
+  });
+  const ownerSel = document.getElementById('f-owner');
+  [...new Set(DELIVERABLES.map(d => d.owner))].forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o; opt.textContent = o;
+    ownerSel.appendChild(opt);
+  });
+  ['f-stage','f-status','f-type','f-owner','f-kw'].forEach(id => {
+    document.getElementById(id).addEventListener('input', buildBody);
+    document.getElementById(id).addEventListener('change', buildBody);
+  });
 }
 
-/* ===== Toast ===== */
-function showToast(msg) {
-  var t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(function() { t.classList.remove("show"); }, 2200);
+/* ====================== Drawer Layer ====================== */
+function bindCellClicks() {
+  document.querySelectorAll('.cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const did = cell.getAttribute('data-did');
+      const dkey = cell.getAttribute('data-dkey');
+      const stage = cell.getAttribute('data-stage');
+      const sub = cell.getAttribute('data-sub');
+      openDrawer(did, dkey, stage, sub);
+    });
+  });
 }
 
-/* ===== Init ===== */
+function openDrawer(did, dkey, stage, sub) {
+  const d = DELIVERABLES.find(x => x.id === did);
+  if (!d) return;
+  const curVal = d.states[dkey] || "";
+  document.getElementById('drawer-title').textContent = d.name;
+  const body = document.getElementById('drawer-body');
+
+  let stageGridHtml = '<div class="stage-grid">';
+  getAllStateEntries(d).forEach(e => {
+    const label = e.sub ? `${e.stage}-${e.sub}` : e.stage;
+    const isCurrent = e.key === dkey;
+    if (e.value) {
+      stageGridHtml += `<div class="si" style="${isCurrent?'box-shadow:0 0 0 2px var(--blue) inset;':''}"><span>${label}</span><span class="ok">${e.value}</span></div>`;
+    } else {
+      stageGridHtml += `<div class="si" style="${isCurrent?'box-shadow:0 0 0 2px var(--red) inset;':''}"><span>${label}</span><span class="no">空白</span></div>`;
+    }
+  });
+  stageGridHtml += '</div>';
+
+  let timelineHtml = '';
+  d.timeline.forEach(t => {
+    timelineHtml += `<div class="timeline-item"><div class="timeline-time">${t.t}</div><div class="timeline-text">${t.text}</div></div>`;
+  });
+
+  const stageLabel = sub ? `${stage}-${sub}` : stage;
+
+  body.innerHTML = `
+    <div class="drawer-section">
+      <h4>基本信息</h4>
+      <div class="drawer-row"><div class="k">交付物名称</div><div class="v">${d.name}</div></div>
+      <div class="drawer-row"><div class="k">交付物类型</div><div class="v">${d.type}</div></div>
+      <div class="drawer-row"><div class="k">卡控阶段</div><div class="v">${d.gateStage}</div></div>
+      <div class="drawer-row"><div class="k">责任人</div><div class="v">${d.owner}</div></div>
+      <div class="drawer-row"><div class="k">文档链接</div><div class="v"><a class="doc-link" href="https://${d.docLink}" target="_blank">${d.docLink}</a></div></div>
+    </div>
+    <div class="drawer-section">
+      <h4>当前单元格 · ${stageLabel}</h4>
+      <div class="drawer-row"><div class="k">当前状态</div><div class="v"><span class="status-badge ${statusClass(curVal)}">${statusLabel(curVal)}</span></div></div>
+      <div class="drawer-row"><div class="k">应交口径</div><div class="v">${d.criteria}</div></div>
+    </div>
+    <div class="drawer-section">
+      <h4>各阶段状态</h4>
+      ${stageGridHtml}
+    </div>
+    <div class="drawer-section">
+      <h4>最近更新记录</h4>
+      ${timelineHtml}
+    </div>
+  `;
+
+  document.getElementById('drawer-mask').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-mask').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+/* ====================== Init ====================== */
 function init() {
-  renderMatrix(DELIVERABLES);
+  buildHead();
+  initFilters();
+  buildBody();
+  updateStats();
+  document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+  document.getElementById('drawer-mask').addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 }
 init();
 </script>
