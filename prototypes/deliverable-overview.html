@@ -1,769 +1,845 @@
+<!--
+  原型名称：交付物总览页需求
+  需求来源：https://project.feishu.cn/1fknv3/story/detail/7058554577
+  生成时间：2026-07-29
+  生成工具：CodeM Auto
+-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>交付物管理总览页</title>
-  <!--
-    原型名称：交付物总览页需求
-    需求来源：https://project.feishu.cn/1fknv3/story/detail/7058554577
-    生成时间：2026-07-29
-    生成工具：CodeM Auto
-  -->
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #f5f6f8;
-      --card-bg: #ffffff;
-      --border: #e8eaed;
-      --text-primary: #1f2329;
-      --text-secondary: #646a73;
-      --text-tertiary: #8f959e;
-      --blue: #3370ff;
-      --blue-bg: #e8f0ff;
-      --green: #34c759;
-      --green-bg: #e8f8ec;
-      --orange: #f7ba1e;
-      --orange-bg: #fdf3e0;
-      --gray: #8f959e;
-      --gray-bg: #f0f1f4;
-      --red: #f54a45;
-      --red-bg: #fee9e9;
-      --shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--text-primary);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    /* Component: Header */
-    .header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: var(--shadow);
-    }
-    .header-left { display: flex; align-items: center; gap: 12px; }
-    .header-title { font-size: 18px; font-weight: 600; }
-    .header-sub { font-size: 12px; color: var(--text-tertiary); }
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .stat-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 16px;
-      font-size: 12px;
-      background: var(--gray-bg);
-      color: var(--text-secondary);
-    }
-    .stat-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .dot-initial { background: var(--gray); }
-    .dot-review { background: var(--orange); }
-    .dot-stable { background: var(--blue); }
-    .dot-final { background: var(--green); }
-    .dot-blank { background: var(--red); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交付物总览页</title>
+<style>
+/* ========== Style Layer ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #2B5AED;
+  --primary-light: #EAF0FF;
+  --primary-hover: #1E47C7;
+  --text-1: #1F2329;
+  --text-2: #4E5969;
+  --text-3: #86909C;
+  --text-white: #FFFFFF;
+  --bg-page: #F5F7FA;
+  --bg-card: #FFFFFF;
+  --border: #E5E6EB;
+  --border-light: #F2F3F5;
+  --success: #00B42A;
+  --warning: #FF7D00;
+  --danger: #F53F3F;
+  --info: #3062D7;
+  --tag-bg-1: #E8FFEA;
+  --tag-text-1: #00B42A;
+  --tag-bg-2: #FFF3E8;
+  --tag-text-2: #FF7D00;
+  --tag-bg-3: #FFECE8;
+  --tag-text-3: #F53F3F;
+  --tag-bg-4: #E8F3FF;
+  --tag-text-4: #3062D7;
+  --tag-bg-5: #F2F3F5;
+  --tag-text-5: #86909C;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg-page);
+  color: var(--text-1);
+  font-size: 14px;
+  line-height: 1.6;
+}
 
-    /* Component: FilterBar */
-    .filter-bar {
-      background: var(--card-bg);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      border-bottom: 1px solid var(--border);
-    }
-    .filter-group { display: flex; align-items: center; gap: 6px; }
-    .filter-label { font-size: 12px; color: var(--text-tertiary); }
-    .filter-select, .filter-input {
-      height: 32px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0 10px;
-      font-size: 13px;
-      color: var(--text-primary);
-      background: #fff;
-      outline: none;
-      cursor: pointer;
-    }
-    .filter-select:hover, .filter-input:hover { border-color: var(--blue); }
-    .filter-input { width: 220px; cursor: text; }
-    .filter-spacer { flex: 1; }
+/* Layout */
+.page-wrapper { min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* Component: Matrix */
-    .matrix-wrap {
-      padding: 16px 24px;
-      overflow-x: auto;
-    }
-    .matrix-card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    table.matrix {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1200px;
-    }
-    table.matrix th, table.matrix td {
-      border: 1px solid var(--border);
-      padding: 0;
-      text-align: center;
-    }
-    table.matrix thead th {
-      background: #fafbfc;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      padding: 10px 8px;
-      position: sticky;
-      top: 0;
-    }
-    table.matrix thead th.col-deliv { text-align: left; padding-left: 16px; min-width: 200px; }
-    table.matrix thead th.col-stage { min-width: 96px; }
-    table.matrix thead th.sub-stage { font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
-    table.matrix thead th.stage-group { background: #f0f2f5; font-size: 11px; color: var(--text-tertiary); }
-    table.matrix tbody tr:hover { background: #f8faff; }
-    table.matrix td.col-deliv {
-      text-align: left;
-      padding: 12px 16px;
-      vertical-align: middle;
-    }
-    .deliv-name { font-weight: 600; font-size: 13px; }
-    .deliv-stage-tag {
-      display: inline-block;
-      margin-top: 4px;
-      font-size: 11px;
-      padding: 1px 8px;
-      border-radius: 10px;
-      background: var(--blue-bg);
-      color: var(--blue);
-    }
-    .deliv-type { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+/* Header */
+.page-header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--primary);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-white); font-weight: 700; font-size: 16px;
+}
+.page-title { font-size: 18px; font-weight: 600; color: var(--text-1); }
+.breadcrumb { font-size: 12px; color: var(--text-3); margin-left: 4px; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-2);
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn-primary {
+  background: var(--primary);
+  color: var(--text-white);
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: var(--text-white); }
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600;
+}
 
-    /* Status cells */
-    .cell {
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-    .cell:hover { transform: scale(1.06); }
-    .status-badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-    .st-initial { background: var(--gray-bg); color: var(--gray); }
-    .st-review { background: var(--orange-bg); color: var(--orange); }
-    .st-stable { background: var(--blue-bg); color: var(--blue); }
-    .st-final { background: var(--green-bg); color: var(--green); }
-    .st-blank { background: var(--red-bg); color: var(--red); font-weight: 600; }
-    .st-blank::before { content: "⚠ "; }
+/* Main Content */
+.main-content { flex: 1; padding: 20px 24px; }
 
-    /* Component: Drawer */
-    .drawer-mask {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.35);
-      z-index: 200;
-      display: none;
-    }
-    .drawer-mask.open { display: block; }
-    .drawer {
-      position: fixed;
-      top: 0; right: -440px;
-      width: 420px;
-      height: 100%;
-      background: var(--card-bg);
-      box-shadow: -4px 0 24px rgba(0,0,0,0.12);
-      z-index: 201;
-      transition: right 0.25s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .drawer.open { right: 0; }
-    .drawer-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .drawer-title { font-size: 15px; font-weight: 600; }
-    .drawer-close { cursor: pointer; font-size: 18px; color: var(--text-tertiary); background: none; border: none; }
-    .drawer-close:hover { color: var(--text-primary); }
-    .drawer-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
-    .drawer-section { margin-bottom: 20px; }
-    .drawer-section h4 { font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 500; }
-    .drawer-row { display: flex; margin-bottom: 10px; }
-    .drawer-row .k { width: 110px; color: var(--text-secondary); font-size: 13px; flex-shrink: 0; }
-    .drawer-row .v { font-size: 13px; flex: 1; }
-    .doc-link { color: var(--blue); text-decoration: none; cursor: pointer; }
-    .doc-link:hover { text-decoration: underline; }
-    .timeline-item {
-      position: relative;
-      padding-left: 16px;
-      padding-bottom: 14px;
-      border-left: 2px solid var(--border);
-      margin-left: 4px;
-    }
-    .timeline-item:last-child { border-left-color: transparent; }
-    .timeline-item::before {
-      content: "";
-      position: absolute;
-      left: -5px;
-      top: 4px;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--blue);
-    }
-    .timeline-time { font-size: 11px; color: var(--text-tertiary); }
-    .timeline-text { font-size: 13px; margin-top: 2px; }
-    .stage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-    .stage-grid .si { font-size: 11px; padding: 4px 8px; border-radius: 6px; background: #f5f6f8; display: flex; justify-content: space-between; }
-    .si .ok { color: var(--green); }
-    .si .no { color: var(--red); }
+/* Stats Cards */
+.stats-row { display: flex; gap: 16px; margin-bottom: 20px; }
+.stat-card {
+  flex: 1;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.stat-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.stat-icon.blue { background: var(--primary-light); color: var(--primary); }
+.stat-icon.green { background: var(--tag-bg-1); color: var(--tag-text-1); }
+.stat-icon.orange { background: var(--tag-bg-2); color: var(--tag-text-2); }
+.stat-icon.gray { background: var(--tag-bg-5); color: var(--tag-text-5); }
+.stat-info { flex: 1; }
+.stat-label { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--text-1); }
+.stat-delta { font-size: 12px; margin-top: 2px; }
+.stat-delta.up { color: var(--success); }
+.stat-delta.down { color: var(--danger); }
 
-    /* Legend */
-    .legend {
-      display: flex;
-      gap: 16px;
-      padding: 8px 24px 0;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    .legend-item { display: flex; align-items: center; gap: 4px; }
+/* Filter Bar */
+.filter-bar {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.filter-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.filter-row + .filter-row { margin-top: 12px; }
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-label { font-size: 13px; color: var(--text-2); white-space: nowrap; }
+.select {
+  padding: 6px 28px 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%2386909C' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance: none;
+  font-size: 13px;
+  color: var(--text-1);
+  cursor: pointer;
+  min-width: 130px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.select:hover, .select:focus { border-color: var(--primary); }
+.search-box {
+  flex: 1;
+  position: relative;
+  min-width: 200px;
+}
+.search-input {
+  width: 100%;
+  padding: 7px 10px 7px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  font-size: 14px;
+}
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+}
+.filter-tag .close { font-size: 14px; line-height: 1; }
 
-    .empty-row td { padding: 40px; color: var(--text-tertiary); }
-  </style>
+/* Table Card */
+.table-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.table-toolbar {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toolbar-left { display: flex; align-items: center; gap: 12px; }
+.toolbar-title { font-size: 15px; font-weight: 600; color: var(--text-1); }
+.result-count { font-size: 12px; color: var(--text-3); }
+.toolbar-right { display: flex; gap: 8px; }
+.view-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.view-toggle button {
+  padding: 5px 12px;
+  border: none;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-2);
+  transition: all 0.15s;
+}
+.view-toggle button.active { background: var(--primary); color: var(--text-white); }
+
+/* Data Table */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  background: #FAFBFC;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+.data-table thead th.sortable { cursor: pointer; }
+.data-table thead th.sortable:hover { color: var(--primary); }
+.sort-arrow { font-size: 10px; margin-left: 4px; color: var(--text-3); }
+.data-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.data-table tbody tr { transition: background 0.12s; cursor: pointer; }
+.data-table tbody tr:hover { background: var(--primary-light); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+/* Status Tags */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tag-done { background: var(--tag-bg-1); color: var(--tag-text-1); }
+.tag-progress { background: var(--tag-bg-2); color: var(--tag-text-2); }
+.tag-pending { background: var(--tag-bg-3); color: var(--tag-text-3); }
+.tag-info { background: var(--tag-bg-4); color: var(--tag-text-4); }
+.tag-default { background: var(--tag-bg-5); color: var(--tag-text-5); }
+
+/* Person cell */
+.person-cell { display: flex; align-items: center; gap: 8px; }
+.mini-avatar {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600;
+  flex-shrink: 0;
+}
+.person-name { font-size: 13px; color: var(--text-1); }
+
+/* Link cell */
+.doc-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 13px;
+}
+.doc-link:hover { text-decoration: underline; }
+
+/* Priority indicator */
+.priority-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.priority-high { background: var(--danger); }
+.priority-medium { background: var(--warning); }
+.priority-low { background: var(--success); }
+
+/* Pagination */
+.pagination {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.page-info { font-size: 12px; color: var(--text-3); }
+.page-controls { display: flex; gap: 4px; align-items: center; }
+.page-btn {
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 8px;
+  transition: all 0.15s;
+}
+.page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); color: var(--text-white); border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Drawer */
+.drawer-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.drawer-mask.show { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed;
+  top: 0; right: -520px;
+  width: 520px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--bg-card);
+  z-index: 201;
+  box-shadow: var(--shadow-lg);
+  transition: right 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+.drawer.show { right: 0; }
+.drawer-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.drawer-title { font-size: 16px; font-weight: 600; color: var(--text-1); }
+.drawer-close {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-3);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+}
+.drawer-close:hover { background: var(--border-light); color: var(--text-1); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.drawer-section { margin-bottom: 24px; }
+.drawer-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detail-item {}
+.detail-label { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
+.detail-value { font-size: 13px; color: var(--text-1); }
+
+.update-timeline { position: relative; padding-left: 20px; }
+.update-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 4px; bottom: 4px;
+  width: 2px;
+  background: var(--border-light);
+}
+.timeline-item { position: relative; padding-bottom: 16px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg-card);
+}
+.timeline-time { font-size: 12px; color: var(--text-3); margin-bottom: 2px; }
+.timeline-content { font-size: 13px; color: var(--text-1); }
+.timeline-user { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+.drawer-footer {
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--text-1);
+  color: var(--text-white);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-3);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .stats-row { flex-wrap: wrap; }
+  .stat-card { min-width: 220px; }
+}
+@media (max-width: 768px) {
+  .main-content { padding: 12px; }
+  .filter-row { flex-direction: column; align-items: stretch; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .data-table { font-size: 12px; }
+  .data-table thead th, .data-table tbody td { padding: 8px 10px; }
+}
+</style>
 </head>
 <body>
+<div class="page-wrapper">
 
-<!-- Component: Header -->
-<div class="header">
-  <div class="header-left">
-    <div>
-      <div class="header-title">交付物管理总览页</div>
-      <div class="header-sub">项目：X100 车规级芯片 · IPD 交付物矩阵 · 当前阶段 TR4-TO</div>
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="logo-icon">交</div>
+      <div>
+        <div class="page-title">交付物总览</div>
+      </div>
+      <span class="breadcrumb">/ 项目管理 / 交付物总览</span>
     </div>
-  </div>
-  <div class="header-right">
-    <span class="stat-pill"><span class="dot dot-initial"></span>Initial <b id="cnt-initial">0</b></span>
-    <span class="stat-pill"><span class="dot dot-review"></span>Review <b id="cnt-review">0</b></span>
-    <span class="stat-pill"><span class="dot dot-stable"></span>Stable <b id="cnt-stable">0</b></span>
-    <span class="stat-pill"><span class="dot dot-final"></span>Final <b id="cnt-final">0</b></span>
-    <span class="stat-pill"><span class="dot dot-blank"></span>空白风险 <b id="cnt-blank">0</b></span>
-  </div>
+    <div class="header-right">
+      <button class="btn" onclick="showToast('已导出当前筛选结果')">⬇ 导出</button>
+      <button class="btn btn-primary" onclick="showToast('新建交付物弹窗（原型演示）')">+ 新建交付物</button>
+      <div class="avatar">黄</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue">📋</div>
+        <div class="stat-info">
+          <div class="stat-label">交付物总数</div>
+          <div class="stat-value">48</div>
+          <div class="stat-delta up">↑ 较上周 +5</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+          <div class="stat-label">已交付</div>
+          <div class="stat-value">32</div>
+          <div class="stat-delta up">↑ 交付率 66.7%</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div class="stat-info">
+          <div class="stat-label">进行中</div>
+          <div class="stat-value">11</div>
+          <div class="stat-delta down">↓ 较上周 -2</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gray">⚠</div>
+        <div class="stat-info">
+          <div class="stat-label">逾期未交付</div>
+          <div class="stat-value">5</div>
+          <div class="stat-delta down">↑ 需关注</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="filter-label">所属项目</span>
+          <select class="select" id="filter-project" onchange="applyFilters()">
+            <option value="">全部项目</option>
+            <option value="客户管理系统">客户管理系统</option>
+            <option value="订单中台">订单中台</option>
+            <option value="数据看板">数据看板</option>
+            <option value="移动端App">移动端App</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">交付物类型</span>
+          <select class="select" id="filter-type" onchange="applyFilters()">
+            <option value="">全部类型</option>
+            <option value="需求文档">需求文档</option>
+            <option value="设计稿">设计稿</option>
+            <option value="技术方案">技术方案</option>
+            <option value="测试用例">测试用例</option>
+            <option value="上线报告">上线报告</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">责任人</span>
+          <select class="select" id="filter-owner" onchange="applyFilters()">
+            <option value="">全部责任人</option>
+            <option value="张明远">张明远</option>
+            <option value="李思琪">李思琪</option>
+            <option value="王浩然">王浩然</option>
+            <option value="陈雨欣">陈雨欣</option>
+            <option value="刘子轩">刘子轩</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">状态</span>
+          <select class="select" id="filter-status" onchange="applyFilters()">
+            <option value="">全部状态</option>
+            <option value="已交付">已交付</option>
+            <option value="进行中">进行中</option>
+            <option value="逾期">逾期</option>
+            <option value="待启动">待启动</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="search-input" placeholder="搜索交付物名称、关键词…" oninput="applyFilters()">
+        </div>
+        <button class="btn" onclick="resetFilters()">↻ 重置筛选</button>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="toolbar-left">
+          <span class="toolbar-title">交付物列表</span>
+          <span class="result-count" id="result-count">共 0 条</span>
+        </div>
+        <div class="toolbar-right">
+          <div class="view-toggle">
+            <button class="active" onclick="showToast('表格视图（当前）')">📊 表格</button>
+            <button onclick="showToast('卡片视图（原型演示）')">🔲 卡片</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table" id="data-table">
+          <thead>
+            <tr>
+              <th>交付物名称</th>
+              <th>所属项目</th>
+              <th>交付物类型</th>
+              <th>责任人</th>
+              <th>当前阶段</th>
+              <th>应交日期</th>
+              <th>状态</th>
+              <th class="sortable" onclick="showToast('按优先级排序')">优先级 <span class="sort-arrow">▼</span></th>
+              <th>文档链接</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span class="page-info" id="page-info">第 1 页 / 共 1 页</span>
+        <div class="page-controls">
+          <button class="page-btn" id="prev-btn" onclick="changePage(-1)" disabled>‹ 上一页</button>
+          <button class="page-btn active" onclick="showToast('当前第 1 页')">1</button>
+          <button class="page-btn" onclick="showToast('跳转到第 2 页')">2</button>
+          <button class="page-btn" onclick="showToast('跳转到第 3 页')">3</button>
+          <button class="page-btn" id="next-btn" onclick="changePage(1)">下一页 ›</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
 </div>
 
-<!-- Component: FilterBar -->
-<div class="filter-bar">
-  <div class="filter-group">
-    <span class="filter-label">阶段</span>
-    <select class="filter-select" id="f-stage">
-      <option value="">全部阶段</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">状态</span>
-    <select class="filter-select" id="f-status">
-      <option value="">全部状态</option>
-      <option value="Initial">Initial</option>
-      <option value="Review">Review</option>
-      <option value="Stable">Stable</option>
-      <option value="Final">Final</option>
-      <option value="blank">空白</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">类型</span>
-    <select class="filter-select" id="f-type">
-      <option value="">全部类型</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">责任人</span>
-    <select class="filter-select" id="f-owner">
-      <option value="">全部责任人</option>
-    </select>
-  </div>
-  <div class="filter-spacer"></div>
-  <input class="filter-input" id="f-kw" placeholder="搜索交付物名称/关键词…" />
-</div>
-
-<div class="legend">
-  <div class="legend-item"><span class="status-badge st-initial">Initial</span> 刚创建，内容待填充</div>
-  <div class="legend-item"><span class="status-badge st-review">Review</span> 已提交评审中</div>
-  <div class="legend-item"><span class="status-badge st-stable">Stable</span> 内容稳定</div>
-  <div class="legend-item"><span class="status-badge st-final">Final</span> 已定稿签发</div>
-  <div class="legend-item"><span class="status-badge st-blank">空白</span> 应交未交，风险</div>
-</div>
-
-<!-- Component: Matrix -->
-<div class="matrix-wrap">
-  <div class="matrix-card">
-    <table class="matrix">
-      <thead id="matrix-head"></thead>
-      <tbody id="matrix-body"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Component: Drawer -->
-<div class="drawer-mask" id="drawer-mask"></div>
+<!-- Drawer -->
+<div class="drawer-mask" id="drawer-mask" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header">
-    <div class="drawer-title" id="drawer-title">交付物详情</div>
-    <button class="drawer-close" id="drawer-close">×</button>
+    <span class="drawer-title" id="drawer-title">交付物详情</span>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
   </div>
   <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-footer">
+    <button class="btn" onclick="closeDrawer()">关闭</button>
+    <button class="btn btn-primary" onclick="showToast('已跳转编辑页（原型演示）')">编辑</button>
+  </div>
 </div>
 
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-/* ====================== Mock Data Layer ====================== */
-const STAGES = [
-  { key: "charter", name: "Charter" },
-  { key: "tr1", name: "TR1" },
-  { key: "tr2", name: "TR2" },
-  { key: "tr3", name: "TR3" },
-  { key: "tr4", name: "TR4", subs: ["85%","95%","100%","TO"] },
-  { key: "tr4a", name: "TR4A" },
-  { key: "tr5", name: "TR5" },
-  { key: "tr6", name: "TR6" },
-  { key: "ga", name: "GA量产" }
+/* ========== Mock Data Layer ========== */
+const mockData = [
+  { id: 1, name: "客户管理模块需求规格说明书", project: "客户管理系统", type: "需求文档", owner: "张明远", stage: "需求评审", dueDate: "2026-07-25", status: "已交付", priority: "高", docLink: "飞书文档", desc: "客户管理模块完整需求规格说明，涵盖客户档案、分层运营、标签体系等子模块。", spec: "包含客户基本信息字段 28 项、自定义字段 15 项、分层规则 6 套。" },
+  { id: 2, name: "订单详情页交互设计稿 V2", project: "订单中台", type: "设计稿", owner: "李思琪", stage: "设计评审", dueDate: "2026-08-02", status: "进行中", priority: "高", docLink: "飞书文档", desc: "订单详情页改版交互稿，优化信息层级与操作动线。", spec: "含 3 套布局方案、12 个关键页面状态、动效说明文档。" },
+  { id: 3, name: "数据看板后端技术方案", project: "数据看板", type: "技术方案", owner: "王浩然", stage: "方案评审", dueDate: "2026-07-20", status: "逾期", priority: "高", docLink: "飞书文档", desc: "数据看板后端架构设计，含实时计算与离线聚合双链路方案。", spec: "Flink 实时链路 + Spark 离线链路，预估 QPS 5000，SLA 99.9%。" },
+  { id: 4, name: "客户列表页测试用例", project: "客户管理系统", type: "测试用例", owner: "陈雨欣", stage: "测试执行", dueDate: "2026-08-10", status: "进行中", priority: "中", docLink: "飞书文档", desc: "客户列表页功能与性能测试用例集。", spec: "功能用例 86 条、接口用例 42 条、性能场景 5 个。" },
+  { id: 5, name: "移动端首页上线报告", project: "移动端App", type: "上线报告", owner: "刘子轩", stage: "已上线", dueDate: "2026-07-15", status: "已交付", priority: "中", docLink: "飞书文档", desc: "移动端首页 V3.2 版本上线总结报告。", spec: "上线耗时 2h15min，灰度比例 10%→50%→100%，零 P0 故障。" },
+  { id: 6, name: "订单履约流程需求文档", project: "订单中台", type: "需求文档", owner: "张明远", stage: "需求评审", dueDate: "2026-08-05", status: "进行中", priority: "高", docLink: "飞书文档", desc: "订单履约全链路需求文档，覆盖拆单、合单、逆向退款场景。", spec: "正向流程 7 步、逆向流程 5 步、异常分支 12 个。" },
+  { id: 7, name: "数据看板 UI 视觉稿", project: "数据看板", type: "设计稿", owner: "李思琪", stage: "设计交付", dueDate: "2026-07-28", status: "已交付", priority: "中", docLink: "飞书文档", desc: "数据看板全部页面高保真视觉稿。", spec: "12 个图表组件、4 套主题色板、响应式适配 3 个断点。" },
+  { id: 8, name: "客户标签体系技术方案", project: "客户管理系统", type: "技术方案", owner: "王浩然", stage: "开发中", dueDate: "2026-08-15", status: "进行中", priority: "中", docLink: "飞书文档", desc: "客户标签存储与计算引擎技术方案。", spec: "标签总数 200+、实时计算延迟 <500ms、T+1 离线全量刷新。" },
+  { id: 9, name: "订单退款模块测试用例", project: "订单中台", type: "测试用例", owner: "陈雨欣", stage: "用例评审", dueDate: "2026-08-20", status: "待启动", priority: "低", docLink: "—", desc: "订单退款全流程测试用例。", spec: "预计功能用例 60 条、资金安全用例 30 条。" },
+  { id: 10, name: "移动端个人中心上线报告", project: "移动端App", type: "上线报告", owner: "刘子轩", stage: "已上线", dueDate: "2026-07-10", status: "已交付", priority: "低", docLink: "飞书文档", desc: "个人中心模块 V3.1 上线报告。", spec: "上线 1h40min，灰度无回滚，用户反馈正向率 92%。" },
+  { id: 11, name: "客户导入功能需求文档", project: "客户管理系统", type: "需求文档", owner: "张明远", stage: "待评审", dueDate: "2026-07-30", status: "逾期", priority: "高", docLink: "飞书文档", desc: "批量客户导入功能需求，支持 Excel/CSV/API 三种渠道。", spec: "单次最大 5 万行、异步处理、失败行可下载修正。" },
+  { id: 12, name: "订单列表页交互设计稿", project: "订单中台", type: "设计稿", owner: "李思琪", stage: "设计评审", dueDate: "2026-07-22", status: "逾期", priority: "高", docLink: "飞书文档", desc: "订单列表页筛选与批量操作交互设计。", spec: "含 8 种筛选维度、批量操作 5 项、空状态 3 种。" },
+  { id: 13, name: "实时大屏技术方案", project: "数据看板", type: "技术方案", owner: "王浩然", stage: "方案评审", dueDate: "2026-08-08", status: "进行中", priority: "高", docLink: "飞书文档", desc: "实时数据大屏 WebSocket 推送技术方案。", spec: "推送频率 1s、断线重连 <3s、支持 50 路并发看板。" },
+  { id: 14, name: "客户详情页测试用例", project: "客户管理系统", type: "测试用例", owner: "陈雨欣", stage: "测试执行", dueDate: "2026-08-12", status: "进行中", priority: "中", docLink: "飞书文档", desc: "客户详情页全功能测试用例。", spec: "功能用例 72 条、兼容性用例 24 条。" },
+  { id: 15, name: "移动端搜索页上线报告", project: "移动端App", type: "上线报告", owner: "刘子轩", stage: "待上线", dueDate: "2026-08-01", status: "进行中", priority: "中", docLink: "飞书文档", desc: "搜索页 V3.3 上线前准备报告。", spec: "灰度计划 3 阶段、监控指标 8 项、回滚预案已就绪。" }
 ];
 
-const DELIVERABLES = [
-  {
-    id: "BP", name: "Business Plan (BP)", type: "商业", gateStage: "Charter", owner: "王磊",
-    docLink: "docs.feishu.cn/docx/BP2026",
-    criteria: "Charter 阶段需完成商业论证与立项决策，明确投入产出与市场定位。",
-    states: { charter:"Final", tr1:"Final", tr2:"Final", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-03-12", text:"王磊定稿 V3.0，通过 Charter 评审" },
-      { t:"2026-04-02", text:"TR1 复核无变更" },
-      { t:"2026-05-20", text:"财务数据更新至 V3.1" }
-    ]
-  },
-  {
-    id: "MRD", name: "MRD 市场需求文档", type: "商业", gateStage: "Charter", owner: "李娜",
-    docLink: "docs.feishu.cn/docx/MRD-X100",
-    criteria: "Charter 阶段提交市场需求，TR2 前完成 Stable。",
-    states: { charter:"Stable", tr1:"Stable", tr2:"Final", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-03-15", text:"李娜完成 Stable 版" },
-      { t:"2026-04-10", text:"TR2 评审通过，定稿 Final" }
-    ]
-  },
-  {
-    id: "ARCH", name: "芯片架构设计文档", type: "设计", gateStage: "TR1", owner: "陈志远",
-    docLink: "docs.feishu.cn/docx/ARCH-X100",
-    criteria: "TR1 需达到 Stable，TR2 定稿 Final，作为 RTL 设计输入。",
-    states: { charter:"Initial", tr1:"Stable", tr2:"Final", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-04-05", text:"架构方案初稿 Initial" },
-      { t:"2026-04-22", text:"TR1 评审通过 Stable" },
-      { t:"2026-05-18", text:"TR2 定稿 Final" }
-    ]
-  },
-  {
-    id: "DRSPEC", name: "DR_Spec 设计规格", type: "设计", gateStage: "TR2", owner: "陈志远",
-    docLink: "docs.feishu.cn/docx/DRSPEC-X100",
-    criteria: "TR2 需 Stable，TR3 前定稿，覆盖全部功能模块设计规格。",
-    states: { charter:"", tr1:"Initial", tr2:"Stable", tr3:"Final", tr4_85:"Final", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-04-20", text:"完成模块划分 Initial" },
-      { t:"2026-05-10", text:"TR2 Stable，待评审意见闭环" },
-      { t:"2026-06-01", text:"TR3 定稿 Final" }
-    ]
-  },
-  {
-    id: "PINPAD", name: "PinPad Matrix", type: "设计", gateStage: "TR3", owner: "张工",
-    docLink: "docs.feishu.cn/sheets/PINPAD-X100",
-    criteria: "TR3 需 Stable，TO 前 Final，引脚定义冻结后不可变更。",
-    states: { charter:"", tr1:"", tr2:"Initial", tr3:"Stable", tr4_85:"Review", tr4_95:"Final", tr4_100:"Final", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-05-25", text:"初版引脚分配 Initial" },
-      { t:"2026-06-15", text:"TR3 评审 Stable" },
-      { t:"2026-07-02", text:"封装团队 Review 中，85% 节点" },
-      { t:"2026-07-10", text:"95% 节点定稿 Final" }
-    ]
-  },
-  {
-    id: "DFMEA", name: "Chip-level DFMEA", type: "质量", gateStage: "TR3", owner: "刘敏",
-    docLink: "docs.feishu.cn/docx/DFMEA-X100",
-    criteria: "TR3 需 Initial，TR4-95% 前完成 Stable，TO 前 Final。",
-    states: { charter:"", tr1:"", tr2:"", tr3:"Initial", tr4_85:"Initial", tr4_95:"Stable", tr4_100:"Review", tr4_to:"", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-06-10", text:"启动 DFMEA 分析 Initial" },
-      { t:"2026-07-05", text:"85% 节点补充失效模式" },
-      { t:"2026-07-18", text:"95% 节点 Stable" },
-      { t:"2026-07-26", text:"100% 节点 Review，TO 节点待补" }
-    ]
-  },
-  {
-    id: "SAFETY", name: "Safety Plan", type: "安全", gateStage: "TR4", owner: "刘敏",
-    docLink: "docs.feishu.cn/docx/SAFETY-X100",
-    criteria: "TR4-85% 需 Initial，TO 前 Stable，TR5 前 Final，满足 ISO 26262。",
-    states: { charter:"", tr1:"", tr2:"", tr3:"Initial", tr4_85:"Review", tr4_95:"Stable", tr4_100:"Stable", tr4_to:"Stable", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-06-20", text:"安全目标分析 Initial" },
-      { t:"2026-07-08", text:"85% 节点提交 Review" },
-      { t:"2026-07-16", text:"95% 节点 Stable" },
-      { t:"2026-07-25", text:"TR4A 定稿 Final" }
-    ]
-  },
-  {
-    id: "TSC", name: "TSC 时序约束文件", type: "设计", gateStage: "TR4", owner: "张工",
-    docLink: "docs.feishu.cn/docx/TSC-X100",
-    criteria: "TR4-95% 需 Stable，TO 前 Final，约束需与 PinPad 一致。",
-    states: { charter:"", tr1:"", tr2:"", tr3:"", tr4_85:"Initial", tr4_95:"Review", tr4_100:"", tr4_to:"", tr4a:"Stable", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-07-03", text:"初版约束 Initial" },
-      { t:"2026-07-15", text:"95% 节点提交 Review" },
-      { t:"2026-07-24", text:"100% 节点空白，待补" }
-    ]
-  },
-  {
-    id: "RTL", name: "RTL 设计代码", type: "实现", gateStage: "TR2", owner: "陈志远",
-    docLink: "repo.feishu.cn/x100-rtl",
-    criteria: "TR2 起 Initial，TR3 Stable，TR4-TO 前 Final 冻结。",
-    states: { charter:"", tr1:"Initial", tr2:"Initial", tr3:"Stable", tr4_85:"Stable", tr4_95:"Stable", tr4_100:"Review", tr4_to:"Final", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-04-18", text:"开始 RTL 编码" },
-      { t:"2026-06-12", text:"TR3 代码 Stable" },
-      { t:"2026-07-22", text:"100% 节点 Review，TO 冻结 Final" }
-    ]
-  },
-  {
-    id: "VERIFY", name: "验证计划与报告", type: "验证", gateStage: "TR3", owner: "周浩",
-    docLink: "docs.feishu.cn/docx/VERIFY-X100",
-    criteria: "TR3 需 Stable 计划，TO 前覆盖率达 95%，TR5 Final。",
-    states: { charter:"", tr1:"", tr2:"Initial", tr3:"Stable", tr4_85:"Stable", tr4_95:"Review", tr4_100:"Review", tr4_to:"Stable", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-05-20", text:"验证计划 Initial" },
-      { t:"2026-06-18", text:"TR3 计划 Stable" },
-      { t:"2026-07-14", text:"95% 覆盖率 Review" },
-      { t:"2026-07-26", text:"TR4A 定稿 Final" }
-    ]
-  },
-  {
-    id: "DFT", name: "DFT 可测性设计文档", type: "设计", gateStage: "TR4", owner: "周浩",
-    docLink: "docs.feishu.cn/docx/DFT-X100",
-    criteria: "TR4-85% Initial，TO 前 Stable，TR5 前 Final。",
-    states: { charter:"", tr1:"", tr2:"", tr3:"", tr4_85:"", tr4_95:"Initial", tr4_100:"Review", tr4_to:"Review", tr4a:"Stable", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-07-10", text:"85% 节点空白，风险" },
-      { t:"2026-07-16", text:"95% 节点提交 Initial" },
-      { t:"2026-07-24", text:"100% 节点 Review" }
-    ]
-  },
-  {
-    id: "PKG", name: "封装设计文档", type: "设计", gateStage: "TR4", owner: "张工",
-    docLink: "docs.feishu.cn/docx/PKG-X100",
-    criteria: "TR4-95% 需 Stable，TO 前 Final。",
-    states: { charter:"", tr1:"", tr2:"", tr3:"Initial", tr4_85:"Stable", tr4_95:"Review", tr4_100:"Review", tr4_to:"", tr4a:"Final", tr5:"Final", tr6:"Final", ga:"Final" },
-    timeline: [
-      { t:"2026-06-22", text:"封装方案 Initial" },
-      { t:"2026-07-06", text:"85% 节点 Stable" },
-      { t:"2026-07-20", text:"95% 节点 Review，TO 空白" }
-    ]
-  }
-];
+const updateHistoryMap = {
+  1: [
+    { time: "2026-07-25 16:30", user: "张明远", content: "需求文档定稿，评审通过" },
+    { time: "2026-07-24 10:15", user: "张明远", content: "补充客户分层运营规则章节" },
+    { time: "2026-07-22 14:00", user: "李思琪", content: "设计侧提出 3 条补充需求" },
+    { time: "2026-07-20 09:30", user: "张明远", content: "创建文档初稿" }
+  ],
+  2: [
+    { time: "2026-07-28 11:00", user: "李思琪", content: "完成订单详情页交互稿 V2 初稿" },
+    { time: "2026-07-26 15:20", user: "张明远", content: "需求侧确认改版范围" },
+    { time: "2026-07-25 09:00", user: "李思琪", content: "启动设计工作" }
+  ],
+  3: [
+    { time: "2026-07-20 17:00", user: "王浩然", content: "技术方案初稿提交，待评审" },
+    { time: "2026-07-18 10:30", user: "王浩然", content: "完成实时计算选型对比" },
+    { time: "2026-07-15 14:00", user: "王浩然", content: "启动方案编写" }
+  ]
+};
 
-const STATUS_ORDER = ["Initial","Review","Stable","Final"];
+/* ========== Logic Layer ========== */
+let currentData = [...mockData];
 
-/* ====================== Render Layer ====================== */
-function buildHead() {
-  let html = "<tr>";
-  html += '<th class="col-deliv">交付物文档</th>';
-  STAGES.forEach(s => {
-    if (s.subs) {
-      html += `<th class="stage-group" colspan="${s.subs.length}">${s.name}</th>`;
-    } else {
-      html += `<th class="col-stage">${s.name}</th>`;
-    }
-  });
-  html += "</tr><tr>";
-  html += '<th class="col-deliv"></th>';
-  STAGES.forEach(s => {
-    if (s.subs) {
-      s.subs.forEach(sub => {
-        html += `<th class="col-stage sub-stage">${sub}</th>`;
-      });
-    } else {
-      html += `<th class="col-stage sub-stage">${s.name}</th>`;
-    }
-  });
-  html += "</tr>";
-  document.getElementById('matrix-head').innerHTML = html;
+function init() {
+  render();
+  bindEvents();
 }
 
-function stageKeyToCol(key) {
-  // returns the column index (0-based from first stage col)
-  let idx = 0;
-  for (const s of STAGES) {
-    if (s.subs) {
-      if (s.subs.some(sub => key === s.key + "_" + sub.replace('%','').toLowerCase())) return idx;
-      idx += s.subs.length;
-    } else {
-      if (s.key === key) return idx;
-      idx += 1;
-    }
-  }
-  return -1;
-}
+function render() {
+  const tbody = document.getElementById('table-body');
+  document.getElementById('result-count').textContent = `共 ${currentData.length} 条`;
 
-function getAllStateEntries(d) {
-  // returns [{stage, sub, key, value}]
-  const entries = [];
-  STAGES.forEach(s => {
-    if (s.subs) {
-      s.subs.forEach(sub => {
-        const k = s.key + "_" + sub.replace('%','').toLowerCase();
-        entries.push({ stage: s.name, sub, key: k, value: d.states[k] || "" });
-      });
-    } else {
-      entries.push({ stage: s.name, sub: "", key: s.key, value: d.states[s.key] || "" });
-    }
-  });
-  return entries;
-}
-
-function statusClass(v) {
-  if (!v) return "st-blank";
-  return "st-" + v.toLowerCase();
-}
-
-function statusLabel(v) {
-  return v || "空白";
-}
-
-function buildBody() {
-  const tbody = document.getElementById('matrix-body');
-  const rows = getFiltered();
-  if (rows.length === 0) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="13">无符合条件的交付物，请调整筛选条件。</td></tr>';
+  if (currentData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📭</div><div>暂无匹配的交付物</div><div style="margin-top:8px;font-size:12px;">尝试调整筛选条件或关键词</div></div></td></tr>`;
     return;
   }
-  let html = "";
-  rows.forEach(d => {
-    html += `<tr>`;
-    html += `<td class="col-deliv">
-      <div class="deliv-name">${d.name}</div>
-      <span class="deliv-stage-tag">卡控：${d.gateStage}</span>
-      <div class="deliv-type">类型：${d.type} · 责任人：${d.owner}</div>
-    </td>`;
-    STAGES.forEach(s => {
-      if (s.subs) {
-        s.subs.forEach(sub => {
-          const k = s.key + "_" + sub.replace('%','').toLowerCase();
-          const v = d.states[k] || "";
-          html += `<td><div class="cell" data-did="${d.id}" data-dkey="${k}" data-stage="${s.name}" data-sub="${sub}">`;
-          if (v) {
-            html += `<span class="status-badge ${statusClass(v)}">${v}</span>`;
-          } else {
-            html += `<span class="status-badge st-blank">空白</span>`;
-          }
-          html += `</div></td>`;
-        });
-      } else {
-        const v = d.states[s.key] || "";
-        html += `<td><div class="cell" data-did="${d.id}" data-dkey="${s.key}" data-stage="${s.name}" data-sub="">`;
-        if (v) {
-          html += `<span class="status-badge ${statusClass(v)}">${v}</span>`;
-        } else {
-          html += `<span class="status-badge st-blank">空白</span>`;
-        }
-        html += `</div></td>`;
-      }
-    });
-    html += `</tr>`;
-  });
-  tbody.innerHTML = html;
-  bindCellClicks();
+
+  tbody.innerHTML = currentData.map(item => {
+    const statusTag = getStatusTag(item.status);
+    const priorityClass = item.priority === '高' ? 'priority-high' : item.priority === '中' ? 'priority-medium' : 'priority-low';
+    const docLinkHtml = item.docLink === '—'
+      ? '<span style="color:var(--text-3);">—</span>'
+      : `<a class="doc-link" href="javascript:void(0)" onclick="event.stopPropagation();showToast('打开文档：${item.name}')">📄 ${item.docLink}</a>`;
+    return `
+      <tr onclick="openDrawer(${item.id})">
+        <td><strong>${item.name}</strong></td>
+        <td>${item.project}</td>
+        <td><span class="tag tag-info">${item.type}</span></td>
+        <td>
+          <div class="person-cell">
+            <div class="mini-avatar">${item.owner.charAt(0)}</div>
+            <span class="person-name">${item.owner}</span>
+          </div>
+        </td>
+        <td>${item.stage}</td>
+        <td>${item.dueDate}</td>
+        <td>${statusTag}</td>
+        <td><span class="priority-dot ${priorityClass}"></span>${item.priority}</td>
+        <td>${docLinkHtml}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
-function updateStats() {
-  let ci=0, cr=0, cs=0, cf=0, cb=0;
-  DELIVERABLES.forEach(d => {
-    getAllStateEntries(d).forEach(e => {
-      if (e.value === "Initial") ci++;
-      else if (e.value === "Review") cr++;
-      else if (e.value === "Stable") cs++;
-      else if (e.value === "Final") cf++;
-      else cb++;
-    });
-  });
-  document.getElementById('cnt-initial').textContent = ci;
-  document.getElementById('cnt-review').textContent = cr;
-  document.getElementById('cnt-stable').textContent = cs;
-  document.getElementById('cnt-final').textContent = cf;
-  document.getElementById('cnt-blank').textContent = cb;
+function getStatusTag(status) {
+  const map = {
+    '已交付': 'tag-done',
+    '进行中': 'tag-progress',
+    '逾期': 'tag-pending',
+    '待启动': 'tag-default'
+  };
+  return `<span class="tag ${map[status] || 'tag-default'}">${status}</span>`;
 }
 
-/* ====================== Filter Layer ====================== */
-function getFiltered() {
-  const fStage = document.getElementById('f-stage').value;
-  const fStatus = document.getElementById('f-status').value;
-  const fType = document.getElementById('f-type').value;
-  const fOwner = document.getElementById('f-owner').value;
-  const kw = document.getElementById('f-kw').value.trim().toLowerCase();
+function applyFilters() {
+  const project = document.getElementById('filter-project').value;
+  const type = document.getElementById('filter-type').value;
+  const owner = document.getElementById('filter-owner').value;
+  const status = document.getElementById('filter-status').value;
+  const keyword = document.getElementById('search-input').value.toLowerCase().trim();
 
-  return DELIVERABLES.filter(d => {
-    if (fType && d.type !== fType) return false;
-    if (fOwner && d.owner !== fOwner) return false;
-    if (kw && !d.name.toLowerCase().includes(kw) && !d.type.toLowerCase().includes(kw)) return false;
-    const entries = getAllStateEntries(d);
-    if (fStage) {
-      // fStage is stage name; only show deliverables that have non-blank in that stage group
-      const stageObj = STAGES.find(s => s.name === fStage);
-      if (stageObj) {
-        let hasInStage = false;
-        if (stageObj.subs) {
-          stageObj.subs.forEach(sub => {
-            const k = stageObj.key + "_" + sub.replace('%','').toLowerCase();
-            if (d.states[k]) hasInStage = true;
-          });
-        } else {
-          if (d.states[stageObj.key]) hasInStage = true;
-        }
-        if (!hasInStage) return false;
-      }
-    }
-    if (fStatus) {
-      if (fStatus === "blank") {
-        if (!entries.some(e => !e.value)) return false;
-      } else {
-        if (!entries.some(e => e.value === fStatus)) return false;
-      }
-    }
+  currentData = mockData.filter(item => {
+    if (project && item.project !== project) return false;
+    if (type && item.type !== type) return false;
+    if (owner && item.owner !== owner) return false;
+    if (status && item.status !== status) return false;
+    if (keyword && !item.name.toLowerCase().includes(keyword) && !item.project.toLowerCase().includes(keyword) && !item.type.toLowerCase().includes(keyword)) return false;
     return true;
   });
+  render();
 }
 
-function initFilters() {
-  const stageSel = document.getElementById('f-stage');
-  STAGES.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.name;
-    opt.textContent = s.name;
-    stageSel.appendChild(opt);
-  });
-  const typeSel = document.getElementById('f-type');
-  [...new Set(DELIVERABLES.map(d => d.type))].forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t; opt.textContent = t;
-    typeSel.appendChild(opt);
-  });
-  const ownerSel = document.getElementById('f-owner');
-  [...new Set(DELIVERABLES.map(d => d.owner))].forEach(o => {
-    const opt = document.createElement('option');
-    opt.value = o; opt.textContent = o;
-    ownerSel.appendChild(opt);
-  });
-  ['f-stage','f-status','f-type','f-owner','f-kw'].forEach(id => {
-    document.getElementById(id).addEventListener('input', buildBody);
-    document.getElementById(id).addEventListener('change', buildBody);
-  });
+function resetFilters() {
+  document.getElementById('filter-project').value = '';
+  document.getElementById('filter-type').value = '';
+  document.getElementById('filter-owner').value = '';
+  document.getElementById('filter-status').value = '';
+  document.getElementById('search-input').value = '';
+  applyFilters();
+  showToast('已重置筛选条件');
 }
 
-/* ====================== Drawer Layer ====================== */
-function bindCellClicks() {
-  document.querySelectorAll('.cell').forEach(cell => {
-    cell.addEventListener('click', () => {
-      const did = cell.getAttribute('data-did');
-      const dkey = cell.getAttribute('data-dkey');
-      const stage = cell.getAttribute('data-stage');
-      const sub = cell.getAttribute('data-sub');
-      openDrawer(did, dkey, stage, sub);
-    });
-  });
-}
+function openDrawer(id) {
+  const item = mockData.find(d => d.id === id);
+  if (!item) return;
+  const history = updateHistoryMap[id] || [{ time: "2026-07-29 10:00", user: item.owner, content: "创建交付物记录" }];
 
-function openDrawer(did, dkey, stage, sub) {
-  const d = DELIVERABLES.find(x => x.id === did);
-  if (!d) return;
-  const curVal = d.states[dkey] || "";
-  document.getElementById('drawer-title').textContent = d.name;
-  const body = document.getElementById('drawer-body');
-
-  let stageGridHtml = '<div class="stage-grid">';
-  getAllStateEntries(d).forEach(e => {
-    const label = e.sub ? `${e.stage}-${e.sub}` : e.stage;
-    const isCurrent = e.key === dkey;
-    if (e.value) {
-      stageGridHtml += `<div class="si" style="${isCurrent?'box-shadow:0 0 0 2px var(--blue) inset;':''}"><span>${label}</span><span class="ok">${e.value}</span></div>`;
-    } else {
-      stageGridHtml += `<div class="si" style="${isCurrent?'box-shadow:0 0 0 2px var(--red) inset;':''}"><span>${label}</span><span class="no">空白</span></div>`;
-    }
-  });
-  stageGridHtml += '</div>';
-
-  let timelineHtml = '';
-  d.timeline.forEach(t => {
-    timelineHtml += `<div class="timeline-item"><div class="timeline-time">${t.t}</div><div class="timeline-text">${t.text}</div></div>`;
-  });
-
-  const stageLabel = sub ? `${stage}-${sub}` : stage;
-
-  body.innerHTML = `
+  document.getElementById('drawer-title').textContent = item.name;
+  document.getElementById('drawer-body').innerHTML = `
     <div class="drawer-section">
-      <h4>基本信息</h4>
-      <div class="drawer-row"><div class="k">交付物名称</div><div class="v">${d.name}</div></div>
-      <div class="drawer-row"><div class="k">交付物类型</div><div class="v">${d.type}</div></div>
-      <div class="drawer-row"><div class="k">卡控阶段</div><div class="v">${d.gateStage}</div></div>
-      <div class="drawer-row"><div class="k">责任人</div><div class="v">${d.owner}</div></div>
-      <div class="drawer-row"><div class="k">文档链接</div><div class="v"><a class="doc-link" href="https://${d.docLink}" target="_blank">${d.docLink}</a></div></div>
+      <div class="drawer-section-title">基本信息</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">所属项目</div><div class="detail-value">${item.project}</div></div>
+        <div class="detail-item"><div class="detail-label">交付物类型</div><div class="detail-value"><span class="tag tag-info">${item.type}</span></div></div>
+        <div class="detail-item"><div class="detail-label">责任人</div><div class="detail-value"><div class="person-cell"><div class="mini-avatar">${item.owner.charAt(0)}</div><span class="person-name">${item.owner}</span></div></div></div>
+        <div class="detail-item"><div class="detail-label">当前阶段</div><div class="detail-value">${item.stage}</div></div>
+        <div class="detail-item"><div class="detail-label">应交日期</div><div class="detail-value">${item.dueDate}</div></div>
+        <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value">${getStatusTag(item.status)}</div></div>
+        <div class="detail-item"><div class="detail-label">优先级</div><div class="detail-value">${item.priority}</div></div>
+        <div class="detail-item"><div class="detail-label">文档链接</div><div class="detail-value">${item.docLink === '—' ? '—' : `<a class="doc-link" href="javascript:void(0)" onclick="showToast('打开文档')">📄 ${item.docLink}</a>`}</div></div>
+      </div>
     </div>
     <div class="drawer-section">
-      <h4>当前单元格 · ${stageLabel}</h4>
-      <div class="drawer-row"><div class="k">当前状态</div><div class="v"><span class="status-badge ${statusClass(curVal)}">${statusLabel(curVal)}</span></div></div>
-      <div class="drawer-row"><div class="k">应交口径</div><div class="v">${d.criteria}</div></div>
+      <div class="drawer-section-title">当前阶段应交口径</div>
+      <div class="detail-value" style="line-height:1.8;">${item.desc}</div>
     </div>
     <div class="drawer-section">
-      <h4>各阶段状态</h4>
-      ${stageGridHtml}
+      <div class="drawer-section-title">交付规格说明</div>
+      <div class="detail-value" style="line-height:1.8;">${item.spec}</div>
     </div>
     <div class="drawer-section">
-      <h4>最近更新记录</h4>
-      ${timelineHtml}
+      <div class="drawer-section-title">最近更新记录</div>
+      <div class="update-timeline">
+        ${history.map(h => `
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-time">${h.time}</div>
+            <div class="timeline-content">${h.content}</div>
+            <div class="timeline-user">操作人：${h.user}</div>
+          </div>
+        `).join('')}
+      </div>
     </div>
   `;
-
-  document.getElementById('drawer-mask').classList.add('open');
-  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-mask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
 }
 
 function closeDrawer() {
-  document.getElementById('drawer-mask').classList.remove('open');
-  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-mask').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
 }
 
-/* ====================== Init ====================== */
-function init() {
-  buildHead();
-  initFilters();
-  buildBody();
-  updateStats();
-  document.getElementById('drawer-close').addEventListener('click', closeDrawer);
-  document.getElementById('drawer-mask').addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+function changePage(dir) {
+  showToast(dir > 0 ? '跳转到下一页' : '跳转到上一页');
 }
+
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function bindEvents() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+}
+
 init();
 </script>
 </body>
