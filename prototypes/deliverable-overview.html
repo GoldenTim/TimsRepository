@@ -1,7 +1,7 @@
 <!--
   原型名称：交付物总览页需求
   需求来源：https://project.feishu.cn/1fknv3/story/detail/7058554577
-  生成时间：2026-07-29
+  生成时间：2026-08-10
   生成工具：CodeM Auto
 -->
 <!DOCTYPE html>
@@ -9,837 +9,821 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>交付物总览页</title>
+<title>交付物管理总览页</title>
+<!-- Style Layer -->
 <style>
-/* ========== Style Layer ========== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --primary: #2B5AED;
-  --primary-light: #EAF0FF;
-  --primary-hover: #1E47C7;
-  --text-1: #1F2329;
-  --text-2: #4E5969;
-  --text-3: #86909C;
-  --text-white: #FFFFFF;
-  --bg-page: #F5F7FA;
-  --bg-card: #FFFFFF;
-  --border: #E5E6EB;
-  --border-light: #F2F3F5;
-  --success: #00B42A;
-  --warning: #FF7D00;
-  --danger: #F53F3F;
-  --info: #3062D7;
-  --tag-bg-1: #E8FFEA;
-  --tag-text-1: #00B42A;
-  --tag-bg-2: #FFF3E8;
-  --tag-text-2: #FF7D00;
-  --tag-bg-3: #FFECE8;
-  --tag-text-3: #F53F3F;
-  --tag-bg-4: #E8F3FF;
-  --tag-text-4: #3062D7;
-  --tag-bg-5: #F2F3F5;
-  --tag-text-5: #86909C;
-  --shadow: 0 2px 8px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-  --radius: 8px;
-  --radius-sm: 4px;
-}
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  background: var(--bg-page);
-  color: var(--text-1);
-  font-size: 14px;
-  line-height: 1.6;
-}
+/* ---- Reset & Base ---- */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f6f8;color:#1f2329;font-size:14px;line-height:1.6}
+a{text-decoration:none;color:inherit}
 
-/* Layout */
-.page-wrapper { min-height: 100vh; display: flex; flex-direction: column; }
+/* ---- Layout ---- */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.header{background:#fff;border-bottom:1px solid #e5e6eb;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header-logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;color:#1f2329}
+.header-logo .dot{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#3370ff,#5b8def);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+.header-meta{display:flex;align-items:center;gap:16px;color:#86909c;font-size:13px}
+.header-meta .badge{padding:2px 10px;border-radius:10px;background:#e8f0ff;color:#3370ff;font-size:12px;font-weight:500}
+.main{flex:1;display:flex;overflow:hidden}
 
-/* Header */
-.page-header {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header-left { display: flex; align-items: center; gap: 12px; }
-.logo-icon {
-  width: 32px; height: 32px;
-  background: var(--primary);
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-white); font-weight: 700; font-size: 16px;
-}
-.page-title { font-size: 18px; font-weight: 600; color: var(--text-1); }
-.breadcrumb { font-size: 12px; color: var(--text-3); margin-left: 4px; }
-.header-right { display: flex; align-items: center; gap: 16px; }
-.btn {
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-2);
-  transition: all 0.15s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn:hover { border-color: var(--primary); color: var(--primary); }
-.btn-primary {
-  background: var(--primary);
-  color: var(--text-white);
-  border-color: var(--primary);
-}
-.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: var(--text-white); }
-.avatar {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  background: var(--primary-light);
-  color: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600;
-}
+/* ---- Sidebar ---- */
+.sidebar{width:220px;background:#fff;border-right:1px solid #e5e6eb;padding:16px 0;flex-shrink:0;overflow-y:auto}
+.sidebar-section{margin-bottom:24px}
+.sidebar-title{padding:4px 20px;font-size:12px;color:#86909c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sidebar-item{padding:8px 20px;display:flex;align-items:center;gap:8px;color:#4e5969;cursor:pointer;transition:background .15s;font-size:13px}
+.sidebar-item:hover{background:#f7f8fa}
+.sidebar-item.active{background:#e8f0ff;color:#3370ff;font-weight:500;border-right:3px solid #3370ff}
+.sidebar-item .icon{width:16px;height:16px;opacity:.7}
+.sidebar-item .count{margin-left:auto;background:#f2f3f5;color:#86909c;font-size:11px;padding:0 6px;border-radius:8px;min-width:18px;text-align:center}
+.sidebar-item.active .count{background:#d4e4ff;color:#3370ff}
 
-/* Main Content */
-.main-content { flex: 1; padding: 20px 24px; }
+/* ---- Content Area ---- */
+.content{flex:1;overflow-y:auto;padding:20px 24px}
 
-/* Stats Cards */
-.stats-row { display: flex; gap: 16px; margin-bottom: 20px; }
-.stat-card {
-  flex: 1;
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.stat-icon {
-  width: 44px; height: 44px;
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-}
-.stat-icon.blue { background: var(--primary-light); color: var(--primary); }
-.stat-icon.green { background: var(--tag-bg-1); color: var(--tag-text-1); }
-.stat-icon.orange { background: var(--tag-bg-2); color: var(--tag-text-2); }
-.stat-icon.gray { background: var(--tag-bg-5); color: var(--tag-text-5); }
-.stat-info { flex: 1; }
-.stat-label { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
-.stat-value { font-size: 24px; font-weight: 700; color: var(--text-1); }
-.stat-delta { font-size: 12px; margin-top: 2px; }
-.stat-delta.up { color: var(--success); }
-.stat-delta.down { color: var(--danger); }
+/* ---- KPI Cards ---- */
+.kpi-row{display:flex;gap:16px;margin-bottom:20px}
+.kpi-card{flex:1;background:#fff;border-radius:8px;padding:16px 20px;border:1px solid #e5e6eb;transition:box-shadow .15s}
+.kpi-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.kpi-label{font-size:12px;color:#86909c;margin-bottom:4px}
+.kpi-value{font-size:28px;font-weight:700;line-height:1.2}
+.kpi-value.green{color:#00b42a}
+.kpi-value.blue{color:#3370ff}
+.kpi-value.orange{color:#ff7d00}
+.kpi-value.red{color:#f53f3f}
+.kpi-sub{font-size:12px;color:#86909c;margin-top:4px}
 
-/* Filter Bar */
-.filter-bar {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow);
-}
-.filter-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.filter-row + .filter-row { margin-top: 12px; }
-.filter-group { display: flex; align-items: center; gap: 8px; }
-.filter-label { font-size: 13px; color: var(--text-2); white-space: nowrap; }
-.select {
-  padding: 6px 28px 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%2386909C' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 10px center;
-  appearance: none;
-  font-size: 13px;
-  color: var(--text-1);
-  cursor: pointer;
-  min-width: 130px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.select:hover, .select:focus { border-color: var(--primary); }
-.search-box {
-  flex: 1;
-  position: relative;
-  min-width: 200px;
-}
-.search-input {
-  width: 100%;
-  padding: 7px 10px 7px 32px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.search-input:focus { border-color: var(--primary); }
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3);
-  font-size: 14px;
-}
-.filter-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: var(--primary-light);
-  color: var(--primary);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  cursor: pointer;
-}
-.filter-tag .close { font-size: 14px; line-height: 1; }
+/* ---- Filter Bar ---- */
+.filter-bar{background:#fff;border:1px solid #e5e6eb;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:6px}
+.filter-label{font-size:12px;color:#86909c;white-space:nowrap}
+.filter-select{padding:4px 28px 4px 10px;border:1px solid #e5e6eb;border-radius:4px;font-size:13px;color:#1f2329;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2386909c' d='M5 6L0 0h10z'/%3E%3C/svg%3E") no-repeat right 10px center;cursor:pointer;appearance:none;-webkit-appearance:none;min-width:100px}
+.filter-select:focus{outline:none;border-color:#3370ff}
+.filter-search{flex:1;min-width:180px;position:relative}
+.filter-search input{width:100%;padding:6px 10px 6px 30px;border:1px solid #e5e6eb;border-radius:4px;font-size:13px;color:#1f2329}
+.filter-search input:focus{outline:none;border-color:#3370ff}
+.filter-search .search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#c9cdd4}
+.filter-reset{padding:4px 12px;border:1px solid #e5e6eb;border-radius:4px;font-size:12px;color:#86909c;cursor:pointer;background:#fff;transition:all .15s}
+.filter-reset:hover{border-color:#3370ff;color:#3370ff}
+.filter-legend{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:12px;color:#86909c}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:10px;height:10px;border-radius:2px}
 
-/* Table Card */
-.table-card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.table-toolbar {
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.toolbar-left { display: flex; align-items: center; gap: 12px; }
-.toolbar-title { font-size: 15px; font-weight: 600; color: var(--text-1); }
-.result-count { font-size: 12px; color: var(--text-3); }
-.toolbar-right { display: flex; gap: 8px; }
-.view-toggle {
-  display: flex;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-.view-toggle button {
-  padding: 5px 12px;
-  border: none;
-  background: var(--bg-card);
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text-2);
-  transition: all 0.15s;
-}
-.view-toggle button.active { background: var(--primary); color: var(--text-white); }
+/* ---- Status Tags ---- */
+.tag{display:inline-flex;align-items:center;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:500;line-height:1.8;white-space:nowrap}
+.tag-final{background:#e8ffea;color:#00b42a;border:1px solid #b9f0c4}
+.tag-stable{background:#e8f0ff;color:#3370ff;border:1px solid #bedaff}
+.tag-review{background:#fff7e8;color:#ff7d00;border:1px solid #ffe4ba}
+.tag-initial{background:#f2f3f5;color:#86909c;border:1px solid #e5e6eb}
+.tag-empty{background:#fff1f0;color:#f53f3f;border:1px solid #ffd6d6}
+.tag-blocked{background:#fff0f0;color:#cb2634;border:1px solid #ffcaca}
 
-/* Data Table */
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table thead th {
-  background: #FAFBFC;
-  padding: 10px 16px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-2);
-  border-bottom: 1px solid var(--border-light);
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-}
-.data-table thead th.sortable { cursor: pointer; }
-.data-table thead th.sortable:hover { color: var(--primary); }
-.sort-arrow { font-size: 10px; margin-left: 4px; color: var(--text-3); }
-.data-table tbody td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-light);
-  font-size: 13px;
-  color: var(--text-1);
-  vertical-align: middle;
-}
-.data-table tbody tr { transition: background 0.12s; cursor: pointer; }
-.data-table tbody tr:hover { background: var(--primary-light); }
-.data-table tbody tr:last-child td { border-bottom: none; }
+/* ---- Matrix Table ---- */
+.matrix-wrap{background:#fff;border:1px solid #e5e6eb;border-radius:8px;overflow:hidden}
+.matrix-head-scroll{overflow-x:auto}
+.matrix-table{width:100%;border-collapse:collapse;min-width:1100px}
+.matrix-table th,.matrix-table td{border-bottom:1px solid #f2f3f5;border-right:1px solid #f2f3f5;padding:0;vertical-align:middle}
+.matrix-table th{background:#fafbfc;font-weight:500;font-size:12px;color:#86909c;padding:10px 12px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:1}
+.matrix-table th.col-deliverable{text-align:left;min-width:200px}
+.matrix-table th.col-stage{min-width:80px}
+.matrix-table th.sub-th{font-size:11px;color:#c9cdd4;padding:4px 6px}
+.matrix-table th.group-th{background:#f2f3f5;border-bottom:1px solid #e5e6eb}
+.matrix-table td{padding:8px 12px;font-size:13px}
+.matrix-table tbody tr:hover{background:#f7f8fa}
+.matrix-table tbody tr{transition:background .15s}
 
-/* Status Tags */
-.tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.tag-done { background: var(--tag-bg-1); color: var(--tag-text-1); }
-.tag-progress { background: var(--tag-bg-2); color: var(--tag-text-2); }
-.tag-pending { background: var(--tag-bg-3); color: var(--tag-text-3); }
-.tag-info { background: var(--tag-bg-4); color: var(--tag-text-4); }
-.tag-default { background: var(--tag-bg-5); color: var(--tag-text-5); }
+/* Deliverable cell content */
+.deliverable-cell{display:flex;flex-direction:column;gap:2px}
+.deliverable-name{font-weight:500;color:#1f2329}
+.deliverable-meta{font-size:11px;color:#c9cdd4;display:flex;align-items:center;gap:6px}
+.deliverable-meta .owner{display:flex;align-items:center;gap:3px}
+.deliverable-meta .owner-avatar{width:16px;height:16px;border-radius:50%;background:#3370ff;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:500}
 
-/* Person cell */
-.person-cell { display: flex; align-items: center; gap: 8px; }
-.mini-avatar {
-  width: 24px; height: 24px;
-  border-radius: 50%;
-  background: var(--primary-light);
-  color: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 600;
-  flex-shrink: 0;
-}
-.person-name { font-size: 13px; color: var(--text-1); }
+/* Matrix status cell */
+.status-cell{text-align:center;cursor:pointer;transition:background .15s;min-width:60px;height:44px}
+.status-cell:hover{background:#f7f8fa}
+.status-cell .cell-content{display:flex;align-items:center;justify-content:center;height:100%}
+.status-cell.risk{background:#fff7f7}
+.status-cell.risk:hover{background:#fff0f0}
 
-/* Link cell */
-.doc-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-size: 13px;
-}
-.doc-link:hover { text-decoration: underline; }
+/* Deliverable category row label */
+.cat-label{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:500;margin-left:6px}
+.cat-arch{background:#f0e8ff;color:#7c3aed}
+.cat-spec{background:#e8f0ff;color:#3370ff}
+.cat-safety{background:#fff0f6;color:#f77eb9}
+.cat-plan{background:#e8ffea;color:#00b42a}
+.cat-test{background:#fff7e8;color:#ff7d00}
 
-/* Priority indicator */
-.priority-dot {
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-.priority-high { background: var(--danger); }
-.priority-medium { background: var(--warning); }
-.priority-low { background: var(--success); }
+/* ---- Drawer ---- */
+.drawer-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:100;display:none;opacity:0;transition:opacity .2s}
+.drawer-mask.show{display:block;opacity:1}
+.drawer{position:fixed;top:0;right:-520px;width:520px;max-width:90vw;height:100vh;background:#fff;z-index:101;transition:right .25s ease;box-shadow:-4px 0 24px rgba(0,0,0,.1);overflow-y:auto}
+.drawer.show{right:0}
+.drawer-header{padding:20px 24px;border-bottom:1px solid #e5e6eb;display:flex;justify-content:space-between;align-items:flex-start}
+.drawer-title{font-size:16px;font-weight:600;color:#1f2329}
+.drawer-subtitle{font-size:13px;color:#86909c;margin-top:4px}
+.drawer-close{width:32px;height:32px;border-radius:6px;border:none;background:#f2f3f5;color:#86909c;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .15s}
+.drawer-close:hover{background:#e5e6eb;color:#1f2329}
+.drawer-body{padding:20px 24px}
+.drawer-section{margin-bottom:24px}
+.drawer-section-title{font-size:13px;font-weight:600;color:#1f2329;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f2f3f5}
+.drawer-info-row{display:flex;align-items:flex-start;margin-bottom:12px}
+.drawer-info-label{width:100px;font-size:12px;color:#86909c;flex-shrink:0}
+.drawer-info-value{flex:1;font-size:13px;color:#1f2329}
+.timeline-item{display:flex;gap:12px;margin-bottom:16px}
+.timeline-dot{width:8px;height:8px;border-radius:50%;background:#3370ff;margin-top:5px;flex-shrink:0}
+.timeline-dot.green{background:#00b42a}
+.timeline-dot.orange{background:#ff7d00}
+.timeline-dot.gray{background:#c9cdd4}
+.timeline-content{flex:1}
+.timeline-text{font-size:13px;color:#1f2329}
+.timeline-meta{font-size:11px;color:#c9cdd4;margin-top:2px}
+.drawer-doc-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f7f8fa;border-radius:6px;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.drawer-doc-link:hover{background:#e8f0ff}
+.drawer-doc-link .doc-icon{width:20px;height:20px;border-radius:4px;background:#3370ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.drawer-doc-link .doc-name{flex:1;font-size:13px;color:#1f2329}
+.drawer-doc-link .doc-arrow{color:#c9cdd4;font-size:12px}
 
-/* Pagination */
-.pagination {
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.page-info { font-size: 12px; color: var(--text-3); }
-.page-controls { display: flex; gap: 4px; align-items: center; }
-.page-btn {
-  min-width: 28px;
-  height: 28px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text-2);
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 8px;
-  transition: all 0.15s;
-}
-.page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
-.page-btn.active { background: var(--primary); color: var(--text-white); border-color: var(--primary); }
-.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* ---- Risk Banner ---- */
+.risk-banner{background:#fff7e8;border:1px solid #ffe4ba;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.risk-banner .icon{font-size:18px}
+.risk-banner .text{flex:1;font-size:13px;color:#1f2329}
+.risk-banner .text strong{color:#ff7d00}
+.risk-banner .action{padding:4px 14px;background:#ff7d00;color:#fff;border-radius:4px;font-size:12px;cursor:pointer;border:none;transition:opacity .15s}
+.risk-banner .action:hover{opacity:.85}
 
-/* Drawer */
-.drawer-mask {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.3);
-  z-index: 200;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-.drawer-mask.show { opacity: 1; pointer-events: auto; }
-.drawer {
-  position: fixed;
-  top: 0; right: -520px;
-  width: 520px;
-  max-width: 90vw;
-  height: 100vh;
-  background: var(--bg-card);
-  z-index: 201;
-  box-shadow: var(--shadow-lg);
-  transition: right 0.25s ease;
-  display: flex;
-  flex-direction: column;
-}
-.drawer.show { right: 0; }
-.drawer-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.drawer-title { font-size: 16px; font-weight: 600; color: var(--text-1); }
-.drawer-close {
-  width: 28px; height: 28px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 18px;
-  color: var(--text-3);
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-}
-.drawer-close:hover { background: var(--border-light); color: var(--text-1); }
-.drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
-.drawer-section { margin-bottom: 24px; }
-.drawer-section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-2);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-light);
-}
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.detail-item {}
-.detail-label { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
-.detail-value { font-size: 13px; color: var(--text-1); }
+/* ---- Toast ---- */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2329;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;z-index:200;opacity:0;transition:opacity .25s,bottom .25s;pointer-events:none}
+.toast.show{opacity:1;bottom:36px}
 
-.update-timeline { position: relative; padding-left: 20px; }
-.update-timeline::before {
-  content: '';
-  position: absolute;
-  left: 5px; top: 4px; bottom: 4px;
-  width: 2px;
-  background: var(--border-light);
-}
-.timeline-item { position: relative; padding-bottom: 16px; }
-.timeline-item:last-child { padding-bottom: 0; }
-.timeline-dot {
-  position: absolute;
-  left: -20px;
-  top: 4px;
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 2px solid var(--bg-card);
-}
-.timeline-time { font-size: 12px; color: var(--text-3); margin-bottom: 2px; }
-.timeline-content { font-size: 13px; color: var(--text-1); }
-.timeline-user { font-size: 12px; color: var(--text-2); margin-top: 2px; }
-
-.drawer-footer {
-  padding: 12px 24px;
-  border-top: 1px solid var(--border-light);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-/* Toast */
-.toast {
-  position: fixed;
-  top: 72px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
-  background: var(--text-1);
-  color: var(--text-white);
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  z-index: 300;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.2s;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-3);
-}
-.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-
-/* Responsive */
-@media (max-width: 1200px) {
-  .stats-row { flex-wrap: wrap; }
-  .stat-card { min-width: 220px; }
-}
-@media (max-width: 768px) {
-  .main-content { padding: 12px; }
-  .filter-row { flex-direction: column; align-items: stretch; }
-  .detail-grid { grid-template-columns: 1fr; }
-  .data-table { font-size: 12px; }
-  .data-table thead th, .data-table tbody td { padding: 8px 10px; }
-}
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#d4d5d9;border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
 </style>
 </head>
 <body>
-<div class="page-wrapper">
 
-  <!-- Header -->
-  <header class="page-header">
-    <div class="header-left">
-      <div class="logo-icon">交</div>
-      <div>
-        <div class="page-title">交付物总览</div>
-      </div>
-      <span class="breadcrumb">/ 项目管理 / 交付物总览</span>
+<!-- Component: AppShell -->
+<div class="app">
+
+  <!-- Component: Header -->
+  <div class="header">
+    <div class="header-logo">
+      <div class="dot">芯</div>
+      <span>芯片 IPD 交付物管理平台</span>
     </div>
-    <div class="header-right">
-      <button class="btn" onclick="showToast('已导出当前筛选结果')">⬇ 导出</button>
-      <button class="btn btn-primary" onclick="showToast('新建交付物弹窗（原型演示）')">+ 新建交付物</button>
-      <div class="avatar">黄</div>
+    <div class="header-meta">
+      <span>项目：XS-SoC Gen3</span>
+      <span class="badge">TR4-TO 评审前</span>
+      <span>2026-08-10</span>
     </div>
-  </header>
+  </div>
 
-  <!-- Main Content -->
-  <main class="main-content">
+  <!-- Component: Body -->
+  <div class="main">
 
-    <!-- Stats Cards -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon blue">📋</div>
-        <div class="stat-info">
-          <div class="stat-label">交付物总数</div>
-          <div class="stat-value">48</div>
-          <div class="stat-delta up">↑ 较上周 +5</div>
+    <!-- Component: Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">交付物视图</div>
+        <div class="sidebar-item active" onclick="showToast('已切换到总览视图')">
+          <span>📊</span> 总览矩阵 <span class="count" id="sidebar-total">16</span>
+        </div>
+        <div class="sidebar-item" onclick="showToast('已切换到风险清单')">
+          <span>⚠️</span> 风险清单 <span class="count" id="sidebar-risk" style="color:#f53f3f">5</span>
+        </div>
+        <div class="sidebar-item" onclick="showToast('已切换到责任人视图')">
+          <span>👤</span> 责任人视图 <span class="count">8</span>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon green">✅</div>
-        <div class="stat-info">
-          <div class="stat-label">已交付</div>
-          <div class="stat-value">32</div>
-          <div class="stat-delta up">↑ 交付率 66.7%</div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">按交付物类型</div>
+        <div class="sidebar-item" onclick="filterByCategory('arch', this)">
+          <span>📋</span> 架构文档 <span class="count">4</span>
         </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon orange">⏳</div>
-        <div class="stat-info">
-          <div class="stat-label">进行中</div>
-          <div class="stat-value">11</div>
-          <div class="stat-delta down">↓ 较上周 -2</div>
+        <div class="sidebar-item" onclick="filterByCategory('spec', this)">
+          <span>📄</span> 规格文档 <span class="count">5</span>
         </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon gray">⚠</div>
-        <div class="stat-info">
-          <div class="stat-label">逾期未交付</div>
-          <div class="stat-value">5</div>
-          <div class="stat-delta down">↑ 需关注</div>
+        <div class="sidebar-item" onclick="filterByCategory('safety', this)">
+          <span>🛡️</span> 安全文档 <span class="count">2</span>
+        </div>
+        <div class="sidebar-item" onclick="filterByCategory('plan', this)">
+          <span>📈</span> 计划文档 <span class="count">3</span>
+        </div>
+        <div class="sidebar-item" onclick="filterByCategory('test', this)">
+          <span>🧪</span> 测试文档 <span class="count">2</span>
         </div>
       </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-      <div class="filter-row">
-        <div class="filter-group">
-          <span class="filter-label">所属项目</span>
-          <select class="select" id="filter-project" onchange="applyFilters()">
-            <option value="">全部项目</option>
-            <option value="客户管理系统">客户管理系统</option>
-            <option value="订单中台">订单中台</option>
-            <option value="数据看板">数据看板</option>
-            <option value="移动端App">移动端App</option>
-          </select>
+    <!-- Component: Content -->
+    <div class="content">
+
+      <!-- Component: KPICards -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">交付物总数</div>
+          <div class="kpi-value blue" id="kpi-total">16</div>
+          <div class="kpi-sub">本轮 TR4-TO 范围</div>
         </div>
-        <div class="filter-group">
-          <span class="filter-label">交付物类型</span>
-          <select class="select" id="filter-type" onchange="applyFilters()">
-            <option value="">全部类型</option>
-            <option value="需求文档">需求文档</option>
-            <option value="设计稿">设计稿</option>
-            <option value="技术方案">技术方案</option>
-            <option value="测试用例">测试用例</option>
-            <option value="上线报告">上线报告</option>
-          </select>
+        <div class="kpi-card">
+          <div class="kpi-label">已 Final</div>
+          <div class="kpi-value green" id="kpi-final">6</div>
+          <div class="kpi-sub">占比 37.5%</div>
         </div>
+        <div class="kpi-card">
+          <div class="kpi-label">待 Review</div>
+          <div class="kpi-value orange" id="kpi-review">3</div>
+          <div class="kpi-sub">需跟进</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">空白 / 风险</div>
+          <div class="kpi-value red" id="kpi-risk">5</div>
+          <div class="kpi-sub">需立即处理</div>
+        </div>
+      </div>
+
+      <!-- Component: RiskBanner -->
+      <div class="risk-banner" id="risk-banner">
+        <span class="icon">⚠️</span>
+        <div class="text">
+          距 TR4-TO 评审节点剩余 <strong>7 天</strong>，当前有 <strong id="risk-count-text">5</strong> 项交付物尚未提交或处于 Initial 状态，建议在 <strong>8月12日前</strong> 完成 Stable 升级。
+        </div>
+        <button class="action" onclick="scrollToFirstRisk()">查看风险项</button>
+      </div>
+
+      <!-- Component: FilterBar -->
+      <div class="filter-bar">
         <div class="filter-group">
-          <span class="filter-label">责任人</span>
-          <select class="select" id="filter-owner" onchange="applyFilters()">
-            <option value="">全部责任人</option>
-            <option value="张明远">张明远</option>
-            <option value="李思琪">李思琪</option>
-            <option value="王浩然">王浩然</option>
-            <option value="陈雨欣">陈雨欣</option>
-            <option value="刘子轩">刘子轩</option>
+          <span class="filter-label">阶段</span>
+          <select class="filter-select" id="filter-stage" onchange="applyFilter()">
+            <option value="">全部阶段</option>
+            <option value="charter">Charter</option>
+            <option value="tr1">TR1</option>
+            <option value="tr2">TR2</option>
+            <option value="tr3">TR3</option>
+            <option value="tr4-85">TR4-85</option>
+            <option value="tr4-95">TR4-95</option>
+            <option value="tr4-100">TR4-100</option>
+            <option value="tr4-to">TR4-TO</option>
+            <option value="tr4a">TR4A</option>
+            <option value="tr5">TR5</option>
+            <option value="tr6">TR6</option>
+            <option value="ga">GA 量产</option>
           </select>
         </div>
         <div class="filter-group">
           <span class="filter-label">状态</span>
-          <select class="select" id="filter-status" onchange="applyFilters()">
+          <select class="filter-select" id="filter-status" onchange="applyFilter()">
             <option value="">全部状态</option>
-            <option value="已交付">已交付</option>
-            <option value="进行中">进行中</option>
-            <option value="逾期">逾期</option>
-            <option value="待启动">待启动</option>
+            <option value="final">Final</option>
+            <option value="stable">Stable</option>
+            <option value="review">Review</option>
+            <option value="initial">Initial</option>
+            <option value="empty">空白</option>
+            <option value="blocked">Blocked</option>
           </select>
         </div>
-      </div>
-      <div class="filter-row">
-        <div class="search-box">
+        <div class="filter-group">
+          <span class="filter-label">类型</span>
+          <select class="filter-select" id="filter-category" onchange="applyFilter()">
+            <option value="">全部类型</option>
+            <option value="arch">架构文档</option>
+            <option value="spec">规格文档</option>
+            <option value="safety">安全文档</option>
+            <option value="plan">计划文档</option>
+            <option value="test">测试文档</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">责任人</span>
+          <select class="filter-select" id="filter-owner" onchange="applyFilter()">
+            <option value="">全部责任人</option>
+            <option value="张明远">张明远</option>
+            <option value="李思涵">李思涵</option>
+            <option value="王浩然">王浩然</option>
+            <option value="陈雨桐">陈雨桐</option>
+            <option value="刘振宇">刘振宇</option>
+            <option value="赵晓彤">赵晓彤</option>
+            <option value="孙启航">孙启航</option>
+            <option value="周敏华">周敏华</option>
+          </select>
+        </div>
+        <div class="filter-search">
           <span class="search-icon">🔍</span>
-          <input type="text" class="search-input" id="search-input" placeholder="搜索交付物名称、关键词…" oninput="applyFilters()">
+          <input type="text" id="filter-keyword" placeholder="搜索交付物名称…" oninput="applyFilter()">
         </div>
-        <button class="btn" onclick="resetFilters()">↻ 重置筛选</button>
+        <div class="filter-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#86909c"></span>Initial</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ff7d00"></span>Review</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#3370ff"></span>Stable</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#00b42a"></span>Final</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fff;border:1px solid #f53f3f"></span>空白</div>
+        </div>
+        <button class="filter-reset" onclick="resetFilter()">重置</button>
       </div>
+
+      <!-- Component: MatrixTable -->
+      <div class="matrix-wrap">
+        <div class="matrix-head-scroll">
+          <table class="matrix-table" id="matrix-table">
+            <thead>
+              <tr>
+                <th class="col-deliverable" rowspan="2">交付物文档</th>
+                <th class="col-stage" rowspan="2">Charter</th>
+                <th class="col-stage" rowspan="2">TR1</th>
+                <th class="col-stage" rowspan="2">TR2</th>
+                <th class="col-stage" rowspan="2">TR3</th>
+                <th class="group-th" colspan="4">TR4</th>
+                <th class="col-stage" rowspan="2">TR4A</th>
+                <th class="col-stage" rowspan="2">TR5</th>
+                <th class="col-stage" rowspan="2">TR6</th>
+                <th class="col-stage" rowspan="2">GA 量产</th>
+              </tr>
+              <tr>
+                <th class="sub-th col-stage">85</th>
+                <th class="sub-th col-stage">95</th>
+                <th class="sub-th col-stage">100</th>
+                <th class="sub-th col-stage">TO</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body">
+              <!-- Rows rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Table Card -->
-    <div class="table-card">
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <span class="toolbar-title">交付物列表</span>
-          <span class="result-count" id="result-count">共 0 条</span>
-        </div>
-        <div class="toolbar-right">
-          <div class="view-toggle">
-            <button class="active" onclick="showToast('表格视图（当前）')">📊 表格</button>
-            <button onclick="showToast('卡片视图（原型演示）')">🔲 卡片</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="overflow-x: auto;">
-        <table class="data-table" id="data-table">
-          <thead>
-            <tr>
-              <th>交付物名称</th>
-              <th>所属项目</th>
-              <th>交付物类型</th>
-              <th>责任人</th>
-              <th>当前阶段</th>
-              <th>应交日期</th>
-              <th>状态</th>
-              <th class="sortable" onclick="showToast('按优先级排序')">优先级 <span class="sort-arrow">▼</span></th>
-              <th>文档链接</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
-
-      <div class="pagination">
-        <span class="page-info" id="page-info">第 1 页 / 共 1 页</span>
-        <div class="page-controls">
-          <button class="page-btn" id="prev-btn" onclick="changePage(-1)" disabled>‹ 上一页</button>
-          <button class="page-btn active" onclick="showToast('当前第 1 页')">1</button>
-          <button class="page-btn" onclick="showToast('跳转到第 2 页')">2</button>
-          <button class="page-btn" onclick="showToast('跳转到第 3 页')">3</button>
-          <button class="page-btn" id="next-btn" onclick="changePage(1)">下一页 ›</button>
-        </div>
-      </div>
-    </div>
-
-  </main>
+  </div>
 </div>
 
-<!-- Drawer -->
+<!-- Component: Drawer -->
 <div class="drawer-mask" id="drawer-mask" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header">
-    <span class="drawer-title" id="drawer-title">交付物详情</span>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <div>
+      <div class="drawer-title" id="drawer-title">交付物详情</div>
+      <div class="drawer-subtitle" id="drawer-subtitle"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
   </div>
-  <div class="drawer-body" id="drawer-body"></div>
-  <div class="drawer-footer">
-    <button class="btn" onclick="closeDrawer()">关闭</button>
-    <button class="btn btn-primary" onclick="showToast('已跳转编辑页（原型演示）')">编辑</button>
+  <div class="drawer-body" id="drawer-body">
+    <!-- Content rendered by JS -->
   </div>
 </div>
 
-<!-- Toast -->
+<!-- Component: Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Mock Data Layer -->
 <script>
-/* ========== Mock Data Layer ========== */
-const mockData = [
-  { id: 1, name: "客户管理模块需求规格说明书", project: "客户管理系统", type: "需求文档", owner: "张明远", stage: "需求评审", dueDate: "2026-07-25", status: "已交付", priority: "高", docLink: "飞书文档", desc: "客户管理模块完整需求规格说明，涵盖客户档案、分层运营、标签体系等子模块。", spec: "包含客户基本信息字段 28 项、自定义字段 15 项、分层规则 6 套。" },
-  { id: 2, name: "订单详情页交互设计稿 V2", project: "订单中台", type: "设计稿", owner: "李思琪", stage: "设计评审", dueDate: "2026-08-02", status: "进行中", priority: "高", docLink: "飞书文档", desc: "订单详情页改版交互稿，优化信息层级与操作动线。", spec: "含 3 套布局方案、12 个关键页面状态、动效说明文档。" },
-  { id: 3, name: "数据看板后端技术方案", project: "数据看板", type: "技术方案", owner: "王浩然", stage: "方案评审", dueDate: "2026-07-20", status: "逾期", priority: "高", docLink: "飞书文档", desc: "数据看板后端架构设计，含实时计算与离线聚合双链路方案。", spec: "Flink 实时链路 + Spark 离线链路，预估 QPS 5000，SLA 99.9%。" },
-  { id: 4, name: "客户列表页测试用例", project: "客户管理系统", type: "测试用例", owner: "陈雨欣", stage: "测试执行", dueDate: "2026-08-10", status: "进行中", priority: "中", docLink: "飞书文档", desc: "客户列表页功能与性能测试用例集。", spec: "功能用例 86 条、接口用例 42 条、性能场景 5 个。" },
-  { id: 5, name: "移动端首页上线报告", project: "移动端App", type: "上线报告", owner: "刘子轩", stage: "已上线", dueDate: "2026-07-15", status: "已交付", priority: "中", docLink: "飞书文档", desc: "移动端首页 V3.2 版本上线总结报告。", spec: "上线耗时 2h15min，灰度比例 10%→50%→100%，零 P0 故障。" },
-  { id: 6, name: "订单履约流程需求文档", project: "订单中台", type: "需求文档", owner: "张明远", stage: "需求评审", dueDate: "2026-08-05", status: "进行中", priority: "高", docLink: "飞书文档", desc: "订单履约全链路需求文档，覆盖拆单、合单、逆向退款场景。", spec: "正向流程 7 步、逆向流程 5 步、异常分支 12 个。" },
-  { id: 7, name: "数据看板 UI 视觉稿", project: "数据看板", type: "设计稿", owner: "李思琪", stage: "设计交付", dueDate: "2026-07-28", status: "已交付", priority: "中", docLink: "飞书文档", desc: "数据看板全部页面高保真视觉稿。", spec: "12 个图表组件、4 套主题色板、响应式适配 3 个断点。" },
-  { id: 8, name: "客户标签体系技术方案", project: "客户管理系统", type: "技术方案", owner: "王浩然", stage: "开发中", dueDate: "2026-08-15", status: "进行中", priority: "中", docLink: "飞书文档", desc: "客户标签存储与计算引擎技术方案。", spec: "标签总数 200+、实时计算延迟 <500ms、T+1 离线全量刷新。" },
-  { id: 9, name: "订单退款模块测试用例", project: "订单中台", type: "测试用例", owner: "陈雨欣", stage: "用例评审", dueDate: "2026-08-20", status: "待启动", priority: "低", docLink: "—", desc: "订单退款全流程测试用例。", spec: "预计功能用例 60 条、资金安全用例 30 条。" },
-  { id: 10, name: "移动端个人中心上线报告", project: "移动端App", type: "上线报告", owner: "刘子轩", stage: "已上线", dueDate: "2026-07-10", status: "已交付", priority: "低", docLink: "飞书文档", desc: "个人中心模块 V3.1 上线报告。", spec: "上线 1h40min，灰度无回滚，用户反馈正向率 92%。" },
-  { id: 11, name: "客户导入功能需求文档", project: "客户管理系统", type: "需求文档", owner: "张明远", stage: "待评审", dueDate: "2026-07-30", status: "逾期", priority: "高", docLink: "飞书文档", desc: "批量客户导入功能需求，支持 Excel/CSV/API 三种渠道。", spec: "单次最大 5 万行、异步处理、失败行可下载修正。" },
-  { id: 12, name: "订单列表页交互设计稿", project: "订单中台", type: "设计稿", owner: "李思琪", stage: "设计评审", dueDate: "2026-07-22", status: "逾期", priority: "高", docLink: "飞书文档", desc: "订单列表页筛选与批量操作交互设计。", spec: "含 8 种筛选维度、批量操作 5 项、空状态 3 种。" },
-  { id: 13, name: "实时大屏技术方案", project: "数据看板", type: "技术方案", owner: "王浩然", stage: "方案评审", dueDate: "2026-08-08", status: "进行中", priority: "高", docLink: "飞书文档", desc: "实时数据大屏 WebSocket 推送技术方案。", spec: "推送频率 1s、断线重连 <3s、支持 50 路并发看板。" },
-  { id: 14, name: "客户详情页测试用例", project: "客户管理系统", type: "测试用例", owner: "陈雨欣", stage: "测试执行", dueDate: "2026-08-12", status: "进行中", priority: "中", docLink: "飞书文档", desc: "客户详情页全功能测试用例。", spec: "功能用例 72 条、兼容性用例 24 条。" },
-  { id: 15, name: "移动端搜索页上线报告", project: "移动端App", type: "上线报告", owner: "刘子轩", stage: "待上线", dueDate: "2026-08-01", status: "进行中", priority: "中", docLink: "飞书文档", desc: "搜索页 V3.3 上线前准备报告。", spec: "灰度计划 3 阶段、监控指标 8 项、回滚预案已就绪。" }
+const STAGES = [
+  {key:'charter',label:'Charter'},
+  {key:'tr1',label:'TR1'},
+  {key:'tr2',label:'TR2'},
+  {key:'tr3',label:'TR3'},
+  {key:'tr4-85',label:'TR4-85'},
+  {key:'tr4-95',label:'TR4-95'},
+  {key:'tr4-100',label:'TR4-100'},
+  {key:'tr4-to',label:'TR4-TO'},
+  {key:'tr4a',label:'TR4A'},
+  {key:'tr5',label:'TR5'},
+  {key:'tr6',label:'TR6'},
+  {key:'ga',label:'GA'},
 ];
 
-const updateHistoryMap = {
-  1: [
-    { time: "2026-07-25 16:30", user: "张明远", content: "需求文档定稿，评审通过" },
-    { time: "2026-07-24 10:15", user: "张明远", content: "补充客户分层运营规则章节" },
-    { time: "2026-07-22 14:00", user: "李思琪", content: "设计侧提出 3 条补充需求" },
-    { time: "2026-07-20 09:30", user: "张明远", content: "创建文档初稿" }
-  ],
-  2: [
-    { time: "2026-07-28 11:00", user: "李思琪", content: "完成订单详情页交互稿 V2 初稿" },
-    { time: "2026-07-26 15:20", user: "张明远", content: "需求侧确认改版范围" },
-    { time: "2026-07-25 09:00", user: "李思琪", content: "启动设计工作" }
-  ],
-  3: [
-    { time: "2026-07-20 17:00", user: "王浩然", content: "技术方案初稿提交，待评审" },
-    { time: "2026-07-18 10:30", user: "王浩然", content: "完成实时计算选型对比" },
-    { time: "2026-07-15 14:00", user: "王浩然", content: "启动方案编写" }
-  ]
+const STATUS_MAP = {
+  final:   {label:'Final',   cls:'tag-final',   dot:'#00b42a'},
+  stable:  {label:'Stable',  cls:'tag-stable',  dot:'#3370ff'},
+  review:  {label:'Review',   cls:'tag-review',  dot:'#ff7d00'},
+  initial: {label:'Initial',  cls:'tag-initial', dot:'#86909c'},
+  empty:   {label:'空白',      cls:'tag-empty',   dot:'#fff'},
+  blocked: {label:'Blocked',  cls:'tag-blocked', dot:'#cb2634'},
 };
 
-/* ========== Logic Layer ========== */
-let currentData = [...mockData];
+const CAT_LABELS = {
+  arch:   {label:'架构', cls:'cat-arch'},
+  spec:   {label:'规格', cls:'cat-spec'},
+  safety: {label:'安全', cls:'cat-safety'},
+  plan:   {label:'计划', cls:'cat-plan'},
+  test:   {label:'测试', cls:'cat-test'},
+};
 
-function init() {
-  render();
-  bindEvents();
+// s = status key, null = not required at that stage
+const DELIVERABLES = [
+  {
+    id:'bp', name:'Business Plan (BP)', category:'plan', owner:'张明远', ownerInitial:'张',
+    controlStage:'Charter', docLink:'confluence://bp-v3.2',
+    summary:'芯片项目商业计划书，定义市场定位、投资回报和里程碑规划。',
+    cells:{charter:'final', tr1:'final', tr2:'final', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:'final', tr6:'final', ga:'final'},
+    timeline:[
+      {who:'张明远', what:'BP v3.2 定稿，通过 IPMT 审批', when:'2026-06-15 14:30', dot:'green'},
+      {who:'张明远', what:'BP v3.1 修订，补充竞品分析', when:'2026-05-20 10:00', dot:'blue'},
+      {who:'张明远', what:'BP v3.0 初版提交', when:'2026-04-01 09:00', dot:'gray'},
+    ],
+    docs:[{name:'BP_v3.2_Final.pdf', link:'#'},{name:'BP_审批记录.pdf', link:'#'}],
+  },
+  {
+    id:'mrd', name:'Market Requirement Doc (MRD)', category:'plan', owner:'张明远', ownerInitial:'张',
+    controlStage:'Charter', docLink:'confluence://mrd-v2.1',
+    summary:'市场需求规格书，定义目标市场、客户需求优先级和竞品对标。',
+    cells:{charter:'final', tr1:'final', tr2:'final', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:'final', tr6:'final', ga:'final'},
+    timeline:[
+      {who:'张明远', what:'MRD v2.1 定稿', when:'2026-06-10 16:00', dot:'green'},
+      {who:'张明远', what:'MRD v2.0 初版', when:'2026-03-15 11:00', dot:'gray'},
+    ],
+    docs:[{name:'MRD_v2.1_Final.docx', link:'#'}],
+  },
+  {
+    id:'arch', name:'芯片架构设计文档', category:'arch', owner:'李思涵', ownerInitial:'李',
+    controlStage:'TR1', docLink:'confluence://arch-v4.0',
+    summary:'芯片总体架构设计，包括模块划分、互联拓扑、时钟/复位树和面积规划。',
+    cells:{charter:'stable', tr1:'final', tr2:'final', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:'final', tr6:'final', ga:'final'},
+    timeline:[
+      {who:'李思涵', what:'架构 v4.0 定稿，通过 TR4 架构评审', when:'2026-07-20 15:00', dot:'green'},
+      {who:'李思涵', what:'架构 v3.5 修订，更新 Noc 带宽', when:'2026-06-28 10:30', dot:'blue'},
+      {who:'李思涵', what:'架构 v3.0 初稿', when:'2026-05-10 09:00', dot:'gray'},
+    ],
+    docs:[{name:'Chip_Arch_v4.0.pdf', link:'#'},{name:'Arch_Review_Minutes.pdf', link:'#'}],
+  },
+  {
+    id:'dr-spec', name:'DR Spec (设计需求规格)', category:'spec', owner:'王浩然', ownerInitial:'王',
+    controlStage:'TR2', docLink:'confluence://drspec-v2.8',
+    summary:'设计需求规格书，将 MRD 分解为可验证的硬件/软件设计需求项。',
+    cells:{charter:null, tr1:'stable', tr2:'final', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:'final', tr6:'final', ga:'final'},
+    timeline:[
+      {who:'王浩然', what:'DR Spec v2.8 定稿', when:'2026-07-18 14:00', dot:'green'},
+      {who:'王浩然', what:'DR Spec v2.5 评审通过', when:'2026-06-20 16:00', dot:'blue'},
+      {who:'王浩然', what:'DR Spec v2.0 初稿', when:'2026-05-15 10:00', dot:'gray'},
+    ],
+    docs:[{name:'DR_Spec_v2.8.xlsx', link:'#'},{name:'需求追溯矩阵.xlsx', link:'#'}],
+  },
+  {
+    id:'pinpad', name:'PinPad Matrix', category:'spec', owner:'王浩然', ownerInitial:'王',
+    controlStage:'TR2', docLink:'confluence://pinpad-v1.5',
+    summary:'芯片引脚定义矩阵，包含 GPIO/电源/时钟引脚分配和复用配置。',
+    cells:{charter:null, tr1:'initial', tr2:'stable', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:'final', tr6:'final', ga:'final'},
+    timeline:[
+      {who:'王浩然', what:'PinPad v1.5 定稿，封装确认', when:'2026-07-10 11:00', dot:'green'},
+      {who:'王浩然', what:'PinPad v1.2 评审', when:'2026-06-05 14:00', dot:'orange'},
+      {who:'王浩然', what:'PinPad v1.0 初稿', when:'2026-05-08 09:30', dot:'gray'},
+    ],
+    docs:[{name:'PinPad_Matrix_v1.5.xlsx', link:'#'}],
+  },
+  {
+    id:'dfmea', name:'Chip-level DFMEA', category:'safety', owner:'陈雨桐', ownerInitial:'陈',
+    controlStage:'TR3', docLink:'confluence://dfmea-v2.0',
+    summary:'芯片级失效模式与影响分析，识别潜在失效并制定预防措施。',
+    cells:{charter:null, tr1:null, tr2:'initial', tr3:'stable', 'tr4-85':'stable', 'tr4-95':'stable', 'tr4-100':'review', 'tr4-to':'empty', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'陈雨桐', what:'DFMEA v2.0 进入 Review，待安委会确认', when:'2026-08-08 15:00', dot:'orange'},
+      {who:'陈雨桐', what:'DFMEA v1.5 升级为 Stable', when:'2026-07-05 10:00', dot:'blue'},
+      {who:'陈雨桐', what:'DFMEA v1.0 初稿', when:'2026-06-01 14:00', dot:'gray'},
+    ],
+    docs:[{name:'Chip_DFMEA_v2.0.xlsx', link:'#'},{name:'FMEA_评审记录.pdf', link:'#'}],
+  },
+  {
+    id:'safety-plan', name:'Safety Plan', category:'safety', owner:'陈雨桐', ownerInitial:'陈',
+    controlStage:'TR3', docLink:'confluence://safety-v1.8',
+    summary:'功能安全计划，定义安全目标、ASIL 等级分配和安全活动时间线。',
+    cells:{charter:null, tr1:null, tr2:'initial', tr3:'review', 'tr4-85':'review', 'tr4-95':'review', 'tr4-100':'review', 'tr4-to':'empty', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'陈雨桐', what:'Safety Plan v1.8 提交 Review', when:'2026-08-06 16:00', dot:'orange'},
+      {who:'陈雨桐', what:'Safety Plan v1.5 初稿', when:'2026-06-20 10:00', dot:'gray'},
+    ],
+    docs:[{name:'Safety_Plan_v1.8.docx', link:'#'}],
+  },
+  {
+    id:'tsc', name:'Test Strategy & Coverage (TSC)', category:'test', owner:'刘振宇', ownerInitial:'刘',
+    controlStage:'TR3', docLink:'confluence://tsc-v2.2',
+    summary:'测试策略与覆盖率计划，定义验证层级、覆盖目标和签核标准。',
+    cells:{charter:null, tr1:null, tr2:'stable', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'review', tr4a:'review', tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'刘振宇', what:'TSC v2.2 进入 Review，补充 TO 签核标准', when:'2026-08-07 14:30', dot:'orange'},
+      {who:'刘振宇', what:'TSC v2.0 定稿', when:'2026-07-12 11:00', dot:'green'},
+      {who:'刘振宇', what:'TSC v1.5 初稿', when:'2026-06-10 09:00', dot:'gray'},
+    ],
+    docs:[{name:'TSC_v2.2.xlsx', link:'#'},{name:'Coverage_Plan.xlsx', link:'#'}],
+  },
+  {
+    id:'rtl-freeze', name:'RTL Freeze 冻结记录', category:'arch', owner:'李思涵', ownerInitial:'李',
+    controlStage:'TR4-95', docLink:'confluence://rtl-freeze',
+    summary:'RTL 代码冻结基线，包含版本号、变更日志和冻结审批记录。',
+    cells:{charter:null, tr1:null, tr2:null, tr3:'initial', 'tr4-85':'stable', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:'final', tr6:'final', ga:'final'},
+    timeline:[
+      {who:'李思涵', what:'RTL Freeze v2.0 定稿', when:'2026-07-25 18:00', dot:'green'},
+      {who:'李思涵', what:'RTL Freeze v1.0 (TR4-85)', when:'2026-07-01 17:00', dot:'blue'},
+    ],
+    docs:[{name:'RTL_Freeze_v2.0.pdf', link:'#'}],
+  },
+  {
+    id:'dv-report', name:'Design Verification Report', category:'test', owner:'刘振宇', ownerInitial:'刘',
+    controlStage:'TR4-100', docLink:'confluence://dv-report-v1.5',
+    summary:'设计验证报告，包含仿真覆盖率、回归通过率和已知问题清单。',
+    cells:{charter:null, tr1:null, tr2:null, tr3:null, 'tr4-85':'initial', 'tr4-95':'stable', 'tr4-100':'stable', 'tr4-to':'review', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'刘振宇', what:'DV Report v1.5 进入 Review', when:'2026-08-09 10:00', dot:'orange'},
+      {who:'刘振宇', what:'DV Report v1.2 升级 Stable', when:'2026-07-28 15:00', dot:'blue'},
+      {who:'刘振宇', what:'DV Report v1.0 初稿', when:'2026-07-10 09:00', dot:'gray'},
+    ],
+    docs:[{name:'DV_Report_v1.5.pdf', link:'#'},{name:'Coverage_Summary.xlsx', link:'#'}],
+  },
+  {
+    id:'power-analysis', name:'Power Analysis Report', category:'spec', owner:'赵晓彤', ownerInitial:'赵',
+    controlStage:'TR4-100', docLink:'confluence://power-v1.3',
+    summary:'功耗分析报告，包含动态/静态功耗、IR Drop 和热分析结果。',
+    cells:{charter:null, tr1:null, tr2:null, tr3:null, 'tr4-85':null, 'tr4-95':'initial', 'tr4-100':'stable', 'tr4-to':'empty', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'赵晓彤', what:'Power Report v1.3 升级 Stable', when:'2026-08-05 16:00', dot:'blue'},
+      {who:'赵晓彤', what:'Power Report v1.0 初稿', when:'2026-07-15 14:00', dot:'gray'},
+    ],
+    docs:[{name:'Power_Analysis_v1.3.pdf', link:'#'}],
+  },
+  {
+    id:'sta-report', name:'STA Timing Report', category:'spec', owner:'赵晓彤', ownerInitial:'赵',
+    controlStage:'TR4-TO', docLink:'confluence://sta-v1.2',
+    summary:'静态时序分析报告，包含 WNS/TNS、关键路径和多角多模分析。',
+    cells:{charter:null, tr1:null, tr2:null, tr3:null, 'tr4-85':null, 'tr4-95':'initial', 'tr4-100':'stable', 'tr4-to':'review', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'赵晓彤', what:'STA Report v1.2 进入 Review', when:'2026-08-08 11:00', dot:'orange'},
+      {who:'赵晓彤', what:'STA Report v1.0 初稿', when:'2026-07-18 10:00', dot:'gray'},
+    ],
+    docs:[{name:'STA_Report_v1.2.pdf', link:'#'}],
+  },
+  {
+    id:'dft-spec', name:'DFT Specification', category:'arch', owner:'孙启航', ownerInitial:'孙',
+    controlStage:'TR4-85', docLink:'confluence://dft-v2.0',
+    summary:'可测试性设计规格，定义 scan chain、BIST 和 ATPG 策略。',
+    cells:{charter:null, tr1:'initial', tr2:'stable', tr3:'final', 'tr4-85':'final', 'tr4-95':'final', 'tr4-100':'final', 'tr4-to':'final', tr4a:'final', tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'孙启航', what:'DFT Spec v2.0 定稿', when:'2026-07-08 14:00', dot:'green'},
+      {who:'孙启航', what:'DFT Spec v1.5 评审', when:'2026-06-12 10:00', dot:'blue'},
+    ],
+    docs:[{name:'DFT_Spec_v2.0.pdf', link:'#'}],
+  },
+  {
+    id:'phys-plan', name:'Physical Implementation Plan', category:'arch', owner:'孙启航', ownerInitial:'孙',
+    controlStage:'TR4-95', docLink:'confluence://phys-v1.5',
+    summary:'物理实现计划，包含 floorplan、PDN 策略和 P&R 流程定义。',
+    cells:{charter:null, tr1:null, tr2:'initial', tr3:'stable', 'tr4-85':'stable', 'tr4-95':'stable', 'tr4-100':'review', 'tr4-to':'empty', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'孙启航', what:'Phys Plan v1.5 进入 Review', when:'2026-08-07 16:00', dot:'orange'},
+      {who:'孙启航', what:'Phys Plan v1.2 Stable', when:'2026-07-06 11:00', dot:'blue'},
+    ],
+    docs:[{name:'Phys_Plan_v1.5.pdf', link:'#'}],
+  },
+  {
+    id:'pv-plan', name:'Production Verification Plan', category:'plan', owner:'周敏华', ownerInitial:'周',
+    controlStage:'TR4A', docLink:'confluence://pvplan-v1.0',
+    summary:'量产验证计划，定义量产测试流程、良率目标和品质监控方案。',
+    cells:{charter:null, tr1:null, tr2:null, tr3:null, 'tr4-85':null, 'tr4-95':null, 'tr4-100':null, 'tr4-to':'initial', tr4a:'stable', tr5:'review', tr6:null, ga:null},
+    timeline:[
+      {who:'周敏华', what:'PV Plan v1.0 升级 Stable', when:'2026-08-06 10:00', dot:'blue'},
+      {who:'周敏华', what:'PV Plan v0.5 初稿', when:'2026-07-20 14:00', dot:'gray'},
+    ],
+    docs:[{name:'PV_Plan_v1.0.docx', link:'#'}],
+  },
+  {
+    id:'tapeout-checklist', name:'Tape-out Checklist & Sign-off', category:'plan', owner:'周敏华', ownerInitial:'周',
+    controlStage:'TR4-TO', docLink:'confluence://tapeout-ck-v1.0',
+    summary:'流片签核检查表，包含所有交付物签核状态和 go/no-go 决策记录。',
+    cells:{charter:null, tr1:null, tr2:null, tr3:null, 'tr4-85':null, 'tr4-95':'initial', 'tr4-100':'initial', 'tr4-to':'empty', tr4a:null, tr5:null, tr6:null, ga:null},
+    timeline:[
+      {who:'周敏华', what:'Checklist v1.0 初稿，部分签核项待补充', when:'2026-08-05 15:00', dot:'gray'},
+    ],
+    docs:[{name:'Tapeout_Checklist_v1.0.xlsx', link:'#'}],
+  },
+];
+
+// ---- Interaction Layer ----
+function init(){
+  renderMatrix();
+  updateKPI();
 }
 
-function render() {
-  const tbody = document.getElementById('table-body');
-  document.getElementById('result-count').textContent = `共 ${currentData.length} 条`;
+function renderMatrix(){
+  const tbody = document.getElementById('matrix-body');
+  tbody.innerHTML = '';
+  DELIVERABLES.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = d.id;
+    tr.dataset.category = d.category;
+    tr.dataset.owner = d.owner;
+    tr.style.display = '';
 
-  if (currentData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📭</div><div>暂无匹配的交付物</div><div style="margin-top:8px;font-size:12px;">尝试调整筛选条件或关键词</div></div></td></tr>`;
-    return;
-  }
+    // Deliverable name cell
+    const catInfo = CAT_LABELS[d.category] || {};
+    const tdName = document.createElement('td');
+    tdName.innerHTML = `
+      <div class="deliverable-cell">
+        <div class="deliverable-name">${d.name} <span class="cat-label ${catInfo.cls||''}">${catInfo.label||''}</span></div>
+        <div class="deliverable-meta">
+          <span class="owner"><span class="owner-avatar">${d.ownerInitial}</span> ${d.owner}</span>
+          <span>· 卡控：${d.controlStage}</span>
+        </div>
+      </div>`;
+    tr.appendChild(tdName);
 
-  tbody.innerHTML = currentData.map(item => {
-    const statusTag = getStatusTag(item.status);
-    const priorityClass = item.priority === '高' ? 'priority-high' : item.priority === '中' ? 'priority-medium' : 'priority-low';
-    const docLinkHtml = item.docLink === '—'
-      ? '<span style="color:var(--text-3);">—</span>'
-      : `<a class="doc-link" href="javascript:void(0)" onclick="event.stopPropagation();showToast('打开文档：${item.name}')">📄 ${item.docLink}</a>`;
-    return `
-      <tr onclick="openDrawer(${item.id})">
-        <td><strong>${item.name}</strong></td>
-        <td>${item.project}</td>
-        <td><span class="tag tag-info">${item.type}</span></td>
-        <td>
-          <div class="person-cell">
-            <div class="mini-avatar">${item.owner.charAt(0)}</div>
-            <span class="person-name">${item.owner}</span>
-          </div>
-        </td>
-        <td>${item.stage}</td>
-        <td>${item.dueDate}</td>
-        <td>${statusTag}</td>
-        <td><span class="priority-dot ${priorityClass}"></span>${item.priority}</td>
-        <td>${docLinkHtml}</td>
-      </tr>
-    `;
-  }).join('');
-}
+    // Stage cells
+    STAGES.forEach(s => {
+      const td = document.createElement('td');
+      td.className = 'status-cell';
+      const status = d.cells[s.key];
+      if (status === null) {
+        td.innerHTML = '<div class="cell-content"><span style="color:#f2f3f5">—</span></div>';
+        td.style.cursor = 'default';
+      } else if (status === 'empty') {
+        td.classList.add('risk');
+        td.innerHTML = `<div class="cell-content"><span class="tag tag-empty">空白</span></div>`;
+        td.onclick = () => openDrawer(d.id, s.key);
+      } else {
+        const info = STATUS_MAP[status] || {};
+        if (status === 'review' || status === 'initial') td.classList.add('risk');
+        td.innerHTML = `<div class="cell-content"><span class="tag ${info.cls}">${info.label}</span></div>`;
+        td.onclick = () => openDrawer(d.id, s.key);
+      }
+      td.dataset.stage = s.key;
+      td.dataset.status = status || '';
+      tr.appendChild(td);
+    });
 
-function getStatusTag(status) {
-  const map = {
-    '已交付': 'tag-done',
-    '进行中': 'tag-progress',
-    '逾期': 'tag-pending',
-    '待启动': 'tag-default'
-  };
-  return `<span class="tag ${map[status] || 'tag-default'}">${status}</span>`;
-}
-
-function applyFilters() {
-  const project = document.getElementById('filter-project').value;
-  const type = document.getElementById('filter-type').value;
-  const owner = document.getElementById('filter-owner').value;
-  const status = document.getElementById('filter-status').value;
-  const keyword = document.getElementById('search-input').value.toLowerCase().trim();
-
-  currentData = mockData.filter(item => {
-    if (project && item.project !== project) return false;
-    if (type && item.type !== type) return false;
-    if (owner && item.owner !== owner) return false;
-    if (status && item.status !== status) return false;
-    if (keyword && !item.name.toLowerCase().includes(keyword) && !item.project.toLowerCase().includes(keyword) && !item.type.toLowerCase().includes(keyword)) return false;
-    return true;
+    tbody.appendChild(tr);
   });
-  render();
 }
 
-function resetFilters() {
-  document.getElementById('filter-project').value = '';
-  document.getElementById('filter-type').value = '';
-  document.getElementById('filter-owner').value = '';
+function updateKPI(){
+  const total = DELIVERABLES.length;
+  let finalCount = 0, reviewCount = 0, riskCount = 0;
+  DELIVERABLES.forEach(d => {
+    const tr4Status = d.cells['tr4-to'];
+    if (tr4Status === 'final') finalCount++;
+    if (tr4Status === 'review') reviewCount++;
+    if (tr4Status === 'empty' || tr4Status === 'initial') riskCount++;
+  });
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-final').textContent = finalCount;
+  document.getElementById('kpi-review').textContent = reviewCount;
+  document.getElementById('kpi-risk').textContent = riskCount;
+  document.getElementById('sidebar-total').textContent = total;
+  document.getElementById('sidebar-risk').textContent = riskCount;
+  document.getElementById('risk-count-text').textContent = riskCount;
+}
+
+function applyFilter(){
+  const stage = document.getElementById('filter-stage').value;
+  const status = document.getElementById('filter-status').value;
+  const category = document.getElementById('filter-category').value;
+  const owner = document.getElementById('filter-owner').value;
+  const keyword = document.getElementById('filter-keyword').value.toLowerCase().trim();
+
+  document.querySelectorAll('#matrix-body tr').forEach(tr => {
+    const d = DELIVERABLES.find(x => x.id === tr.dataset.id);
+    if (!d) return;
+
+    let visible = true;
+    if (category && d.category !== category) visible = false;
+    if (owner && d.owner !== owner) visible = false;
+    if (keyword && !d.name.toLowerCase().includes(keyword)) visible = false;
+
+    if (visible && stage) {
+      const cellStatus = d.cells[stage];
+      if (cellStatus === null) visible = false;
+    }
+    if (visible && status) {
+      const cellStatus = stage ? d.cells[stage] : Object.values(d.cells).find(v => v !== null);
+      if (cellStatus !== status) visible = false;
+    }
+
+    tr.style.display = visible ? '' : 'none';
+  });
+
+  showToast('筛选已更新');
+}
+
+function resetFilter(){
+  document.getElementById('filter-stage').value = '';
   document.getElementById('filter-status').value = '';
-  document.getElementById('search-input').value = '';
-  applyFilters();
-  showToast('已重置筛选条件');
+  document.getElementById('filter-category').value = '';
+  document.getElementById('filter-owner').value = '';
+  document.getElementById('filter-keyword').value = '';
+  document.querySelectorAll('#matrix-body tr').forEach(tr => tr.style.display = '');
+  showToast('筛选已重置');
 }
 
-function openDrawer(id) {
-  const item = mockData.find(d => d.id === id);
-  if (!item) return;
-  const history = updateHistoryMap[id] || [{ time: "2026-07-29 10:00", user: item.owner, content: "创建交付物记录" }];
+function filterByCategory(cat, el){
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('filter-category').value = cat;
+  applyFilter();
+}
 
-  document.getElementById('drawer-title').textContent = item.name;
+function scrollToFirstRisk(){
+  const riskCell = document.querySelector('.status-cell.risk');
+  if (riskCell) {
+    riskCell.scrollIntoView({behavior:'smooth', block:'center'});
+    riskCell.style.boxShadow = '0 0 0 3px #ff7d0040';
+    setTimeout(() => riskCell.style.boxShadow = '', 1500);
+  }
+}
+
+function openDrawer(deliverableId, stageKey){
+  const d = DELIVERABLES.find(x => x.id === deliverableId);
+  if (!d) return;
+  const stageInfo = STAGES.find(s => s.key === stageKey);
+  const status = d.cells[stageKey];
+  const statusInfo = STATUS_MAP[status] || {label:'未要求',cls:'',dot:'#c9cdd4'};
+
+  document.getElementById('drawer-title').textContent = d.name;
+  document.getElementById('drawer-subtitle').textContent = `阶段：${stageInfo ? stageInfo.label : ''} · 状态：${statusInfo.label}`;
+
+  const catInfo = CAT_LABELS[d.category] || {};
+  const timelineHtml = (d.timeline || []).map(t => `
+    <div class="timeline-item">
+      <div class="timeline-dot ${t.dot}"></div>
+      <div class="timeline-content">
+        <div class="timeline-text">${t.what}</div>
+        <div class="timeline-meta">${t.who} · ${t.when}</div>
+      </div>
+    </div>`).join('');
+
+  const docsHtml = (d.docs || []).map(doc => `
+    <div class="drawer-doc-link" onclick="showToast('正在打开：${doc.name}')">
+      <div class="doc-icon">DOC</div>
+      <div class="doc-name">${doc.name}</div>
+      <span class="doc-arrow">→</span>
+    </div>`).join('');
+
+  const expectedStatus = getExpectedStatus(stageKey, d.controlStage);
+
   document.getElementById('drawer-body').innerHTML = `
     <div class="drawer-section">
       <div class="drawer-section-title">基本信息</div>
-      <div class="detail-grid">
-        <div class="detail-item"><div class="detail-label">所属项目</div><div class="detail-value">${item.project}</div></div>
-        <div class="detail-item"><div class="detail-label">交付物类型</div><div class="detail-value"><span class="tag tag-info">${item.type}</span></div></div>
-        <div class="detail-item"><div class="detail-label">责任人</div><div class="detail-value"><div class="person-cell"><div class="mini-avatar">${item.owner.charAt(0)}</div><span class="person-name">${item.owner}</span></div></div></div>
-        <div class="detail-item"><div class="detail-label">当前阶段</div><div class="detail-value">${item.stage}</div></div>
-        <div class="detail-item"><div class="detail-label">应交日期</div><div class="detail-value">${item.dueDate}</div></div>
-        <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value">${getStatusTag(item.status)}</div></div>
-        <div class="detail-item"><div class="detail-label">优先级</div><div class="detail-value">${item.priority}</div></div>
-        <div class="detail-item"><div class="detail-label">文档链接</div><div class="detail-value">${item.docLink === '—' ? '—' : `<a class="doc-link" href="javascript:void(0)" onclick="showToast('打开文档')">📄 ${item.docLink}</a>`}</div></div>
+      <div class="drawer-info-row">
+        <div class="drawer-info-label">交付物类型</div>
+        <div class="drawer-info-value"><span class="cat-label ${catInfo.cls}">${catInfo.label}</span></div>
+      </div>
+      <div class="drawer-info-row">
+        <div class="drawer-info-label">责任人</div>
+        <div class="drawer-info-value">${d.owner}</div>
+      </div>
+      <div class="drawer-info-row">
+        <div class="drawer-info-label">卡控阶段</div>
+        <div class="drawer-info-value">${d.controlStage}</div>
+      </div>
+      <div class="drawer-info-row">
+        <div class="drawer-info-label">当前状态</div>
+        <div class="drawer-info-value"><span class="tag ${statusInfo.cls}">${statusInfo.label}</span></div>
+      </div>
+      <div class="drawer-info-row">
+        <div class="drawer-info-label">应交口径</div>
+        <div class="drawer-info-value">${expectedStatus}</div>
       </div>
     </div>
     <div class="drawer-section">
-      <div class="drawer-section-title">当前阶段应交口径</div>
-      <div class="detail-value" style="line-height:1.8;">${item.desc}</div>
+      <div class="drawer-section-title">交付物说明</div>
+      <div class="drawer-info-value" style="font-size:13px;line-height:1.6">${d.summary}</div>
     </div>
     <div class="drawer-section">
-      <div class="drawer-section-title">交付规格说明</div>
-      <div class="detail-value" style="line-height:1.8;">${item.spec}</div>
+      <div class="drawer-section-title">关联文档</div>
+      ${docsHtml || '<div style="color:#c9cdd4;font-size:13px">暂无关联文档</div>'}
     </div>
     <div class="drawer-section">
       <div class="drawer-section-title">最近更新记录</div>
-      <div class="update-timeline">
-        ${history.map(h => `
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-time">${h.time}</div>
-            <div class="timeline-content">${h.content}</div>
-            <div class="timeline-user">操作人：${h.user}</div>
-          </div>
-        `).join('')}
-      </div>
+      ${timelineHtml || '<div style="color:#c9cdd4;font-size:13px">暂无更新记录</div>'}
     </div>
   `;
+
   document.getElementById('drawer-mask').classList.add('show');
   document.getElementById('drawer').classList.add('show');
 }
 
-function closeDrawer() {
+function getExpectedStatus(stageKey, controlStage){
+  const stageOrder = STAGES.map(s => s.key);
+  const ctrlIdx = stageOrder.indexOf(
+    stageOrder.find(k => k === controlStage.toLowerCase().replace(/\s/g,'')) ||
+    stageOrder.find(k => controlStage.includes(k.toUpperCase().replace('-','')))
+  );
+  const curIdx = stageOrder.indexOf(stageKey);
+  if (curIdx < ctrlIdx) return '此阶段不要求（卡控阶段为 ' + controlStage + '，此前可空）';
+  if (curIdx === ctrlIdx) return '卡控阶段：应至少达到 Stable';
+  return '卡控阶段已过（' + controlStage + '），应达到 Final';
+}
+
+function closeDrawer(){
   document.getElementById('drawer-mask').classList.remove('show');
   document.getElementById('drawer').classList.remove('show');
 }
 
-function changePage(dir) {
-  showToast(dir > 0 ? '跳转到下一页' : '跳转到上一页');
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-let toastTimer = null;
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
-}
-
-function bindEvents() {
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeDrawer();
-  });
-}
-
+// ---- Boot ----
 init();
 </script>
 </body>
