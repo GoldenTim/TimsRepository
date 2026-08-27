@@ -1,0 +1,304 @@
+<!--
+  原型名称：IPD交付物总览管理需求 - 交付物管理总览页
+  需求来源：https://project.feishu.cn/1fknv3/story/detail/7075623485
+  生成时间：2026-08-27
+  生成工具：CodeM Auto
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交付物管理总览页 | IPD 芯片项目</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#ffffff; --border:#e5e7eb; --text:#1f2329; --sub:#646a73;
+  --primary:#3370ff; --blue:#3370ff; --green:#34c724; --orange:#ff8800; --gray:#9ca0a8;
+  --risk:#ff4d4f;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.header{background:#1e293b;color:#fff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.header h1{font-size:18px;font-weight:600}
+.header .sub{font-size:12px;color:#94a3b8;margin-top:4px}
+.header .tr-tag{font-size:12px;background:#3370ff33;color:#93c5fd;border:1px solid #3370ff66;padding:4px 10px;border-radius:4px}
+.container{max-width:1440px;margin:0 auto;padding:24px 32px}
+/* 统计卡 */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 20px;cursor:pointer;transition:box-shadow .15s}
+.stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.stat-card .num{font-size:26px;font-weight:700;margin:4px 0}
+.stat-card .label{font-size:12px;color:var(--sub)}
+.stat-card.final .num{color:var(--green)}
+.stat-card.stable .num{color:var(--blue)}
+.stat-card.review .num{color:var(--orange)}
+.stat-card.risk .num{color:var(--risk)}
+.stat-card.active{border-color:var(--primary);box-shadow:0 0 0 2px #3370ff33}
+/* 筛选区 */
+.filter-bar{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:20px}
+.filter-bar label{font-size:12px;color:var(--sub)}
+select,input[type=text]{border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;background:#fff;color:var(--text);outline:none}
+select:focus,input:focus{border-color:var(--primary)}
+.search{flex:1;min-width:200px}
+.btn{border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;transition:opacity .15s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:active{opacity:.85}
+.btn-ghost{background:#f2f3f5;color:var(--text)}
+/* 表格 */
+.matrix-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:1200px}
+th,td{border-bottom:1px solid var(--border);padding:10px 12px;text-align:center;font-size:13px}
+thead th{background:#f9fafb;font-weight:600;color:var(--sub);position:sticky;top:0;font-size:12px}
+td.doc{text-align:left;min-width:230px}
+td.doc .doc-name{font-weight:600}
+td.doc .doc-meta{font-size:11px;color:var(--sub);margin-top:3px}
+.stage-head{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:1px;font-size:11px;padding:8px 4px;color:var(--sub);background:#f2f6ff}
+.cell{display:inline-block;min-width:52px;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer}
+.cell.initial{background:#f2f3f5;color:var(--gray)}
+.cell.review{background:#fff3e0;color:#e65100}
+.cell.stable{background:#e6f0ff;color:var(--primary)}
+.cell.final{background:#e6f7e6;color:#1a7f1a}
+.cell.empty{background:transparent;position:relative;width:52px;border:1px dashed #ffc1c1;border-radius:4px;color:var(--risk)}
+.cell.empty:after{content:"—"}
+.cell.need-final{outline:2px solid #ffd591}
+.legend{display:flex;gap:18px;padding:12px 20px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+/* 抽屉 */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-480px;width:480px;height:100%;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,.15);z-index:21;transition:right .25s;display:flex;flex-direction:column}
+.drawer.show{right:0}
+.drawer-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.drawer-head h3{font-size:16px}
+.drawer-close{cursor:pointer;color:var(--sub);font-size:20px;line-height:1}
+.drawer-body{padding:20px 24px;overflow-y:auto;flex:1}
+.drawer-body h4{font-size:13px;color:var(--sub);margin:18px 0 8px;font-weight:600}
+.drawer-body h4:first-child{margin-top:0}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:8px 12px;font-size:13px}
+.kv .k{color:var(--sub)}
+.timeline{border-left:2px solid var(--border);padding-left:16px}
+.timeline .item{position:relative;padding-bottom:16px;font-size:12px}
+.timeline .item:before{content:"";position:absolute;left:-21px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.timeline .item .t{color:var(--sub);margin-top:2px}
+.link{color:var(--primary);text-decoration:none}
+/* toast */
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:#1f2329;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;opacity:0;transition:.25s;z-index:30}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.footer-note{font-size:12px;color:var(--sub);margin-top:16px;text-align:center}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>交付物管理总览页 · Titan-X 车规芯片项目</h1>
+    <div class="sub">IPD 流程交付物矩阵 · 数据口径：以文档基线入库为“已交” · 更新于 2026-08-27 09:30</div>
+  </div>
+  <div class="tr-tag">最近评审节点：TR4-TO（D-12 天）</div>
+</div>
+
+<div class="container">
+  <!-- 统计卡 -->
+  <div class="stats">
+    <div class="stat-card active" data-filter="all" onclick="filterCard('all')">
+      <div class="label">交付物总数</div><div class="num">36</div><div class="label">覆盖 8 个 TR 阶段</div>
+    </div>
+    <div class="stat-card final" data-filter="Final" onclick="filterCard('Final')">
+      <div class="label">Final（终版入库）</div><div class="num">14</div><div class="label">占比 39%</div>
+    </div>
+    <div class="stat-card stable" data-filter="Stable" onclick="filterCard('Stable')">
+      <div class="label">Stable（基线版）</div><div class="num">11</div><div class="label">需 TR 前升 Final</div>
+    </div>
+    <div class="stat-card review" data-filter="Review" onclick="filterCard('Review')">
+      <div class="label">Review（评审中）</div><div class="num">6</div><div class="label">最长滞留 9 天</div>
+    </div>
+    <div class="stat-card risk" data-filter="Empty" onclick="filterCard('Empty')">
+      <div class="label">未启动 / 空白</div><div class="num">5</div><div class="label">集中于 TR4-TO 之后</div>
+    </div>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filter-bar">
+    <label>阶段</label>
+    <select id="fStage">
+      <option value="">全部阶段</option>
+      <option>Charter</option><option>TR1</option><option>TR2</option><option>TR3</option>
+      <option>TR4-85</option><option>TR4-95</option><option>TR4-100</option><option>TR4-TO</option>
+      <option>TR4A</option><option>TR5</option><option>TR6</option><option>GA 量产</option>
+    </select>
+    <label>状态</label>
+    <select id="fStatus">
+      <option value="">全部状态</option><option>Final</option><option>Stable</option><option>Review</option><option>Initial</option><option>空白</option>
+    </select>
+    <label>类型</label>
+    <select id="fType">
+      <option value="">全部类型</option><option>管理类</option><option>设计类</option><option>验证类</option><option>安全类</option>
+    </select>
+    <label>责任人</label>
+    <select id="fOwner">
+      <option value="">全部责任人</option><option>陈曦</option><option>李慕白</option><option>王砚秋</option><option>周航</option><option>苏晴</option>
+    </select>
+    <input type="text" class="search" id="fKeyword" placeholder="🔍 搜索交付物名称，如 DFMEA / PinPad">
+    <button class="btn btn-primary" onclick="applyFilter()">应用筛选</button>
+    <button class="btn btn-ghost" onclick="resetFilter()">重置</button>
+  </div>
+
+  <!-- 矩阵 -->
+  <div class="matrix-wrap">
+    <table id="matrix">
+      <thead>
+        <tr>
+          <th style="text-align:left;min-width:230px">交付物文档（卡控阶段）</th>
+          <th>Charter</th><th>TR1</th><th>TR2</th><th>TR3</th>
+          <th>TR4-85</th><th>TR4-95</th><th>TR4-100</th><th>TR4-TO</th>
+          <th>TR4A</th><th>TR5</th><th>TR6</th><th>GA 量产</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="legend">
+      <span>图例：</span>
+      <span><span class="cell initial">Initial</span> 初稿启动</span>
+      <span><span class="cell review">Review</span> 评审中</span>
+      <span><span class="cell stable">Stable</span> 基线版</span>
+      <span><span class="cell final">Final</span> 终版入库</span>
+      <span><span class="cell empty"></span> 空白（按口径应交而未交，红色虚线提示风险）</span>
+      <span>「应交口径」：TR4-85 前需 Stable，TR4-TO 前需 Final（示例配置）</span>
+    </div>
+  </div>
+  <div class="footer-note">点击任意单元格查看交付物详情、责任人、应交口径与最近更新记录 · 点击统计卡可快速按状态筛选</div>
+</div>
+
+<!-- 抽屉 -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3 id="dTitle">交付物详情</h3>
+    <span class="drawer-close" onclick="closeDrawer()">×</span>
+  </div>
+  <div class="drawer-body">
+    <h4>基本信息</h4>
+    <div class="kv" id="dInfo"></div>
+    <h4>当前阶段应交口径</h4>
+    <div id="dRule" style="font-size:13px;line-height:1.8"></div>
+    <h4>文档链接</h4>
+    <div id="dLinks" style="font-size:13px;line-height:1.8"></div>
+    <h4>最近更新记录</h4>
+    <div class="timeline" id="dTimeline"></div>
+    <div style="margin-top:24px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="toast('已发送催办消息给责任人 陈曦（飞书）')">催办责任人</button>
+      <button class="btn btn-ghost" onclick="toast('已加入 TR4-TO 交付物体检清单')">加入体检清单</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+var stages=["Charter","TR1","TR2","TR3","TR4-85","TR4-95","TR4-100","TR4-TO","TR4A","TR5","TR6","GA 量产"];
+// 状态缩写：i=Initial r=Review s=Stable f=Final ""=空白
+var docs=[
+ {name:"BP（商业计划书）",stage:"Charter",type:"管理类",owner:"周航",ver:"v2.3",tags:{Charter:"f",TR1:"f",TR2:"f",TR3:"f","TR4-85":"f","TR4-95":"f","TR4-100":"f","TR4-TO":"f",TR4A:"f",TR5:"f",TR6:"f","GA 量产":"f"},lastUpdate:"2026-06-12 王砚秋归档 v2.3 终版"},
+ {name:"MRD（市场需求文档）",stage:"Charter",type:"管理类",owner:"苏晴",ver:"v1.8",tags:{Charter:"f",TR1:"f",TR2:"f",TR3:"f","TR4-85":"f","TR4-95":"f","TR4-100":"f","TR4-TO":"f",TR4A:"f",TR5:"f",TR6:"f","GA 量产":"f"},lastUpdate:"2026-06-20 苏晴更新客户需求基线 v1.8"},
+ {name:"芯片架构设计文档",stage:"TR1",type:"设计类",owner:"陈曦",ver:"v4.1",tags:{Charter:"",TR1:"f",TR2:"f",TR3:"s","TR4-85":"s","TR4-95":"s","TR4-100":"r","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-25 陈曦提交 v4.1 至 TR4-100 评审"},
+ {name:"DR_Spec（详细设计规格）",stage:"TR2",type:"设计类",owner:"李慕白",ver:"v3.2",tags:{Charter:"",TR1:"i",TR2:"f",TR3:"s","TR4-85":"s","TR4-95":"r","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-26 李慕白答复 TR4-95 评审意见 5 条"},
+ {name:"PinPad Matrix（管脚矩阵）",stage:"TR2",type:"设计类",owner:"王砚秋",ver:"v2.0",tags:{Charter:"",TR1:"",TR2:"f",TR3:"s","TR4-85":"s","TR4-95":"f","TR4-100":"f","TR4-TO":"f",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-18 王砚秋锁定管脚分配，封版 v2.0"},
+ {name:"Chip-level DFMEA",stage:"TR3",type:"验证类",owner:"陈曦",ver:"v1.5",tags:{Charter:"",TR1:"",TR2:"i",TR3:"r","TR4-85":"r","TR4-95":"s","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-24 陈曦补充 FMEA 失效模式 12 项，二轮评审中"},
+ {name:"Safety Plan（安全计划）",stage:"TR3",type:"安全类",owner:"李慕白",ver:"v1.2",tags:{Charter:"",TR1:"",TR2:"i",TR3:"s","TR4-85":"r","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-21 安全组完成 ISO 26262 条款对齐评审"},
+ {name:"TSC（测试规范）",stage:"TR4-TO",type:"验证类",owner:"周航",ver:"v0.9",tags:{Charter:"",TR1:"",TR2:"",TR3:"i","TR4-85":"r","TR4-95":"i","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-26 周航发起 ATE 测试项初稿首轮评审"},
+ {name:"DFT 报告",stage:"TR4A",type:"验证类",owner:"苏晴",ver:"v1.0",tags:{Charter:"",TR1:"",TR2:"",TR3:"i","TR4-85":"i","TR4-95":"r","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-22 苏晴完成 scan chain 覆盖率分析"},
+ {name:"可靠性验证计划",stage:"TR5",type:"验证类",owner:"陈曦",ver:"v0.7",tags:{Charter:"",TR1:"",TR2:"",TR3:"",TR4:"i","TR4-95":"i","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-15 陈曦启动 HTOL/TC 方案初稿"},
+ {name:"Pilot Run 报告",stage:"TR5",type:"管理类",owner:"周航",ver:"—",tags:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"i",TR5:"",TR6:"","GA 量产":""},lastUpdate:"2026-08-10 计划评审通过，产出待启动"},
+ {name:"量产放行 Checklist",stage:"GA 量产",type:"管理类",owner:"王砚秋",ver:"—",tags:{Charter:"",TR1:"",TR2:"",TR3:"","TR4-85":"","TR4-95":"","TR4-100":"","TR4-TO":"",TR4A:"",TR5:"i",TR6:"","GA 量产":""},lastUpdate:"2026-07-30 王砚秋建模板，字段待 TR5 输出"}
+];
+var statusMap={i:{k:"initial",t:"Initial"},r:{k:"review",t:"Review"},s:{k:"stable",t:"Stable"},f:{k:"final",t:"Final"},"":{k:"empty",t:"空白"}};
+// 应交口径：TR4-85 需 >=Stable，TR4-TO 需 Final
+function needFlag(stage,tag){
+  if(stage==="TR4-85") return tag==="i"||tag===""||tag==="r";
+  if(stage==="TR4-TO") return tag!=="f"&&tag!=="";
+  if(stage==="TR4-95"||stage==="TR4-100") return tag==="";
+  return false;
+}
+function render(){
+  var fS=document.getElementById("fStage").value,
+      fT=document.getElementById("fStatus").value,
+      fTy=document.getElementById("fType").value,
+      fO=document.getElementById("fOwner").value,
+      kw=document.getElementById("fKeyword").value.trim().toLowerCase();
+  var rows="";
+  docs.forEach(function(d){
+    var rowVals=stages.map(function(st){return d.tags[st]||""});
+    var matchStatus=!fT||rowVals.some(function(v){return statusMap[v].t===fT});
+    if(fT==="空白") matchStatus=stages.some(function(st){return needFlag(st,d.tags[st]||"")});
+    var match=( !fS || (d.tags[fS]!==undefined && (d.tags[fS]||"")!=="") ) &&
+              matchStatus && (!fTy||d.type===fTy) && (!fO||d.owner===fO) &&
+              (!kw||d.name.toLowerCase().indexOf(kw)>-1);
+    if(!match) return;
+    rows+="<tr><td class='doc'><div class='doc-name'>"+d.name+"</div><div class='doc-meta'>卡控阶段："+d.stage+" · 类型："+d.type+" · 责任人："+d.owner+" · 当前版本 "+d.ver+"</div></td>";
+    stages.forEach(function(st){
+      var v=d.tags[st]||"";var m=statusMap[v];
+      var cls="cell "+m.k; if(needFlag(st,v)) cls+=" need-final";
+      if(v==="") { if(needFlag(st,v)) cls+=" empty"; else cls=""; }
+      var clickable=(v!=="")?" onclick='openDrawer(\""+d.name+"\",\""+st+"\")' style='cursor:pointer'":"";
+      if(v===""){ rows+="<td><span class='cell empty' onclick='openDrawer(\""+d.name+"\",\""+st+"\")' style='cursor:pointer'></span></td>"; }
+      else rows+="<td><span class='"+cls+"'"+clickable+">"+m.t+"</span></td>";
+    });
+    rows+="</tr>";
+  });
+  if(!rows) rows="<tr><td colspan='13' style='padding:32px;color:#9ca0a8'>没有符合条件的交付物，请调整筛选条件</td></tr>";
+  document.getElementById("tbody").innerHTML=rows;
+}
+function filterCard(f){
+  document.querySelectorAll(".stat-card").forEach(function(c){c.classList.remove("active")});
+  event.currentTarget.classList.add("active");
+  document.getElementById("fStatus").value=(f==="Empty"||f==="all")?"":f;
+  render();
+}
+function applyFilter(){render();toast("筛选已应用")}
+function resetFilter(){
+  document.querySelectorAll("select,input[type=text]").forEach(function(e){e.value=""});
+  document.querySelectorAll(".stat-card").forEach(function(c){c.classList.toggle("active",c.dataset.filter==="all")});
+  render();toast("已重置筛选");
+}
+function openDrawer(name,stage){
+  var d=docs.filter(function(x){return x.name===name})[0];
+  var tag=d.tags[stage]||"";
+  var st=statusMap[tag]?statusMap[tag].t:"空白（未启动）";
+  document.getElementById("dTitle").textContent=name+" · "+stage;
+  document.getElementById("dInfo").innerHTML=
+    "<div class='k'>责任人</div><div>"+d.owner+"</div>"+
+    "<div class='k'>卡控阶段</div><div>"+d.stage+"</div>"+
+    "<div class='k'>文档类型</div><div>"+d.type+"</div>"+
+    "<div class='k'>当前版本</div><div>"+d.ver+"</div>"+
+    "<div class='k'>本阶段状态</div><div>"+st+"</div>"+
+    "<div class='k'>最近更新</div><div>"+d.lastUpdate+"</div>";
+  var rule="";
+  if(stage==="TR4-85") rule="TR4-85 前要求：<b>Stable 及以上</b>（基线版入库，纳入变更管理）。当前为 "+st+(tag===""||tag==="i"?"，<span style='color:#ff4d4f'>存在交付风险</span>":"，符合口径");
+  else if(stage==="TR4-TO") rule="TR4-TO 前要求：<b>Final</b>（终版冻结，作为 TO 依据）。当前为 "+st+(tag==="f"?"，符合口径":"，<span style='color:#ff4d4f'>存在交付风险</span>");
+  else rule="本阶段无强制口径要求；建议跟随阶段推进同步升版（参考项目交付物基线规范 v2.1）。当前状态："+st;
+  document.getElementById("dRule").innerHTML=rule;
+  document.getElementById("dLinks").innerHTML=
+    "<a class='link' href='javascript:toast(\"跳转至飞书云文档（示例）\")'>📄 "+d.name+"（飞书云文档 · "+d.ver+"）</a><br>"+
+    "<a class='link' href='javascript:toast(\"跳转至配置库（示例）\")'>🗂 版本历史（Git 基线库）</a>";
+  document.getElementById("dTimeline").innerHTML=
+    "<div class='item'><div><b>"+d.owner+"</b> 更新至 "+d.ver+"</div><div class='t'>"+d.lastUpdate+"</div></div>"+
+    "<div class='item'><div>评审会完成，遗留意见 3 条待闭环</div><div class='t'>2026-08-20 · TR 评审记录</div></div>"+
+    "<div class='item'><div>文档创建并纳入交付物矩阵管理</div><div class='t'>2026-03-02 · 周航</div></div>";
+  document.getElementById("overlay").classList.add("show");
+  document.getElementById("drawer").classList.add("show");
+}
+function closeDrawer(){
+  document.getElementById("overlay").classList.remove("show");
+  document.getElementById("drawer").classList.remove("show");
+}
+var toastTimer=null;
+function toast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove("show")},2200);
+}
+["fStage","fStatus","fType","fOwner"].forEach(function(id){document.getElementById(id).onchange=render});
+document.getElementById("fKeyword").oninput=render;
+render();
+</script>
+</body>
+</html>
