@@ -3,6 +3,7 @@
   需求来源：https://project.feishu.cn/1fknv3/story/detail/7100259480
   生成时间：2026-08-27
   生成工具：CodeM Auto
+  变更记录：2026-08-31 需求变更 7102840968 —— ①总览首页新增异常聚焦区（风险/延期指标卡 + Top5 列表）与快捷筛选条（全部/正常/风险/延期/已完成）；②项目详情改为右侧抽屉：基本信息 + 里程碑时间线 + 问题阻塞点（Top3/展开全部），底部上一项/下一项切换
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -45,6 +46,23 @@
   .stat-card.danger .value { color: var(--danger); }
   .stat-card.warn .value { color: var(--warn); }
 
+  /* Component: FocusZone（异常聚焦区：Top 风险 / Top 延期） */
+  .focus-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .focus-card { background: var(--card); border-radius: 8px; box-shadow: var(--shadow); padding: 14px 16px; }
+  .fc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .fc-title { font-weight: 600; font-size: 13px; }
+  .fc-title .num { display: inline-block; min-width: 20px; text-align: center; border-radius: 8px; padding: 0 6px; font-size: 11px; margin-left: 6px; color: #fff; }
+  .fc-title.fc-warn .num { background: var(--warn); }
+  .fc-title.fc-danger .num { background: var(--danger); }
+  .fc-viewall { color: var(--primary); font-size: 12px; cursor: pointer; }
+  .focus-item { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-radius: 6px; cursor: pointer; }
+  .focus-item:hover { background: #f7f9ff; }
+  .fi-name { font-weight: 600; font-size: 13px; }
+  .fi-sub { color: var(--text-3); font-size: 11px; margin-top: 2px; }
+  .fi-issue { color: var(--warn); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fc-danger .fi-issue { color: var(--danger); }
+  .fi-empty { color: var(--text-3); font-size: 12px; padding: 10px 6px; }
+
   /* Component: FilterBar */
   .filter-bar { display: flex; gap: 12px; align-items: center; background: var(--card); border-radius: 8px; padding: 12px 16px; box-shadow: var(--shadow); margin-bottom: 20px; flex-wrap: wrap; }
   .filter-bar label { color: var(--text-2); font-size: 12px; }
@@ -81,24 +99,38 @@
   .view-btn { color: var(--primary); font-size: 12px; cursor: pointer; white-space: nowrap; }
   .empty-row td { text-align: center; color: var(--text-3); padding: 40px; }
 
-  /* Component: DetailModal */
-  .modal-mask { position: fixed; inset: 0; background: rgba(31,35,41,.45); display: none; align-items: center; justify-content: center; z-index: 100; }
-  .modal-mask.show { display: flex; }
-  .modal { background: #fff; border-radius: 10px; width: 680px; max-height: 82vh; overflow-y: auto; padding: 24px; }
-  .modal-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-  .modal-head h3 { font-size: 17px; }
-  .modal-close { cursor: pointer; color: var(--text-3); font-size: 18px; line-height: 1; }
+  /* Component: DetailDrawer（抽屉式项目详情） */
+  .drawer-mask { position: fixed; inset: 0; background: rgba(31,35,41,.45); display: none; z-index: 100; }
+  .drawer-mask.show { display: block; }
+  .drawer { position: absolute; right: 0; top: 0; bottom: 0; width: 520px; max-width: 92vw; background: #fff; box-shadow: -8px 0 24px rgba(31,35,41,.12); display: flex; flex-direction: column; animation: slideIn .22s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .drawer-scroll { flex: 1; overflow-y: auto; padding: 24px; }
+  .drawer-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .drawer-head h3 { font-size: 17px; }
+  .drawer-close { cursor: pointer; color: var(--text-3); font-size: 18px; line-height: 1; }
   .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin: 14px 0; }
   .kv .k { color: var(--text-3); font-size: 12px; }
   .kv .v { margin-top: 2px; font-size: 13px; }
-  .modal h4 { font-size: 14px; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .ms-list { list-style: none; }
-  .ms-list li { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; border-bottom: 1px dashed var(--bg); }
-  .ms-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .ms-dot.done { background: var(--ok); }
-  .ms-dot.plan { background: var(--border); }
-  .ms-dot.late { background: var(--danger); }
-  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .drawer h4 { font-size: 14px; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .drawer h4.plain { border-top: none; padding-top: 0; margin-top: 4px; }
+  /* 里程碑时间线 */
+  .ms-timeline { list-style: none; }
+  .ms-timeline li { position: relative; padding: 0 0 16px 24px; font-size: 13px; }
+  .ms-timeline li::before { content: ""; position: absolute; left: 4px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+  .ms-timeline li.done::before { background: var(--ok); }
+  .ms-timeline li.late::before { background: var(--danger); box-shadow: 0 0 0 3px var(--danger-bg); }
+  .ms-timeline li::after { content: ""; position: absolute; left: 8px; top: 17px; bottom: 2px; width: 1.5px; background: var(--border); }
+  .ms-timeline li:last-child { padding-bottom: 4px; }
+  .ms-timeline li:last-child::after { display: none; }
+  /* 问题与阻塞点 */
+  .issue-list { list-style: none; }
+  .issue-list li { display: flex; gap: 10px; padding: 8px 0; font-size: 13px; color: var(--text-2); border-bottom: 1px dashed var(--bg); }
+  .issue-list li .d { color: var(--text-3); font-size: 12px; flex-shrink: 0; }
+  .issue-more { color: var(--primary); font-size: 12px; cursor: pointer; margin-top: 6px; display: inline-block; }
+  .drawer-footer { display: flex; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--border); background: #fafbfc; align-items: center; }
+  .drawer-footer .btn { flex: 1; text-align: center; }
+  .drawer-footer .btn[disabled] { color: var(--text-3); cursor: not-allowed; }
+  .drawer-count { font-size: 12px; color: var(--text-3); }
   .toast { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; padding: 8px 20px; border-radius: 6px; font-size: 13px; opacity: 0; transition: opacity .2s; z-index: 200; }
   .toast.show { opacity: .92; }
 
@@ -123,11 +155,14 @@
   <!-- Component: StatCards -->
   <div class="stat-cards" id="statCards"></div>
 
+  <!-- Component: FocusZone（异常聚焦区，JS 渲染） -->
+  <div class="focus-zone" id="focusZone"></div>
+
   <!-- Component: FilterBar -->
   <div class="filter-bar">
     <label>状态</label>
     <select class="select" id="fStatus">
-      <option value="all">全部状态</option><option value="正常">正常</option><option value="风险">风险</option><option value="延期">延期</option>
+      <option value="all">全部状态</option><option value="正常">正常</option><option value="风险">风险</option><option value="延期">延期</option><option value="已完成">已完成</option>
     </select>
     <label>负责人</label>
     <select class="select" id="fOwner">
@@ -144,9 +179,12 @@
   <!-- Component: ProjectTable -->
   <div class="table-wrap">
     <div class="table-tabs">
-      <div class="tab active" data-tab="all">全部项目 <span class="count" id="cAll"></span></div>
-      <div class="tab" data-tab="异常">需关注（风险+延期） <span class="count" id="cAbnormal"></span></div>
-      <div class="tab" data-tab="延期">延期项目 <span class="count" id="cLate"></span></div>
+      <div class="tab active" data-tab="all">全部 <span class="count" id="cAll"></span></div>
+      <div class="tab" data-tab="需关注">需关注（风险+延期） <span class="count" id="cAbnormal"></span></div>
+      <div class="tab" data-tab="正常">正常 <span class="count" id="cOk"></span></div>
+    <div class="tab" data-tab="风险">风险 <span class="count" id="cWarn"></span></div>
+      <div class="tab" data-tab="延期">延期 <span class="count" id="cLate"></span></div>
+      <div class="tab" data-tab="已完成">已完成 <span class="count" id="cDone"></span></div>
     </div>
     <table>
       <thead>
@@ -161,9 +199,9 @@
   </div>
 </div>
 
-<!-- Component: DetailModal -->
-<div class="modal-mask" id="modalMask">
-  <div class="modal" id="modalBody"></div>
+<!-- Component: DetailDrawer（抽屉式详情，JS 渲染） -->
+<div class="drawer-mask" id="drawerMask">
+  <div class="drawer" id="drawerBody"></div>
 </div>
 <div class="toast" id="toastEl"></div>
 
@@ -186,8 +224,49 @@ const PROJECTS = [
   { id:"PRJ-2607", name:"毫米波雷达芯片 77G", code:"RD-2607", stage:"规格定义", status:"正常", owner:"周雪", customer:"东南车载", due:"2027-01-15", milestone:{name:"规格评审", done:false, onTime:true}, issue:"—",
     milestones:[{n:"立项评审",d:"2026-07-28",s:"done"},{n:"规格评审",d:"2026-09-10",s:"plan"},{n:"架构设计完成",d:"2026-11-01",s:"plan"},{n:"前端设计完成",d:"2027-01-01",s:"plan"},{n:"流片",d:"2027-03-30",s:"plan"}] },
   { id:"PRJ-2608", name:"低功耗蓝牙 BLE 6.0", code:"BT-2608", stage:"后端物理实现", status:"延期", owner:"吴启航", customer:"星链通信", due:"2026-08-10", milestone:{name:"流片", done:false, onTime:false}, issue:"DRC 违例修复超期，已升级至部门例会跟催",
-    milestones:[{n:"前端设计完成",d:"2026-04-08",s:"done"},{n:"综合完成",d:"2026-06-15",s:"done"},{n:"DRC 清零",d:"2026-07-30",s:"late"},{n:"流片",d:"2026-08-10",s:"late"},{n:"回片测试",d:"2026-11-25",s:"plan"}] }
+    milestones:[{n:"前端设计完成",d:"2026-04-08",s:"done"},{n:"综合完成",d:"2026-06-15",s:"done"},{n:"DRC 清零",d:"2026-07-30",s:"late"},{n:"流片",d:"2026-08-10",s:"late"},{n:"回片测试",d:"2026-11-25",s:"plan"}] },
+{ id:"PRJ-2609", name:"图像传感器 ISP 2.0", code:"IS-2609", stage:"封装测试", status:"已完成", owner:"郑澜", customer:"北斗物联", due:"2026-08-20", milestone:{name:"客户送样", done:true, onTime:true}, issue:"—",
+milestones:[{n:"架构评审",d:"2026-01-15",s:"done"},{n:"前端设计完成",d:"2026-03-30",s:"done"},{n:"流片",d:"2026-05-10",s:"done"},{n:"封装测试",d:"2026-07-28",s:"done"},{n:"客户送样",d:"2026-08-20",s:"done"}] },
+{ id:"PRJ-2610", name:"高压 BCD 电源管理芯片", code:"PM-2610", stage:"前端设计", status:"风险", owner:"林嘉禾", customer:"内部预研", due:"2026-12-31", milestone:{name:"版图评审", done:false, onTime:false}, issue:"高温漂移指标不达标，需更换器件模型重仿真",
+    milestones:[{n:"规格评审",d:"2026-06-12",s:"done"},{n:"方案评审",d:"2026-08-01",s:"done"},{n:"版图评审",d:"2026-09-20",s:"plan"},{n:"流片",d:"2026-12-31",s:"plan"}] }
 ];
+// 问题与阻塞点日志（最新在前，抽屉内最多展示 3 条，可展开全部）
+const ISSUE_LOGS = {
+  "PRJ-2602": [
+    {d:"2026-08-26",t:"客户催促给出低功耗时序收敛修复计划"},
+    {d:"2026-08-18",t:"需新增 2 周专项攻关排期，资源待批复"},
+    {d:"2026-08-12",t:"低功耗模式时序收敛不达标"},
+    {d:"2026-08-05",t:"综合工具版本升级引入回归问题（已解决）"}
+  ],
+  "PRJ-2603": [
+    {d:"2026-08-28",t:"封装厂产能排期延后 3 周，GDS 交付延期"},
+    {d:"2026-08-20",t:"与封装厂产能协调会结论：最早 9 月中旬"},
+    {d:"2026-08-15",t:"GDS 交付节点确认无法按期达成"},
+    {d:"2026-08-02",t:"布线拥塞导致 DRC 修复轮次增加（已解决）"}
+  ],
+  "PRJ-2605": [
+    {d:"2026-08-25",t:"验证环境 CPU 资源不足，回归排队严重"},
+    {d:"2026-08-19",t:"已申请扩容 64 核，等待 IT 审批"},
+    {d:"2026-08-11",t:"功能覆盖率 87%，距 90% 目标有缺口"},
+    {d:"2026-08-01",t:"回归用例重复率过高，需精简（已解决）"}
+  ],
+  "PRJ-2607": [
+    {d:"2026-08-20",t:"客户规格输入仍在澄清，可能影响 9 月规格评审"}
+  ],
+  "PRJ-2608": [
+    {d:"2026-08-27",t:"DRC 违例修复超期，已升级至部门例会跟催"},
+    {d:"2026-08-21",t:"剩余违例 37 处，修复速度约 15 处/天"},
+    {d:"2026-08-14",t:"流片窗口若 8 月底未清零将错过，需评估改期"},
+    {d:"2026-08-08",t:"新增金属层密度违例批量出现（已解决）"}
+  ],
+  "PRJ-2610": [
+    {d:"2026-08-24",t:"高温漂移指标不达标，需更换器件模型重仿真"},
+    {d:"2026-08-17",t:"器件模型选型评审未通过，返工中"},
+    {d:"2026-08-09",t:"仿真精度与实测偏差偏大（分析中）"},
+    {d:"2026-07-30",t:"规格评审遗留 2 项待澄清（已解决）"}
+  ]
+};
+PROJECTS.forEach(p=>{ p.issues = ISSUE_LOGS[p.id] || []; });
 const AVATAR_COLORS = { "陈明远":"#3370ff", "林嘉禾":"#ff8800", "周雪":"#14c0c4", "吴启航":"#8f6bf2", "郑澜":"#f54a45" };
 </script>
 
@@ -205,8 +284,9 @@ function renderStats(){
   const warn = PROJECTS.filter(p=>p.status==="风险").length;
   const late = PROJECTS.filter(p=>p.status==="延期").length;
   const msLate = PROJECTS.filter(p=>p.milestone && !p.milestone.done && !p.milestone.onTime).length;
+  const done = PROJECTS.filter(p=>p.status==="已完成").length;
   const cards = [
-    {label:"推进中项目", value: total, cls:"", trend:"本月新增 2 个 · 结项 1 个"},
+    {label:"项目总数", value: total, cls:"", trend:`含已完成 ${done} 个 · 本月新增 2 个`},
     {label:"正常推进", value: ok, cls:"", trend:"关键节点按计划完成"},
     {label:"存在风险", value: warn, cls:"warn", trend:"需重点关注 2 项"},
     {label:"已延期", value: late, cls:"danger", trend:"延期占比 25%"},
@@ -220,15 +300,18 @@ function renderStats(){
     </div>`).join("");
   document.getElementById("cAll").textContent = total;
   document.getElementById("cAbnormal").textContent = warn + late;
+  document.getElementById("cOk").textContent = ok;
+document.getElementById("cWarn").textContent = warn;
   document.getElementById("cLate").textContent = late;
+  document.getElementById("cDone").textContent = done;
 }
 
 function tagClass(s){ return s==="正常"?"tag-ok":(s==="风险"?"tag-warn":"tag-danger"); }
 
 function filtered(){
   return PROJECTS.filter(p=>{
-    if(state.tab==="异常" && p.status==="正常") return false;
-    if(state.tab==="延期" && p.status!=="延期") return false;
+    if(state.tab==="需关注" && (p.status==="正常"||p.status==="已完成")) return false;
+    if(["正常","风险","延期","已完成"].includes(state.tab) && p.status!==state.tab) return false;
     if(state.status!=="all" && p.status!==state.status) return false;
     if(state.owner!=="all" && p.owner!==state.owner) return false;
     if(state.customer!=="all" && p.customer!==state.customer) return false;
@@ -253,58 +336,110 @@ function renderTable(){
     </tr>`).join("") : `<tr class="empty-row"><td colspan="8">没有符合当前筛选条件的项目</td></tr>`;
 }
 
-// ---- 交互：详情弹窗 ----
-function openDetail(id){
-  const p = PROJECTS.find(x=>x.id===id);
-  const msHtml = p.milestones.map(m=>`
-    <li><span class="ms-dot ${m.s}"></span><span style="flex:1">${m.n}</span>
-    <span style="color:var(--text-3);font-size:12px">${m.d}</span>
-    <span class="tag ${m.s==='done'?'tag-ok':(m.s==='late'?'tag-danger':'tag-ok')}" style="${m.s==='plan'?'background:var(--bg);color:var(--text-3)':''}">${m.s==='done'?'已完成':(m.s==='late'?'已逾期':'计划中')}</span></li>`).join("");
-  document.getElementById("modalBody").innerHTML = `
-    <div class="modal-head">
-      <div><h3>${p.name} <span class="tag ${tagClass(p.status)}" style="margin-left:8px">${p.status}</span></h3>
-      <div class="proj-code" style="margin-top:6px">${p.id} · ${p.code}</div></div>
-      <span class="modal-close" onclick="closeModal()">✕</span>
-    </div>
-    <div class="kv-grid">
-      <div class="kv"><div class="k">当前阶段</div><div class="v">${p.stage}（阶段 ${STAGES.indexOf(p.stage)+1}/${STAGES.length}）</div></div>
-      <div class="kv"><div class="k">负责人</div><div class="v">${p.owner}</div></div>
-      <div class="kv"><div class="k">客户</div><div class="v">${p.customer}</div></div>
-      <div class="kv"><div class="k">计划完成时间</div><div class="v">${p.due}</div></div>
-    </div>
-    <h4>关键节点</h4><ul class="ms-list">${msHtml}</ul>
-    <h4>当前问题 / 阻塞点</h4>
-    <div style="font-size:13px;color:var(--text-2);line-height:1.7">${p.issue==="—"?"暂无阻塞，项目按计划推进。":p.issue}</div>
-    <div class="modal-actions">
-      <button class="btn" onclick="toast('已通知负责人更新进展（示例交互）');closeModal()">提醒负责人更新</button>
-      <button class="btn btn-primary" onclick="toast('已进入项目详情页（示例交互）')">查看完整详情</button>
+// ---- render：异常聚焦区（Top 风险 / Top 延期） ----
+function renderFocusZone(){
+  const risks = PROJECTS.filter(p=>p.status==="风险");
+  const lates = PROJECTS.filter(p=>p.status==="延期");
+    const block = (title, list, tab, cls) => `
+    <div class="focus-card">
+    <div class="fc-head">
+  <span class="fc-title ${cls}">${title} <span class="num">${list.length}</span></span>
+    <span class="fc-viewall" onclick="filterByTab('${tab}')">查看全部 →</span>
+      </div>
+      ${list.slice(0,5).map(p=>`
+      <div class="focus-item" onclick="openDetail('${p.id}')">
+    <span class="avatar" style="background:${AVATAR_COLORS[p.owner]}">${p.owner[0]}</span>
+    <div style="flex:1;min-width:0">
+      <div class="fi-name">${p.name}</div>
+      <div class="fi-sub">${p.owner} · 计划完成 ${p.due}</div>
+      </div>
+      <div class="fi-issue" title="${p.issue}">${p.issue==="—"?"—":p.issue}</div>
+    </div>`).join("") || `<div class="fi-empty">暂无${title}项目</div>`}
     </div>`;
-  document.getElementById("modalMask").classList.add("show");
-}
-function closeModal(){ document.getElementById("modalMask").classList.remove("show"); }
+    document.getElementById("focusZone").innerHTML =
+    block("风险项目 Top 5", risks, "风险", "fc-warn") + block("延期项目 Top 5", lates, "延期", "fc-danger");
+    }
 
-function filterByCard(i){
-  if(i===0) { state.tab="all"; state.status="all"; }
-  if(i===1) state.status="正常";
-  if(i===2) state.status="风险";
-  if(i===3) state.tab="延期";
-  if(i===4) state.tab="异常";
+      // ---- 交互：抽屉式项目详情（基本信息 / 里程碑时间线 / 问题阻塞点 + 上一项/下一项） ----
+    let drawerCtx = { ids: [], idx: 0, expanded: false };
+
+function openDetail(id){
+drawerCtx.ids = filtered().map(p=>p.id);
+if(!drawerCtx.ids.includes(id)) drawerCtx.ids.push(id);
+drawerCtx.idx = drawerCtx.ids.indexOf(id);
+  drawerCtx.expanded = false;
+  renderDrawer();
+  document.getElementById("drawerMask").classList.add("show");
+  }
+  function closeDrawer(){ document.getElementById("drawerMask").classList.remove("show"); }
+
+  function renderDrawer(){
+  const p = PROJECTS.find(x=>x.id===drawerCtx.ids[drawerCtx.idx]);
+const issues = p.issues || [];
+  const shown = drawerCtx.expanded ? issues : issues.slice(0,3);
+  const timelineHtml = p.milestones.map(m=>`
+    <li class="${m.s}"><div style="display:flex;justify-content:space-between;gap:10px">
+      <span>${m.n}</span><span style="color:var(--text-3);font-size:12px">${m.d}</span></div>
+      <span class="tag ${m.s==='done'?'tag-ok':(m.s==='late'?'tag-danger':'')}" style="${m.s==='plan'?'background:var(--bg);color:var(--text-3)':''};margin-top:4px">${m.s==='done'?'已完成':(m.s==='late'?'已逾期':'计划中')}</span></li>`).join("");
+  const issueLis = shown.map(i=>`
+    <li><span class="d">${i.d}</span><span>${i.t}</span></li>`).join("");
+  const issueHtml = issueLis
+    ? `<ul class="issue-list">${issueLis}</ul>${issues.length>3 ? `<span class="issue-more" onclick="toggleIssues()">${drawerCtx.expanded?"收起":`展开全部（还有 ${issues.length-3} 条）`}</span>` : ""}`
+    : `<div style="font-size:13px;color:var(--text-2);line-height:1.7">暂无阻塞，项目按计划推进。</div>`;
+  const hasPrev = drawerCtx.idx > 0, hasNext = drawerCtx.idx < drawerCtx.ids.length - 1;
+  document.getElementById("drawerBody").innerHTML = `
+    <div class="drawer-scroll">
+      <div class="drawer-head">
+        <div><h3>${p.name} <span class="tag ${tagClass(p.status)}" style="margin-left:8px">${p.status}</span></h3>
+        <div class="proj-code" style="margin-top:6px">${p.id} · ${p.code}</div></div>
+        <span class="drawer-close" onclick="closeDrawer()">✕</span>
+      </div>
+      <h4 class="plain">基本信息</h4>
+      <div class="kv-grid">
+        <div class="kv"><div class="k">项目名称</div><div class="v">${p.name}</div></div>
+        <div class="kv"><div class="k">客户</div><div class="v">${p.customer}</div></div>
+        <div class="kv"><div class="k">负责人</div><div class="v">${p.owner}</div></div>
+        <div class="kv"><div class="k">当前阶段</div><div class="v">${p.stage}（阶段 ${STAGES.indexOf(p.stage)+1}/${STAGES.length}）</div></div>
+        <div class="kv"><div class="k">状态</div><div class="v"><span class="tag ${tagClass(p.status)}">${p.status}</span></div></div>
+        <div class="kv"><div class="k">计划完成时间</div><div class="v">${p.due}</div></div>
+      </div>
+      <h4>里程碑时间线</h4><ul class="ms-timeline">${timelineHtml}</ul>
+      <h4>问题与阻塞点</h4>${issueHtml}
+    </div>
+    <div class="drawer-footer">
+      <button class="btn" ${hasPrev?"":"disabled"} onclick="prevProject()">← 上一项</button>
+      <span class="drawer-count">${drawerCtx.idx+1} / ${drawerCtx.ids.length}</span>
+      <button class="btn" ${hasNext?"":"disabled"} onclick="nextProject()">下一项 →</button>
+    </div>`;
+}
+function toggleIssues(){ drawerCtx.expanded = !drawerCtx.expanded; renderDrawer(); }
+function prevProject(){ if(drawerCtx.idx>0){ drawerCtx.idx--; drawerCtx.expanded=false; renderDrawer(); } }
+function nextProject(){ if(drawerCtx.idx<drawerCtx.ids.length-1){ drawerCtx.idx++; drawerCtx.expanded=false; renderDrawer(); } }
+
+// ---- 交互：指标卡 / Tab 快捷筛选 ----
+function syncTabs(){
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===state.tab));
-  document.getElementById("fStatus").value = state.status==="all"?"all":state.status;
-  renderTable();
+}
+function applyTab(tab){
+  state.tab = tab; state.status = "all";
+  document.getElementById("fStatus").value = "all";
+  syncTabs(); renderTable();
+}
+function filterByTab(tab){ applyTab(tab); }
+function filterByCard(i){
+  const map = ["all","正常","风险","延期","需关注"];
+  applyTab(map[i] || "all");
 }
 
 // ---- bindEvents ----
 function bindEvents(){
-  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active"); state.tab=t.dataset.tab; renderTable();
-  });
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ applyTab(t.dataset.tab); });
   document.getElementById("fStatus").onchange = e=>{ state.status=e.target.value; renderTable(); };
   document.getElementById("fOwner").onchange = e=>{ state.owner=e.target.value; renderTable(); };
   document.getElementById("fCustomer").onchange = e=>{ state.customer=e.target.value; renderTable(); };
   document.getElementById("fSearch").oninput = e=>{ state.q=e.target.value.trim(); renderTable(); };
-  document.getElementById("modalMask").onclick = e=>{ if(e.target.id==="modalMask") closeModal(); };
+  document.getElementById("drawerMask").onclick = e=>{ if(e.target.id==="drawerMask") closeDrawer(); };
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDrawer(); });
 }
 
 let toastTimer=null;
@@ -315,7 +450,7 @@ function toast(msg){
 }
 
 // ---- init ----
-function init(){ renderStats(); renderTable(); bindEvents(); }
+function init(){ renderStats(); renderFocusZone(); renderTable(); bindEvents(); }
 init();
 </script>
 </body>
